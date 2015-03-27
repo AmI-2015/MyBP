@@ -1,33 +1,36 @@
 <!DOCTYPE html>
 <html>
+
   <head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="MyBikePlace : MyBP - https://github.com/AmI-2015/MyBP">
 
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
-    <title>MyBikePlace by AmI-2015</title>
+    <title>MyBikePlace</title>
   </head>
 
   <body>
 
-    <header>
-      <div class="container">
-        <h1>MyBikePlace</h1>
-        <h2>MyBP - https://github.com/AmI-2015/MyBP</h2>
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/AmI-2015/MyBP">View on GitHub</a>
 
-        <section id="downloads">
-          <a href="https://github.com/AmI-2015/MyBP/zipball/master" class="btn">Download as .zip</a>
-          <a href="https://github.com/AmI-2015/MyBP/tarball/master" class="btn">Download as .tar.gz</a>
-          <a href="https://github.com/AmI-2015/MyBP" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
-        </section>
-      </div>
-    </header>
+          <h1 id="project_title">MyBikePlace</h1>
+          <h2 id="project_tagline">MyBP - https://github.com/AmI-2015/MyBP</h2>
 
-    <div class="container">
-      <section id="main_content">
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/AmI-2015/MyBP/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/AmI-2015/MyBP/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
         <h1>
 <a id="mybpteam" class="anchor" href="#mybpteam" aria-hidden="true"><span class="octicon octicon-link"></span></a>MyBPTeam</h1>
 
@@ -112,35 +115,44 @@ Now, let’s think to your long and long and long day, at the end, trust us, you
 <a id="the-ambient-intelligent-fingerprints" class="anchor" href="#the-ambient-intelligent-fingerprints" aria-hidden="true"><span class="octicon octicon-link"></span></a>The Ambient Intelligent Fingerprints</h2>
 
 <ul>
-<li>SENSING : every bike place has a pressure sensor linked with a footboard on which the bike is parking. There is also a webcam that allows you to monitor your bike during the day and also to take a picture of a possible thief. Also users are tracked via gps.</li>
-<li>REASONING : when you approach at politecnico MyBP calculate the nearest free place in which you can leave your bike. After you have finished your lessons and you want to return home MyBP suggests you where you had parked your bike and advise if you take a wrong route to reach it. You can choose a setting which indicates to MyBP that you would like to park your bike in the nearest place at the classroom in which you start or finish your daily lessons. After you have parked the bike MyBP associates your bike to a id number and use it to communicate with you. </li>
-<li>ACTING: MyBP alerts you when you pass near a free place, furthermore provides indications to find your bike or the most suitable path to reach the place where you had parked. Moreover, when someone try to steal your bike a rumorous alarm will be programmed to loudly ring. You can look through the webcam the conditions of your bike and even the app sends you a picture when someone tries to steal your bike (variation on the pressure sensor).</li>
-<li>INTERACTING:  users choose operative mode, for example, one operative mode could be to find a place near your class lesson based on your schedule or another one could be to look for a free place. User can also decide to use MyBP service for control the bike or only park the bike.</li>
+<li><p>SENSING : every bike place has a pressure sensor linked with a footboard on which the bike is parking. There is also a webcam that allows you to monitor your bike during the day and also to take a picture of a possible thief. Also users are tracked via gps.</p></li>
+<li><p>REASONING : when you approach at politecnico MyBP calculate the nearest free place in which you can leave your bike. After you have finished your lessons and you want to return home MyBP suggests you where you had parked your bike and advise if you take a wrong route to reach it. You can choose a setting which indicates to MyBP that you would like to park your bike in the nearest place at the classroom in which you start or finish your daily lessons. After you have parked the bike MyBP associates your bike to a id number and use it to communicate with you. </p></li>
+<li><p>ACTING: MyBP alerts you when you pass near a free place, furthermore provides indications to find your bike or the most suitable path to reach the place where you had parked. Moreover, when someone try to steal your bike a rumorous alarm will be programmed to loudly ring. You can look through the webcam the conditions of your bike and even the app sends you a picture when someone tries to steal your bike (variation on the pressure sensor).</p></li>
+<li><p>INTERACTING:  users choose operative mode, for example, one operative mode could be to find a place near your class lesson based on your schedule or another one could be to look for a free place. User can also decide to use MyBP service for control the bike or only park the bike.</p></li>
 </ul>
 
 <h2>
 <a id="ami-features" class="anchor" href="#ami-features" aria-hidden="true"><span class="octicon octicon-link"></span></a>AmI Features</h2>
 
 <ul>
-<li>SENSITIVE: sensing bikes presence and user real time position; </li>
-<li>RESPONSIVE: acoustic and lighting warning at each group of stands </li>
-<li>ADAPTIVE: not intrusive notification. The system acquires statistics about user weekly arrivals and departures, * elaborates datas, understands when and if is necessary to advise users. It automatically detects where the first lesson of the day takes place, through semester timetable downloadable from Politecnico website, in order to point out the smartest bike parking lot; </li>
-<li>TRANSPARENT: only minimum “efforts” are required  (ex NFC tag or Wireless key)</li>
-<li>UBIQUITOUS: bike stands spread all over the campus connected to remote repo (GitHub). Smartphone app to reach all users wherever they are.</li>
-<li>INTELLIGENT: algorithms to determinate the nearest place to the user,to interpret acquired data and statistics, to manage the several stand blocks hardware, to determinate “dangerous” situation (thefts,  bike forgetfulness). </li>
+<li><p>SENSITIVE: sensing bikes presence and user real time position; </p></li>
+<li><p>RESPONSIVE: acoustic and lighting warning at each group of stands </p></li>
+<li><p>ADAPTIVE: not intrusive notification. The system acquires statistics about user weekly arrivals and departures, elaborates datas, understands when and if is necessary to advise users. It automatically detects where the first lesson of the day takes place, through semester timetable downloadable from Politecnico website, in order to point out the smartest bike parking lot; </p></li>
+<li><p>TRANSPARENT: only minimum “efforts” are required  (ex NFC tag or Wireless key)</p></li>
+<li><p>UBIQUITOUS: bike stands spread all over the campus connected to remote repo (GitHub). Smartphone app to reach all users wherever they are.</p></li>
+<li><p>INTELLIGENT: algorithms to determinate the nearest place to the user,to interpret acquired data and statistics, to manage the several stand blocks hardware, to determinate “dangerous” situation (thefts,  bike forgetfulness). </p></li>
 </ul>
 
 <h1>
 <a id="open-issue" class="anchor" href="#open-issue" aria-hidden="true"><span class="octicon octicon-link"></span></a>OPEN ISSUE</h1>
 
 <ul>
-<li>Programming an app working on a map (easy way to import from google maps?)</li>
-<li>Implementing a mechanical platform for the bikes </li>
-<li>Thinking about the best (and smartest) way to perform the users login at the parking lot</li>
+<li><p>Programming an app working on a map (easy way to import from google maps?)</p></li>
+<li><p>Implementing a mechanical platform for the bikes </p></li>
+<li><p>Thinking about the best (and smartest) way to perform the users login at the parking lot</p></li>
 </ul>
       </section>
     </div>
 
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">MyBikePlace maintained by <a href="https://github.com/AmI-2015">AmI-2015</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
     
+
   </body>
 </html>
