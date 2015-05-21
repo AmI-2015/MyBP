@@ -25,7 +25,7 @@ public class PersonalActivity extends ActionBarActivity {
         String password = intent.getStringExtra(LoginActivity.EXTRA_PASSWORD);
 
         // concatenate username and password strings
-        String credentials = username+"\n"+password;
+        String credentials = username+"\nQUI C'E' LO STACCo\n\n"+password;
 
         //set the .xml file as the activity layout
         setContentView(R.layout.activity_personal);

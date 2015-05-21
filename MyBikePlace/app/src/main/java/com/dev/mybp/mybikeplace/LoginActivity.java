@@ -3,13 +3,15 @@ package com.dev.mybp.mybikeplace;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import java.lang.String;
 
-import java.util.Objects;
-
+import java.io.UnsupportedEncodingException;
+import java.security.*;
 
 public class LoginActivity extends ActionBarActivity {
 
@@ -45,7 +47,7 @@ public class LoginActivity extends ActionBarActivity {
     }
 
     // called when the user clicks the send button
-    public void sendCredentials(View view){
+    public void sendCredentials(View view) throws UnsupportedEncodingException {
 
         Intent i = new Intent(this, PersonalActivity.class);
 
@@ -54,17 +56,36 @@ public class LoginActivity extends ActionBarActivity {
         EditText editPassword = (EditText) findViewById(R.id.passwordText);
         String password = editPassword.getText().toString();
 
-        if (Objects.equals(username, "")) {
+        if (username.isEmpty()) {
             editUsername.setHint("type a valid username");
             editUsername.setHintTextColor(getResources().getColor(R.color.red));
             editPassword.setText("");
         } else {
-            if (Objects.equals(password, "")) {
+            if (password.isEmpty()) {
                 editPassword.setHint("type a valid password");
                 editPassword.setHintTextColor(getResources().getColor(R.color.red));
             } else {
+                byte[] bytesOfUser = username.getBytes("UTF-8");
+                byte[] bytesOfPwd  = password.getBytes("UTF-8");
+                MessageDigest mdUser = null;
+                MessageDigest mdPwd= null;
+                try {
+                    //Encryption of user and pwd
+                    mdUser = MessageDigest.getInstance("MD5");
+                    mdPwd  = MessageDigest.getInstance("MD5");
+                    byte[] digestUser = mdUser.digest(bytesOfUser);
+                    byte[] digestPwd  = mdPwd.digest(bytesOfPwd);
+                    username = android.util.Base64.encodeToString(digestUser,  android.util.Base64.DEFAULT);
+                    password = android.util.Base64.encodeToString(digestPwd,  android.util.Base64.DEFAULT);
+                } catch (NoSuchAlgorithmException e) {
+                    username = "ERROR_ENCRYPTION";
+                    password = "ERROR_ENCRYPTION";
+                    //e.printStackTrace();
+                }
+
                 i.putExtra(EXTRA_USERNAME, username);
                 i.putExtra(EXTRA_PASSWORD, password);
+                //Check function to sign in
                 startActivity(i);
             }
         }
