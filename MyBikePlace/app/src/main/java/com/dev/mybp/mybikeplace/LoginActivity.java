@@ -3,13 +3,31 @@ package com.dev.mybp.mybikeplace;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Base64;
+//import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import java.lang.String;
+import android.util.Log;
 
+import java.lang.String;
+import org.apache.http.params.*;
+import org.apache.http.client.ClientProtocolException;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.HTTP;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import org.apache.http.HttpEntity;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import java.io.*;
 import java.io.UnsupportedEncodingException;
 import java.security.*;
 
@@ -77,6 +95,7 @@ public class LoginActivity extends ActionBarActivity {
                     byte[] digestPwd  = mdPwd.digest(bytesOfPwd);
                     username = android.util.Base64.encodeToString(digestUser,  android.util.Base64.DEFAULT);
                     password = android.util.Base64.encodeToString(digestPwd,  android.util.Base64.DEFAULT);
+                    //BISOGNA CHIAMARE EXECUTE POST E INVIARE LA RICHIESTA
                 } catch (NoSuchAlgorithmException e) {
                     username = "ERROR_ENCRYPTION";
                     password = "ERROR_ENCRYPTION";
@@ -112,5 +131,67 @@ public class LoginActivity extends ActionBarActivity {
         Intent i = new Intent(this, MapsActivity.class);
         startActivity(i);
     }
+
+    public JSONObject executePost(String targetURL, JSONObject data) throws IOException {
+        JSONObject tracks = null;
+        try {
+            String url = "http://url.com";
+
+            URL object = new URL(url);
+
+            HttpURLConnection con = (HttpURLConnection) object.openConnection();
+
+            con.setDoOutput(true);
+
+            con.setDoInput(true);
+
+            con.setRequestProperty("Content-Type", "application/json");
+
+            con.setRequestProperty("Accept", "application/json");
+
+            con.setRequestMethod("POST");
+
+            OutputStreamWriter wr = new OutputStreamWriter(con.getOutputStream());
+
+            wr.write(data.toString());
+
+            wr.flush();
+
+            //display what returns the POST request
+
+            StringBuilder sb = new StringBuilder();
+
+            int HttpResult = con.getResponseCode();
+
+            if (HttpResult == HttpURLConnection.HTTP_OK) {
+
+                BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream(), "utf-8"));
+
+                String line = null;
+                StringBuffer jsonBody = new StringBuffer();
+                while ((line = br.readLine()) != null) {
+                    sb.append(line + "\n");
+                    jsonBody.append(line);
+                }
+
+                br.close();
+
+                try {
+                    tracks = new JSONObject(jsonBody.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }         catch (IOException e)
+        {
+            // print the error
+            //TODO: remove and replace with a more structured approach
+            e.printStackTrace();
+        }
+
+            return tracks;
+
+    }
+
 }
 
