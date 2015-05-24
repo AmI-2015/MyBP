@@ -68,6 +68,7 @@ public class LoginActivity extends ActionBarActivity {
     public void sendCredentials(View view) throws UnsupportedEncodingException {
 
         Intent i = new Intent(this, PersonalActivity.class);
+        StringBuffer responseStr = null;
 
         EditText editUsername = (EditText) findViewById(R.id.usernameText);
         String username = editUsername.getText().toString();
@@ -95,17 +96,37 @@ public class LoginActivity extends ActionBarActivity {
                     byte[] digestPwd  = mdPwd.digest(bytesOfPwd);
                     username = android.util.Base64.encodeToString(digestUser,  android.util.Base64.DEFAULT);
                     password = android.util.Base64.encodeToString(digestPwd,  android.util.Base64.DEFAULT);
+                    //################ SOLO DI PROVA #########################//
+                    JSONObject obj = new JSONObject();
+                    obj.put("pwd_ode", "ee");
+                    obj.put("user_code", "vv");
+                    obj.put("registration_id", "lol");
+
                     //BISOGNA CHIAMARE EXECUTE POST E INVIARE LA RICHIESTA
+                    responseStr = executePost("http://localhost:5000/myBP_server/users/sign_in",  obj );
                 } catch (NoSuchAlgorithmException e) {
                     username = "ERROR_ENCRYPTION";
                     password = "ERROR_ENCRYPTION";
                     //e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
 
-                i.putExtra(EXTRA_USERNAME, username);
-                i.putExtra(EXTRA_PASSWORD, password);
-                //Check function to sign in
-                startActivity(i);
+                if(responseStr==null) {
+                    i.putExtra(EXTRA_USERNAME, username);
+                    i.putExtra(EXTRA_PASSWORD, password);
+                    //Check function to sign in
+                    startActivity(i);
+                }
+                else
+                {
+                    i.putExtra(EXTRA_USERNAME, responseStr.toString());
+                    i.putExtra(EXTRA_PASSWORD, responseStr.toString());
+                    //Check function to sign in
+                    startActivity(i);
+                }
             }
         }
     }
@@ -132,10 +153,10 @@ public class LoginActivity extends ActionBarActivity {
         startActivity(i);
     }
 
-    public JSONObject executePost(String targetURL, JSONObject data) throws IOException {
-        JSONObject tracks = null;
+    public StringBuffer executePost(String targetURL, JSONObject data) throws IOException {
+        StringBuffer jsonBody = null;
         try {
-            String url = "http://url.com";
+            String url = targetURL;
 
             URL object = new URL(url);
 
@@ -168,30 +189,24 @@ public class LoginActivity extends ActionBarActivity {
                 BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream(), "utf-8"));
 
                 String line = null;
-                StringBuffer jsonBody = new StringBuffer();
+                jsonBody = new StringBuffer();
                 while ((line = br.readLine()) != null) {
                     sb.append(line + "\n");
                     jsonBody.append(line);
                 }
 
                 br.close();
-
-                try {
-                    tracks = new JSONObject(jsonBody.toString());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
             }
         }         catch (IOException e)
         {
             // print the error
-            //TODO: remove and replace with a more structured approach
             e.printStackTrace();
         }
 
-            return tracks;
-
+        return jsonBody;
     }
+
+
 
 }
 
