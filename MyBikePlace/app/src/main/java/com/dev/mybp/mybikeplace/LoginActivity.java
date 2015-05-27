@@ -105,10 +105,13 @@ public class LoginActivity extends MultiDexApplication {
                     obj.put("user_code", "vv");
                     obj.put("registration_id", "lol");
 
+<<<<<<< HEAD
                     JSONArray list = new JSONArray();
                     list.add("msg 1");
                     list.add("msg 2");
                     list.add("msg 3");
+=======
+>>>>>>> 1b7dcb05a146fa635f905dd22152d9c4ff38a135
                     //BISOGNA CHIAMARE EXECUTE POST E INVIARE LA RICHIESTA
                     responseStr = executePost("http://localhost:5000/myBP_server/users/sign_in",  obj );
                 } catch (NoSuchAlgorithmException e) {
@@ -117,6 +120,11 @@ public class LoginActivity extends MultiDexApplication {
                     //e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
+<<<<<<< HEAD
+=======
+                } catch (JSONException e) {
+                    e.printStackTrace();
+>>>>>>> 1b7dcb05a146fa635f905dd22152d9c4ff38a135
                 }
 
                 if(responseStr==null) {
@@ -205,12 +213,17 @@ public class LoginActivity extends MultiDexApplication {
         }         catch (IOException e)
         {
             // print the error
-            //TODO: remove and replace with a more structured approach
             e.printStackTrace();
         }
 
+<<<<<<< HEAD
             return jsonBody;
+=======
+        return jsonBody;
+>>>>>>> 1b7dcb05a146fa635f905dd22152d9c4ff38a135
     }
+
+
 
 }
 
