@@ -8,7 +8,7 @@
 
     <item
         android:id="@+id/actionSignUp"
-        android:title="@string/action_sign_in"
+        android:title="@string/action_sign_up"
         android:orderInCategory="100"
         app:showAsAction="ifRoom" />
 
