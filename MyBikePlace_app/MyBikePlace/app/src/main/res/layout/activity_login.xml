@@ -40,10 +40,10 @@
         android:onClick="sendCredentials" />
 
     <Button
-        android:id="@+id/cancelButton"
+        android:id="@+id/clearButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/button_cancel"
+        android:text="@string/button_clear"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:onClick="clearCredentials" />
