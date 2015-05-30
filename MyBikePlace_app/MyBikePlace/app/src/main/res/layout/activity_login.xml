@@ -1,0 +1,74 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="50dp"
+    android:paddingRight="50dp"
+    android:paddingTop="50dp"
+    android:paddingBottom="50dp"
+    tools:context=".LoginActivity">
+
+    <EditText
+        android:id="@+id/usernameText"
+        android:hint="@string/username_hint"
+        android:textColorHint="@color/hint_foreground_material_light"
+        android:inputType="textPersonName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true" />
+
+    <EditText
+        android:id="@+id/passwordText"
+        android:hint="@string/password_hint"
+        android:textColorHint="@color/hint_foreground_material_light"
+        android:inputType="textPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/usernameText"
+        android:layout_alignParentLeft="true" />
+
+    <Button
+        android:id="@+id/continueButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_continue"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:onClick="sendCredentials" />
+
+    <Button
+        android:id="@+id/cancelButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_cancel"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:onClick="clearCredentials" />
+
+    <TextView
+        android:id="@+id/connectionStatusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/skipCheckBox"
+        android:layout_centerHorizontal="true"
+        android:textStyle="italic" />
+
+
+    <CheckBox
+        android:id="@+id/rememberMeCheckBox"
+        android:text="@string/checkbox_remember_me"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/passwordText"
+        android:layout_alignLeft="@+id/passwordText" />
+
+    <CheckBox
+        android:id="@+id/skipCheckBox"
+        android:text="@string/checkbox_skip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rememberMeCheckBox"
+        android:layout_alignLeft="@+id/passwordText" />
+
+</RelativeLayout>
