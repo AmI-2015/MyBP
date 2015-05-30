@@ -5,30 +5,6 @@ import android.os.Parcelable;
 
 import com.google.android.gms.maps.model.LatLng;
 
-/**
- * Created by Zephyr on 19/05/2015.
- */
-//public class MapsMarker {
-//
-//    public String markerName;
-//    public String markerDescription;
-//    public LatLng markerLatLng;
-//
-//    //costruttore
-//    public MapsMarker(String markerName, String markerDescription, double Latitude, double Longitude){
-//        this.markerName = markerName;
-//        this.markerDescription = markerDescription;
-//        this.markerLatLng = new LatLng(Latitude, Longitude);
-//    }
-//}
-
-/**
- * Plain object to hold user attributes
- * Need to implement parcelable, since Sensor object using User
- * objects(Sensor is a parcelable object)
- *
- * @author erangaeb@gmail.com (eranga herath)
- */
 public class MapsMarker implements Parcelable {
     public String markerName;
     public String markerDescription;
@@ -82,7 +58,7 @@ public class MapsMarker implements Parcelable {
      * This field is needed for Android to be able to
      * create new objects, individually or as arrays
      *
-     * If you don t do that, Android framework will through exception
+     * If you don't do that, Android framework will through exception
      * Parcelable protocol requires a Parcelable.Creator object called CREATOR
      */
     public static final Parcelable.Creator<MapsMarker> CREATOR = new Parcelable.Creator<MapsMarker>() {

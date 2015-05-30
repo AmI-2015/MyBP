@@ -7,6 +7,13 @@
     tools:context=".LoginActivity">
 
     <item
+        android:id="@+id/actionSignUp"
+        android:title="@string/action_sign_in"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom" />
+
+
+    <item
         android:id="@+id/actionTestConnection"
         android:title="@string/action_test_connection"
         android:orderInCategory="100"

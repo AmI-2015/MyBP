@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="username_rule_hint">alphanumeric 8-16 characters</string>
+    <string name="password_rule_hint">alphanumeric 8-16 characters</string>
+
+    <string name="username_input_error_hint">invalid username</string>
+    <string name="password_input_error_hint">invalid password</string>
+
+</resources>

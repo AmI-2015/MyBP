@@ -22,6 +22,8 @@ public class LoginActivity extends ActionBarActivity {
     public final static String EXTRA_USERNAME = "com.dev.ami2015.mybikeplace.USERNAME";
     public final static String EXTRA_PASSWORD = "com.dev.ami2015.mybikeplace.PASSWORD";
 
+    Intent logInIntent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +54,9 @@ public class LoginActivity extends ActionBarActivity {
 
         switch(id){
 
+            case R.id.actionSignUp:
+                SignUp();
+                return true;
             case R.id.actionTestConnection:
                 TestConnection();
                 return true;
@@ -110,8 +115,8 @@ public class LoginActivity extends ActionBarActivity {
 
     public void GoToMaps(){
 
-        Intent i = new Intent(this, MapsActivity.class);
-        startActivity(i);
+        logInIntent = new Intent(this, MapsActivity.class);
+        startActivity(logInIntent);
     }
 
     public void TestConnection() {
@@ -129,6 +134,14 @@ public class LoginActivity extends ActionBarActivity {
             connectionStatus.setText("No internet Connection");
             connectionStatus.setTextColor(getResources().getColor(R.color.red));
         }
+    }
+
+    //called when Sign Up in action bar is pressed
+    public void SignUp(){
+
+        logInIntent = new Intent(this, SignUpActivity.class);
+        startActivity(logInIntent);
+
     }
 }
 

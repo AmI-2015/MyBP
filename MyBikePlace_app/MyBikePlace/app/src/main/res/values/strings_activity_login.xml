@@ -11,6 +11,7 @@
     <string name="checkbox_remember_me">Remember Me</string>
     <string name="checkbox_skip">Skip</string>
 
+    <string name="action_sign_in">Sign In</string>
     <string name="action_test_connection">Connection Status</string>
     <!--string name="action_update_map">Update Map</string-->
     <string name="action_go_to_map">Go to Map</string>
