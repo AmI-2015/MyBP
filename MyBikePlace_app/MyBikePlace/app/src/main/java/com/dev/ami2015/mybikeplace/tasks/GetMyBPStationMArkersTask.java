@@ -1,13 +1,10 @@
 package com.dev.ami2015.mybikeplace.tasks;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Parcelable;
 import android.util.Log;
 
-import com.dev.ami2015.mybikeplace.MapsMarker;
 import com.dev.ami2015.mybikeplace.MapsActivity;
+import com.dev.ami2015.mybikeplace.MyBPStationMarker;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,58 +17,51 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Map;
 
 /**
- * Created by Zephyr on 25/05/2015.
+ * Created by Zephyr on 01/06/2015.
  */
-// Uses AsyncTask to create a task away from the main UI thread. This task takes a
-// URL string and uses it to create an HttpUrlConnection. Once the connection
-// has been established, the AsyncTask downloads the contents of the webpage as
-// an InputStream. Finally, the InputStream is converted into a string, which is
-// displayed in the UI by the AsyncTask's onPostExecute method.
+public class GetMyBPStationMarkersTask extends AsyncTask</*params*/ Void, /*progress not used*/ Void, /*result*/ ArrayList<MyBPStationMarker>> {
 
-public class GetRoomMarkersTask extends AsyncTask</*params*/ Void, /*progress not used*/ Void, /*result*/ ArrayList<MapsMarker>> {
-
-    public static final String POLIORARI_URL ="http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_elenco_aule";
+    public static final String MYBPSERVER_URL ="http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_elenco_aule";
     public static final String DEBUG_TAG = "HttpExample";
 
     public MapsActivity parentActivity;
 
 
     //costructor receives as parameter the parent activity that started the task
-    public GetRoomMarkersTask(MapsActivity activity){
+    public GetMyBPStationMarkersTask(MapsActivity activity){
         this.parentActivity = activity;
     }
 
     @Override
-    protected ArrayList<MapsMarker> doInBackground(Void... params) {
+    protected ArrayList<MyBPStationMarker> doInBackground(Void... params) {
 
-        ArrayList<MapsMarker> mapsMarker = null;
+        ArrayList<MyBPStationMarker> myBPStationMarkers = null;
 
         // params comes from the execute() call: params[0] is the url.
         try {
 
-            JSONObject jsonObjectRooms = MakePostRequestToPoliOrari(POLIORARI_URL);
-            JSONArray jsonArrayRooms = GetJsonRoomsList(jsonObjectRooms);
+            JSONObject jsonObjectMyBPStations = MakePostRequestToMyBPServer(MYBPSERVER_URL);
+            JSONArray jsonArrayMyBPStations = GetJsonMyBPStationList(jsonObjectMyBPStations);
 
-            mapsMarker = GetRoomsMapMarkers(jsonArrayRooms);
+            myBPStationMarkers = GetMyBPStationMapMarkers(jsonArrayMyBPStations);
 
-            return mapsMarker;
+            return myBPStationMarkers;
 
         } catch (IOException e) {
             return null;
         } catch (JSONException e) {
             e.printStackTrace();
-            return mapsMarker;
+            return myBPStationMarkers;
         }
     }
 
     @Override
-    protected void onPostExecute(ArrayList<MapsMarker> mapsMarkers) {
-        super.onPostExecute(mapsMarkers);
+    protected void onPostExecute(ArrayList<MyBPStationMarker> myBPStationMarkers) {
+        super.onPostExecute(myBPStationMarkers);
 
-        parentActivity.setAllRoomMarkerInMap(parentActivity.getMap(), mapsMarkers);
+        parentActivity.setAllMyBPStationMarkerInMap(parentActivity.getMap(), myBPStationMarkers);
 
     }
 
@@ -79,11 +69,11 @@ public class GetRoomMarkersTask extends AsyncTask</*params*/ Void, /*progress no
     // the web page content as a InputStream, which it returns as
     // a string.
 
-    public ArrayList<MapsMarker> GetRoomsMapMarkers (JSONArray jsonRoomsList) throws JSONException {
+    public ArrayList<MyBPStationMarker> GetMyBPStationMapMarkers (JSONArray jsonMyBPStationList) throws JSONException {
 
-        ArrayList<MapsMarker> roomsMapMarkersList = new ArrayList<MapsMarker>();
+        ArrayList<MyBPStationMarker> myBPStationsMapMarkersList = new ArrayList<MyBPStationMarker>();
 
-        int len = jsonRoomsList.length();
+        int len = jsonMyBPStationList.length();
 
         // ciclo l'intero JSONArry per ottenere ogni json Object corrispondente ad una room
         // e la "casto" in un map marker
@@ -91,29 +81,27 @@ public class GetRoomMarkersTask extends AsyncTask</*params*/ Void, /*progress no
         for (int i = 0; i < len; i++ ){
 
             try {
-                JSONObject singleJsonRoom = jsonRoomsList.getJSONObject(i);
+                JSONObject singleJsonMyBPStation = jsonMyBPStationList.getJSONObject(i);
 
                 // metto il json room in un oggetto MapMarker e l'aggiungo alla lista
 
-                String roomName = singleJsonRoom.getString("aula");
-                if (Character.isDigit(roomName.charAt(0)) == true) {
-                    //the room is a proper room, need to add "Aula "
-                    roomName = "Aula "+roomName;
-                }
-                String roomLocation = "Sito: "+singleJsonRoom.getString("sito");
-                String roomLatString = singleJsonRoom.getString("lat");
-                String roomLonString = singleJsonRoom.getString("lon");
+                String stationIDString = singleJsonMyBPStation.getString("station_id");
+                String stationLatString = singleJsonMyBPStation.getString("latitude");
+                String stationLonString = singleJsonMyBPStation.getString("longitude");
+                String stationTotPlacesString = singleJsonMyBPStation.getString("tot_places");
+                String stationFreePlacesString = singleJsonMyBPStation.getString("free_places");
 
-                //adapt to double format
-                roomLatString = roomLatString.replace(",",".");
-                roomLonString = roomLonString.replace(",",".");
+                //convert to Integer
+                int stationID = Integer.valueOf(stationIDString);
+                int stationTotPlaces = Integer.valueOf(stationTotPlacesString);
+                int stationFreePlaces = Integer.valueOf(stationFreePlacesString);
 
                 //convert to Double
-                Double roomLat = Double.valueOf(roomLatString);
-                Double roomLon = Double.valueOf(roomLonString);
+                Double stationLat = Double.valueOf(stationLatString);
+                Double stationLon = Double.valueOf(stationLonString);
 
                 // public MapsMarker(String markerName, String markerDescription, double Latitude, double Longitude){
-                roomsMapMarkersList.add(new MapsMarker(roomName, roomLocation, roomLat, roomLon));
+                myBPStationsMapMarkersList.add(new MyBPStationMarker(stationID, stationLat, stationLon, stationTotPlaces, stationFreePlaces));
 
 
 
@@ -123,19 +111,19 @@ public class GetRoomMarkersTask extends AsyncTask</*params*/ Void, /*progress no
             }
         }
 
-        return roomsMapMarkersList;
+        return myBPStationsMapMarkersList;
     }
 
-    public JSONArray GetJsonRoomsList(JSONObject jsonRooms){
+    public JSONArray GetJsonMyBPStationList(JSONObject jsonMyBPStations){
 
-        JSONArray jsonRoomsList = null;
+        JSONArray jsonMyBPStationsList = null;
 
         try{
 
             // convert unique json object to a list of json objects
             // each item is a Room json object
 
-            jsonRoomsList = jsonRooms.getJSONArray("d");
+            jsonMyBPStationsList = jsonMyBPStations.getJSONArray("d");
 
 
         } catch (JSONException e) {
@@ -143,14 +131,14 @@ public class GetRoomMarkersTask extends AsyncTask</*params*/ Void, /*progress no
             return null;
         }
 
-        return jsonRoomsList;
+        return jsonMyBPStationsList;
     }
 
 
-    public JSONObject MakePostRequestToPoliOrari(String myurl) throws IOException {
+    public JSONObject MakePostRequestToMyBPServer(String myurl) throws IOException {
 
         InputStream is = null;
-        JSONObject jsonRooms = null;
+        JSONObject jsonMyBPStations = null;
 
         try {
 
@@ -186,7 +174,7 @@ public class GetRoomMarkersTask extends AsyncTask</*params*/ Void, /*progress no
 
             // Convert the string response into a JSONObject
 
-            jsonRooms = new JSONObject(response.toString());
+            jsonMyBPStations = new JSONObject(response.toString());
 
         } catch (IOException | JSONException e){
             e.printStackTrace();
@@ -197,7 +185,7 @@ public class GetRoomMarkersTask extends AsyncTask</*params*/ Void, /*progress no
             }
         }
 
-        return jsonRooms;
+        return jsonMyBPStations;
 
     }
 }

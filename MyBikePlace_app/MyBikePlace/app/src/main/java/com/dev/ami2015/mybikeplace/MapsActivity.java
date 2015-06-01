@@ -21,6 +21,7 @@ public class MapsActivity extends Activity implements OnMapReadyCallback {
 
     Intent mapsIntent;
     ArrayList<MapsMarker> roomsMarkers;
+    ArrayList<MyBPStationMarker> myBPStationMarkers;
     GoogleMap googleMap;
 
     @Override
@@ -94,6 +95,30 @@ public class MapsActivity extends Activity implements OnMapReadyCallback {
         for(int i = 0; i < len; i++){
 
             setMarkerInMap(map, roomsMarkers.get(i));
+        }
+
+    }
+
+    public void setMyBPStationMarkerInMap(GoogleMap map, MyBPStationMarker myBPStationMarker){
+
+        String markerName = "MyBP Station number: " + String.valueOf(myBPStationMarker.stationID);
+        String markerDescription = "Free places: " + String.valueOf(myBPStationMarker.freePlaces)
+                + "\n" + "Total places: " + String.valueOf(myBPStationMarker.totalPlaces);
+
+        map.addMarker(new MarkerOptions().title(markerName).snippet(markerDescription).position(myBPStationMarker.GetPosition()));
+
+    }
+
+    public void setAllMyBPStationMarkerInMap(GoogleMap map, ArrayList<MyBPStationMarker> receivedMyBPStationsMarkers){
+
+        //MyBP station markers are received from MyBPServer API and inserted in map
+
+        myBPStationMarkers = receivedMyBPStationsMarkers;
+
+        int len = myBPStationMarkers.size();
+        for(int i = 0; i < len; i++){
+
+            setMyBPStationMarkerInMap(map, myBPStationMarkers.get(i));
         }
 
     }
