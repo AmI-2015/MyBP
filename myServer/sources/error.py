@@ -13,6 +13,7 @@ def error_sign_in(username_code, pwd_code):
     data_error['pwd_code']=pwd_code
     data_error['myBP_station']=-1
     data_error['myBP_board']=-1
+    data_error['registration_id']=-1
     data_error['myBP_status']=0
 
     return data_error
@@ -27,6 +28,7 @@ def error_alreadyExist(username_code, pwd_code):
     data_error['pwd_code']=pwd_code
     data_error['myBP_station']=-1
     data_error['myBP_board']=-1
+    data_error['registration_id']=-1
     data_error['myBP_status']=-1
     
     return data_error
