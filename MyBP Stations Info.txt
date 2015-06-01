@@ -1,0 +1,22 @@
+//MyBP stations
+
+1)  station_id: 1;
+	latitude: 45.064732; 
+	longitude: 7.659175;
+	tot_places: 10;
+	free_places: 8;
+	(description: near Castelfidardo Canteen Entrance)
+	
+2) 	station_id: 2;
+	latitude: 45.065382;
+	longitude: 7.657108;
+	tot_places: 20
+	free_places: 12
+	(description: near Via Borsellino Entrance)
+	
+3) 	station_id: 3;
+	latitude: 45.063001;
+	longitude: 7.660870;
+	tot_places: 40;
+	free_places: 21;
+	(description: over S classrooms near est-side Politecnico Entrance)
