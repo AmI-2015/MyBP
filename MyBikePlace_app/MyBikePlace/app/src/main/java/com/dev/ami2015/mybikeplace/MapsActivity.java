@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.dev.ami2015.mybikeplace.tasks.GetMyBPStationMarkersTask;
 import com.dev.ami2015.mybikeplace.tasks.GetRoomMarkersTask;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
@@ -52,8 +53,11 @@ public class MapsActivity extends Activity implements OnMapReadyCallback {
 
         map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
 
-        //load all the room marker with an asyncTask
+        //load all the room markers with an asyncTask
         new GetRoomMarkersTask(this).execute();
+
+        //load all the MyBP Stations markers with an asyncTask
+        new GetMyBPStationMarkersTask(this).execute();
 
     }
 
