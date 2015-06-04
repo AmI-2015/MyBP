@@ -69,5 +69,13 @@ def stn_spcProcess():
     
     return stn_spc
 
+def stn_updSpcStnProcess(station_id, status):
+    stn_updSpc = {}
+    raspberry_connected = raspberry()
+    
+    stn_updSpc = raspberry_connected.upd_stnSpcTbl(station_id, status)
+    
+    return stn_updSpc
+
 if __name__ == '__main__':
     pass

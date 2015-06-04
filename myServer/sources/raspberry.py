@@ -70,7 +70,7 @@ class raspberry:
             print "SEARCH SUCCESFUL COMPLETED"
         except:
             parking_data['error']="SEARCH_ERROR"
-            print "SEARCH ERROR"
+            print "SEARCH ERROR [stealing_controller()]"
             
         try:
             row=cursor.fetchone()
@@ -94,7 +94,7 @@ class raspberry:
                 parking_data['stop_alarm'] = stop_alarm
                 parking_data['action']="OK"
         except:
-            parking_data['error']="FETCH_FAILED"
+            parking_data['error']="FETCH_FAILED [stealing_controller()]"
     
         # disconnect from server
         db.close()
@@ -113,21 +113,77 @@ class raspberry:
         
         try:
             cursor.execute(search_sql)
-            print "SEARCH SUCCESFUL COMPLETED"
+            print "SEARCH SUCCESFUL COMPLETED [check_alarm()]"
         except:
             stop_alarm = -1
-            print "SEARCH ERROR"
+            print "SEARCH ERROR [check_alarm()]"
         
         try:
             stop_alarm = cursor.fetchone()
         except:
             stop_alarm = -1
-            print "FETCH ERROR"
+            print "FETCH ERROR [check_alarm()]"
         
         print stop_alarm
         
         return stop_alarm[0]
+    
+    def upd_stnSpcTbl(self, station_id, status):
+        # Open database connection
+        db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB")
+        # prepare a cursor object using cursor() method
+        cursor = db.cursor()
+        search_sql="SELECT free_places, tot_places FROM station_spec WHERE station_id='"+str(station_id)+"';"
+       
+        response_data = {}
+        
+        try:
+            cursor.execute(search_sql)
+            print "SEARCH SUCCESFUL COMPLETED [upd_stnSpcTbl()]"
+        except:
+            stop_alarm = -1
+            print "SEARCH ERROR [upd_stnSpcTbl()]]"
+
+        try:
+            row=cursor.fetchone()
+            free_places=int(row[0])
+            tot_places = int(row[1])
             
+            if free_places == 1:
+                free_places = free_places + 1
+                update_sql = "UPDATE station SET free_places = '"+str(free_places)+"' WHERE station_id='"+str(station_id)+"';" 
+                try:
+                    cursor.execute(update_sql)
+                    db.commit()
+                    print "UPDATING SUCCESFUL COMPLETED [upd_stnSpcTbl()]"
+                except:
+                    print "UPDATING ERROR [upd_stnSpcTbl()]"
+            elif free_places == 0:
+                free_places = free_places - 1
+                update_sql  = "UPDATE station SET free_places = '"+str(free_places)+"' WHERE station_id='"+str(station_id)+"';" 
+                try:
+                    cursor.execute(update_sql)
+                    db.commit()
+                    print "UPDATING SUCCESFUL COMPLETED [upd_stnSpcTbl()]"
+                except:
+                    status = -1
+                    print "UPDATING ERROR [upd_stnSpcTbl()]"            
+            else:
+                print "Updating in [upd_stnSpcTbl()] not done... retry"    
+            print row
+            #the following if statement checks if the request is a theft
+
+        except:
+            print "FETCH_FAILED [upd_stnSpcTbl()]"
+
+        db.close()
+        
+        response_data['station_id']  = station_id
+        response_data['tot_places']  = tot_places
+        response_data['free_places'] = free_places
+        
+        return response_data
+        
     def __init__(self):
         pass
         
