@@ -72,6 +72,7 @@ public class GetRoomMarkersTask extends AsyncTask</*params*/ Void, /*progress no
         super.onPostExecute(mapsMarkers);
 
         parentActivity.setAllRoomMarkerInMap(parentActivity.getMap(), mapsMarkers);
+        //new GetMyBPStationMarkersTask(this.parentActivity).execute();
 
     }
 
