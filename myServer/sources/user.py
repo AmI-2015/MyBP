@@ -32,13 +32,13 @@ class user:
         user_data['registration_id']=None
         #we set defaulT values    
         #bike station
-        user_data['myBP_station']=-1
+        user_data['station_id']=-1
             
         #bike place
-        user_data['myBP_board']=-1
+        user_data['place_id']=-1
         
         #user status on the board
-        user_data['myBP_status']=-1
+        user_data['status']=-1
         #schedule to insert
         
         user_data['error_str']="NO_ERROR"
@@ -65,9 +65,9 @@ class user:
             if(data != None):
                 user_data['username_code']=data[0]
                 user_data['pwd_code']=data[1]
-                user_data['myBP_station']= int(data[2])
-                user_data['myBP_board']=int(data[3])
-                user_data['myBP_status']=data[4]
+                user_data['station_id']= int(data[2])
+                user_data['place_id']=int(data[3])
+                user_data['status']=data[4]
                 user_data['registration_id']=data[5]
                 user_data['error_str']=data[6]
                 # Now print fetched result to debug
@@ -90,7 +90,7 @@ class user:
             else:
                 user_data=error.error_sign_in(self.username_code, self.pwd_code)
         except:
-            print "(!)Error: unable to fetch data"
+            print "Error: unable to fetch data [connect_sign_db()]"
             
         # disconnect from server
         db.close()
@@ -106,7 +106,7 @@ class user:
         user_data['registration_id']=registration_id
         # prepare a cursor object using cursor() method
         cursor = db.cursor()
-        insert_sql="INSERT INTO users VALUES ("+"'"+str(user_data['username_code'])+"','"+str(user_data['pwd_code'])+"',"+str(user_data['myBP_station'])+","+str(user_data['myBP_board'])+",'"+str(user_data['myBP_status'])+"','"+str(user_data['registration_id'])+"','"+str(user_data['error_str'])+"');"
+        insert_sql="INSERT INTO users VALUES ("+"'"+str(user_data['username_code'])+"','"+str(user_data['pwd_code'])+"',"+str(user_data['station_id'])+","+str(user_data['place_id'])+",'"+str(user_data['status'])+"','"+str(user_data['registration_id'])+"','"+str(user_data['error_str'])+"');"
         search_sql="SELECT username_code FROM users WHERE username_code='"+self.username_code+"'"
         print insert_sql
         cursor.execute(search_sql)
@@ -123,7 +123,7 @@ class user:
                 print "It already exists\n"
                 user_data=error.error_alreadyExist(self.username_code, self.pwd_code)
         except:
-            print "(!!)unable to fetch data"
+            print "unable to fetch data [connect_sign_up_db()]"
             
         db.close()
         return user_data
@@ -138,9 +138,9 @@ class user:
         
         try:
             cursor.execute(search_sql)
-            print "SEARCHING SUCCESFUL COMPLETED"
+            print "SEARCHING SUCCESFUL COMPLETED [connection_stationDB()]"
         except:
-            print "SEARCHING ERROR"
+            print "SEARCHING ERROR [connection_stationDB()]"
         
         try:
             row=cursor.fetchone()
@@ -181,7 +181,7 @@ class user:
         
         try:
             tot_line = cursor.execute(search_sql)
-            print "SEARCHING SUCCESFUL COMPLETED"
+            print "SEARCHING SUCCESFUL COMPLETED [stn_spcDB()]"
         except:
             print "SEARCHING ERROR"
             
@@ -192,7 +192,8 @@ class user:
                 stnSpec_list.append({'station_id': line[i][0], 'latitude': line[i][1], 'longitude': line[i][2], 'tot_places': line[i][3], 'free_places': line[i][4]})
             
         except:
-            print "FETCH FAILED IN stn_specDB()"
+            print "FETCH FAILED [stn_specDB()]"
              
         db.close()
         return stnSpec_list 
+    

@@ -210,15 +210,32 @@ def stop_alarm():
 
 '''
 The app request is a json 
-{
-    
-}
+{}
+
+the server responses 
 '''
 @app.route('/myBP_server/users/station_spec', methods=['POST'])
 def sation_spec():
     stn_spc=request_processor.stn_spcProcess()
     
     return jsonify({"d": stn_spc})
+
+'''
+the raspberry sends a json
+{
+    "station_id": "5",
+    "status": "1"
+}
+'''
+@app.route('/myBP_server/users/update_station_spec_table')
+def update_station_spec_table():
+    request_packet=request.json
+    station_id = request_packet.get("station_id")
+    status   = request_packet.get("status")
+       
+    stn_updSpc = request_processor.stn_updSpcStnProcess(station_id, status)
+    
+    return jsonify({"station_id":stn_updSpc['station_id'], "place_id": stn_updSpc['free_places']})
 
 if __name__ == '__main__':
     app.run(host = '0.0.0.0', debug=True, port=7000)
