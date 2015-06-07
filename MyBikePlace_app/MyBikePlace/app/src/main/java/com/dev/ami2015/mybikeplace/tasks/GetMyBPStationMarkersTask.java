@@ -23,7 +23,7 @@ import java.util.ArrayList;
  */
 public class GetMyBPStationMarkersTask extends AsyncTask</*params*/ Void, /*progress not used*/ Void, /*result*/ ArrayList<MyBPStationMarker>> {
 
-    public static final String MYBPSERVER_URL ="http://localhost:7000/myBP_server/users/station_spec";
+    public static final String MYBPSERVER_URL ="http://localhost:3306/myBP_server/users/station_spec";
     public static final String DEBUG_TAG = "HttpExample";
 
     public MapsActivity parentActivity;
