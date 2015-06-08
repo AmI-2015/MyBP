@@ -3,7 +3,10 @@ package com.dev.ami2015.mybikeplace;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,13 +19,14 @@ import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
-public class MapsActivity extends Activity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     Intent mapsIntent;
     ArrayList<MapsMarker> roomsMarkers;
-    ArrayList<MyBPStationMarker> myBPStationMarkers;
+    public ArrayList<MyBPStationMarker> myBPStationMarkers;
     GoogleMap googleMap;
 
     @Override
@@ -42,16 +46,18 @@ public class MapsActivity extends Activity implements OnMapReadyCallback {
         //catch the map object
         this.googleMap = map;
 
-        map.setMyLocationEnabled(true);
+        //map.setMyLocationEnabled(true);
 
         //set initial marker: Politecnico di Torino
         MapsMarker poliMarker = new MapsMarker("Politecnico", "Universita' di Torino", 45.062936, 7.660747);
-        setMarkerInMap(map, poliMarker);
+
+        //don't show politecnico marker
+        //setMarkerInMap(map, poliMarker);
 
         //move camera to initial marker
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(poliMarker.GetPosition(), 13));
 
-        map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
         //load all the room markers with an asyncTask
         new GetRoomMarkersTask(this).execute();
@@ -75,12 +81,26 @@ public class MapsActivity extends Activity implements OnMapReadyCallback {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+        Intent actionIntent;
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+//        if (id == R.id.action_settings) {
+//            Intent i = new Intent(this, TestHTTPActivity.class);
+//            startActivity(i);
+//            return true;
+//        }
+
+        switch(id){
+
+            case R.id.action_settings:
+                return true;
+            case R.id.action_mybp_station_next_to_me:
+                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(NearestMyBPStationToMe().GetPosition(), 17));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
         }
 
-        return super.onOptionsItemSelected(item);
     }
 
     public void setMarkerInMap(GoogleMap map, MapsMarker mapsMarker){
@@ -125,6 +145,70 @@ public class MapsActivity extends Activity implements OnMapReadyCallback {
             setMyBPStationMarkerInMap(map, myBPStationMarkers.get(i));
         }
 
+    }
+
+    // searches MyBP station with available free places
+    public ArrayList<MyBPStationMarker> FindFreeStations(){
+
+        ArrayList<MyBPStationMarker> freeStation = new ArrayList<MyBPStationMarker>();
+        MyBPStationMarker tmpMyBPStation;
+
+        int len = myBPStationMarkers.size();
+        for(int i = 0; i < len; i++){
+
+            tmpMyBPStation = myBPStationMarkers.get(i);
+
+            //add to the new MyBP Station list only station with free places available
+            if(tmpMyBPStation.freePlaces > 0 ){
+                freeStation.add(tmpMyBPStation);
+            }
+        }
+
+        return freeStation;
+    }
+
+    // searches the nearest myBpstation to the user position only between stations with free places available
+    public MyBPStationMarker NearestMyBPStationToMe(){
+
+        // save my location
+        Location myLocation = googleMap.getMyLocation();
+
+//        //Debug my Location
+//        Location myLocation = new Location("");
+//        myLocation.setLatitude(45.062936);
+//        myLocation.setLongitude(7.660747);
+
+        Location testedLocation = new Location("");
+        MyBPStationMarker nearestMyBPStation = null;
+
+        // finds all stations with available free places
+        ArrayList<MyBPStationMarker> myBPStationWithFreePlaces = FindFreeStations();
+
+        int len = myBPStationWithFreePlaces.size();
+
+        // nearestMyBPStation initialization
+
+        testedLocation.setLatitude(myBPStationWithFreePlaces.get(0).stationLat);
+        testedLocation.setLongitude(myBPStationWithFreePlaces.get(0).stationLng);
+        nearestMyBPStation = myBPStationWithFreePlaces.get(0);
+
+        double distance = myLocation.distanceTo(testedLocation);
+
+        for(int i = 1; i < len; i++){
+
+            //update testedLocation
+            testedLocation.setLatitude(myBPStationWithFreePlaces.get(i).stationLat);
+            testedLocation.setLongitude(myBPStationWithFreePlaces.get(i).stationLng);
+
+            if(myLocation.distanceTo(testedLocation) < distance){
+
+                distance = myLocation.distanceTo(testedLocation);
+                nearestMyBPStation = myBPStationWithFreePlaces.get(i);
+
+            }
+        }
+
+        return nearestMyBPStation;
     }
 
     public GoogleMap getMap() {
