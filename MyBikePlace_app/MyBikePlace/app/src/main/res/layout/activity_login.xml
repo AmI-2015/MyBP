@@ -9,7 +9,8 @@
     android:paddingRight="50dp"
     android:paddingTop="50dp"
     android:paddingBottom="50dp"
-    tools:context=".LoginActivity">
+    tools:context=".LoginActivity"
+    android:id="@+id/LoginActivity">
 
     <EditText
         android:id="@+id/usernameText"

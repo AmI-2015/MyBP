@@ -1,12 +1,23 @@
 package com.dev.ami2015.mybikeplace;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
+
+import com.dev.ami2015.mybikeplace.tasks.signInConnection;
+import com.dev.ami2015.mybikeplace.tasks.signUpConnection;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 
 
 public class SignUpActivity extends ActionBarActivity {
@@ -15,6 +26,11 @@ public class SignUpActivity extends ActionBarActivity {
     public static int MAX_USERNAME_LENGHT = 16;
     public static int MIN_PASSWORD_LENGHT = 8;
     public static int MAX_PASSWORD_LENGHT = 16;
+    public static String regid;
+    public final static String EXTRA_USERNAME = "com.dev.ami2015.mybikeplace.USERNAME";
+    public final static String EXTRA_PASSWORD = "com.dev.ami2015.mybikeplace.PASSWORD";
+    public static String userID = null;
+    public static final String MYBPSERVER_URL ="http://192.168.56.1:7000/myBP_server/users/sign_up";
 
     EditText editUsername;
     EditText editPassword;
@@ -52,11 +68,42 @@ public class SignUpActivity extends ActionBarActivity {
     }
 
     // called when user click on Sign Up button
-    public void sendSignUpForm(View view){
+    public void sendSignUpForm(View view) throws UnsupportedEncodingException, NoSuchAlgorithmException, JSONException {
 
         boolean credentialError = checkCredential();
 
+        if (credentialError == true ) {
+        }
+        else
+        {
+            EditText editUsername = (EditText) findViewById(R.id.usernameEditSignUpActivity);
+            String username       = editUsername.getText().toString();
+            LoginActivity.userID  = username;
+            EditText editPassword = (EditText) findViewById(R.id.passwordEditSignUpActivity);
+            String password       = editPassword.getText().toString();
 
+            byte[] bytesOfUser    = username.getBytes("UTF-8");
+            byte[] bytesOfPwd     = password.getBytes("UTF-8");
+            MessageDigest mdUser  = null;
+            MessageDigest mdPwd   = null;
+
+            //Encryption of user and pwd
+            mdUser = MessageDigest.getInstance("MD5");
+            mdPwd = MessageDigest.getInstance("MD5");
+            byte[] digestUser = mdUser.digest(bytesOfUser);
+            byte[] digestPwd  = mdPwd.digest(bytesOfPwd);
+            username = android.util.Base64.encodeToString(digestUser, android.util.Base64.DEFAULT);
+            password = android.util.Base64.encodeToString(digestPwd, android.util.Base64.DEFAULT);
+
+            //#########################################//
+            JSONObject obj =new JSONObject();
+            JSONObject objResponse= new JSONObject();
+            obj.put("pwd_code",  password);
+            obj.put("user_code", username);
+            obj.put("registration_id", regid);
+
+            new signUpConnection(this).execute(MYBPSERVER_URL, obj.toString());
+        }
     }
 
     // called when user click on Clear button
@@ -100,6 +147,35 @@ public class SignUpActivity extends ActionBarActivity {
             return false;
         }
 
+    }
+
+
+    public void setServerResponse(JSONObject serverResponse) throws JSONException {
+
+        int errorSIGNUP = 0;
+        String errStr = serverResponse.getString("error_str");
+        if(Objects.equals(errStr, "ERROR_SIGNUP"))
+            errorSIGNUP = 1;
+        else
+            errorSIGNUP = 0;
+
+        goToPersonalActivity(userID,errorSIGNUP);
+    }
+
+    public void goToPersonalActivity(String userID, int error)
+    {
+        Intent i = new Intent(this, PersonalActivity.class);
+        Intent err_i = new Intent(this, SignUpActivity.class);
+        if(error == 1)
+        {
+            //SOLO PER DEBUG
+            err_i.putExtra(EXTRA_USERNAME, "ERROR SIGN UP! THIS USER ALREADY EXISTS\n");
+            startActivity(err_i);
+        }
+        else {
+            i.putExtra(EXTRA_USERNAME, userID);
+            startActivity(i);
+        }
     }
 
     // function tu easy manage activity view
