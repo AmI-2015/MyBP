@@ -60,7 +60,7 @@ class raspberry:
         db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB")
         # prepare a cursor object using cursor() method
         cursor = db.cursor()
-        search_sql="SELECT security_key, stop_alarm, registration_id FROM station WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
+        search_sql="SELECT security_key, stop_alarm, registration_id FROM station WHERE station_id="+str(station_id)+" AND place_id="+str(place_id)+";"
         print search_sql
         
         parking_data={}
@@ -86,6 +86,7 @@ class raspberry:
                 parking_data['security_key']=security_key
                 parking_data['stop_alarm']=stop_alarm
                 parking_data['action']="ALLARM"
+                print parking_data['action']
             else:
                 parking_data['station_id']=station_id
                 parking_data['place_id']=place_id
@@ -93,6 +94,7 @@ class raspberry:
                 parking_data['security_key']=security_key
                 parking_data['stop_alarm'] = stop_alarm
                 parking_data['action']="OK"
+                print parking_data['action']
         except:
             parking_data['error']="FETCH_FAILED [stealing_controller()]"
     
@@ -108,7 +110,7 @@ class raspberry:
         db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB")
         # prepare a cursor object using cursor() method
         cursor = db.cursor()
-        search_sql="SELECT stop_alarm FROM station WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
+        search_sql="SELECT stop_alarm FROM station WHERE station_id="+str(station_id)+" AND place_id="+str(place_id)+";"
         print search_sql
         
         try:

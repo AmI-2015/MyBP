@@ -4,9 +4,9 @@ Created on 04/mag/2015
 @author: MyBP
 
 '''
-import request_processor, json
+import request_processor
 from flask import Flask, jsonify, request
-from gcm import *
+from gcm import GCM
 
 app= Flask(__name__)
 
@@ -166,30 +166,24 @@ def stealing_controller():
     
     parking_data=request_processor.stealing_controller(station_id, place_id)
 
-    autorization_key="AIzaSyCHX63txYHN9kcICuJzYVg26Q2bHWPjASU"
+    autorization_key="Authorization:key=XX"
     
     if parking_data['action']=="ALLARM":
         #USE GOOGLE CLOUD MESSAGING API
-        gcm = GCM(autorization_key)
-        data = {'the_message': 'ALLARM'}
-        dataj = json.dumps(data)
+        ##gcm = GCM(autorization_key)
+        ##data = {'action': 'ALLARM'}
         
-        # plaintext request
-        reg_id = parking_data['registration_id']
-        gcm.plaintext_request(registration_id=reg_id, data=data)
-
-        return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
+        ## JSON request
+        ##response = gcm.json_request(registration_id=parking_data['registration_id'], data=data)
+        ##return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
         return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
     elif parking_data['action']=="OK":
         #USE GOOGLE CLOUD MESSAGING API
-        gcm = GCM(autorization_key)
-        data = {'the_message': 'ALLARM'}
-        dataj = json.dumps(data)
+        ##gcm = GCM(autorization_key)
+        ##data = {'action': 'OK'}
         
-        # plaintext request
-        reg_id = parking_data['registration_id']
-        gcm.plaintext_request(registration_id=reg_id, data=data)
-        
+        # JSON request
+        ##response = gcm.json_request(registration_id=parking_data['registration_id'], data=data)
         return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
     else:
         return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
