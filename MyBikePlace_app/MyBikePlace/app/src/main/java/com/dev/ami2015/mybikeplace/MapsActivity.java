@@ -19,6 +19,7 @@ import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -26,8 +27,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     Intent mapsIntent;
     ArrayList<MapsMarker> roomsMarkers;
-    public ArrayList<MyBPStationMarker> myBPStationMarkers;
     GoogleMap googleMap;
+
+    public ArrayList<MyBPStationMarker> myBPStationMarkers;
+    public HashMap<Marker, MyBPStationMarker> myBPStationMarkersHM = new HashMap<Marker, MyBPStationMarker>(); //HM => HashMap
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +51,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Setting a custom info window adapter for the google map
         googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+
+            int stationID;
+            int freePlacesInt;
+            int totPlacesInt;
 
 
             // use custom frame
@@ -73,20 +80,44 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 TextView totPlaces = (TextView) infoWindow.findViewById(R.id.markerwindow_tot_places);
 
                 // Setting station number text
-                stationNumber.setText("MyBP Station n.: "/*+station_ID*/);
+                stationNumber.setText("MyBP Station n.: " + marker.getTitle());
+                stationNumber.setAllCaps(true);
+
+                // Extracting free places string from snipper string
+
+                String snippetStr = marker.getSnippet();
+                String freePlacesStr = "";
+                String totPlacesStr = "";
+                char tmpChr;
+                boolean snippetSecondHalf = false;
+
+                for(int i = 0; i < snippetStr.length(); i++){
+
+                    tmpChr = snippetStr.charAt(i);
+                    if((tmpChr == '/') && (snippetSecondHalf == false)){
+                        snippetSecondHalf = true;
+                    }
+
+                    if((snippetSecondHalf == false) && (tmpChr != '/')){
+                        freePlacesStr += Character.toString(tmpChr);
+                    }
+
+                    if((snippetSecondHalf == true) && (tmpChr != '/')){
+                        totPlacesStr += Character.toString(tmpChr);
+                    }
+                }
 
                 // Setting free places text
-                freePlaces.setText("Free places: "/*+free_places*/);
+                freePlaces.setText("Free places: " + freePlacesStr);
 
                 // Setting totale places text
-                totPlaces.setText("Total places: "/*+tot_places*/);
+                totPlaces.setText("Total places: " + totPlacesStr);
 
                 // Returning the view containing InfoWindow contents
                 return infoWindow;
 
             }
 
-            
         });
 
         //map.setMyLocationEnabled(true);
@@ -137,6 +168,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             case R.id.action_settings:
                 return true;
             case R.id.action_mybp_station_next_to_me:
+                //ShowNearestMyBPStationToMe();
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(NearestMyBPStationToMe().GetPosition(), 17));
                 return true;
             default:
@@ -152,65 +184,53 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    //rooms marker are received from PoliOrari API and inserted in map
     public void setAllRoomMarkerInMap(GoogleMap map, ArrayList<MapsMarker> receivedRoomsMarkers){
 
-        //rooms marker are received from PoliOrari API and inserted in map
+
 
         roomsMarkers = receivedRoomsMarkers;
 
         int len = roomsMarkers.size();
-        for(int i = 0; i < len; i++){
+        for (int i = 0; i < len; i++){
 
             setMarkerInMap(map, roomsMarkers.get(i));
         }
 
     }
 
-    public void setMyBPStationMarkerInMap(GoogleMap map, MyBPStationMarker myBPStationMarker){
 
-        String markerName = "MyBP Station number: " + String.valueOf(myBPStationMarker.stationID);
-        String markerDescription = "Free places: " + String.valueOf(myBPStationMarker.freePlaces)
-                + "\n" + "Total places: " + String.valueOf(myBPStationMarker.totalPlaces);
-
-        map.addMarker(new MarkerOptions().title(markerName).snippet(markerDescription).position(myBPStationMarker.GetPosition()));
-
-    }
-
+    //MyBP station markers are received from MyBPServer API and inserted in map
     public void setAllMyBPStationMarkerInMap(GoogleMap map, ArrayList<MyBPStationMarker> receivedMyBPStationsMarkers){
 
-        //MyBP station markers are received from MyBPServer API and inserted in map
+        Marker currentMarker;
 
-        myBPStationMarkers = receivedMyBPStationsMarkers;
-
-        int len = myBPStationMarkers.size();
+        int len = receivedMyBPStationsMarkers.size();
         for(int i = 0; i < len; i++){
 
-            setMyBPStationMarkerInMap(map, myBPStationMarkers.get(i));
+            String markerName = String.valueOf(receivedMyBPStationsMarkers.get(i).stationID);
+            String markerDescription = String.valueOf(receivedMyBPStationsMarkers.get(i).freePlaces) + " / " +
+                    String.valueOf(receivedMyBPStationsMarkers.get(i).totalPlaces);
+
+            currentMarker = map.addMarker(new MarkerOptions().title(markerName).snippet(markerDescription).position(receivedMyBPStationsMarkers.get(i).GetPosition()));
+
+            myBPStationMarkersHM.put(currentMarker, receivedMyBPStationsMarkers.get(i));
+
         }
 
     }
 
-    // searches MyBP station with available free places
-    public ArrayList<MyBPStationMarker> FindFreeStations(){
+    // Shows the nearest MyBPStation to the user with available places
+    public void ShowNearestMyBPStationToMe(){
 
-        ArrayList<MyBPStationMarker> freeStation = new ArrayList<MyBPStationMarker>();
-        MyBPStationMarker tmpMyBPStation;
+        MyBPStationMarker nearestMyBPStationToMe = NearestMyBPStationToMe();
 
-        int len = myBPStationMarkers.size();
-        for(int i = 0; i < len; i++){
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(nearestMyBPStationToMe.GetPosition(), 17));
 
-            tmpMyBPStation = myBPStationMarkers.get(i);
 
-            //add to the new MyBP Station list only station with free places available
-            if(tmpMyBPStation.freePlaces > 0 ){
-                freeStation.add(tmpMyBPStation);
-            }
-        }
-
-        return freeStation;
     }
 
-    // searches the nearest myBpstation to the user position only between stations with free places available
+    // Searches the nearest myBpstation to the user position only between stations with free places available
     public MyBPStationMarker NearestMyBPStationToMe(){
 
         // save my location
@@ -252,6 +272,26 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         return nearestMyBPStation;
+    }
+
+    // searches MyBP stations with available free places
+    public ArrayList<MyBPStationMarker> FindFreeStations(){
+
+        ArrayList<MyBPStationMarker> freeStation = new ArrayList<MyBPStationMarker>();
+        MyBPStationMarker tmpMyBPStation;
+
+        int len = myBPStationMarkers.size();
+        for(int i = 0; i < len; i++){
+
+            tmpMyBPStation = myBPStationMarkers.get(i);
+
+            //add to the new MyBP Station list only station with free places available
+            if(tmpMyBPStation.freePlaces > 0 ){
+                freeStation.add(tmpMyBPStation);
+            }
+        }
+
+        return freeStation;
     }
 
     public GoogleMap getMap() {
