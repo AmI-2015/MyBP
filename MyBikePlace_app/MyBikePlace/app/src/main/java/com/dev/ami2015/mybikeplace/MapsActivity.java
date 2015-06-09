@@ -30,7 +30,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     GoogleMap googleMap;
 
     public ArrayList<MyBPStationMarker> myBPStationMarkers;
-    public HashMap<Marker, MyBPStationMarker> myBPStationMarkersHM = new HashMap<Marker, MyBPStationMarker>(); //HM => HashMap
+    public HashMap<MyBPStationMarker, Marker> myBPStationMarkersHM = new HashMap<MyBPStationMarker, Marker>(); //HM => HashMap
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,21 +155,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        Intent actionIntent;
-        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            Intent i = new Intent(this, TestHTTPActivity.class);
-//            startActivity(i);
-//            return true;
-//        }
-
         switch(id){
 
             case R.id.action_settings:
                 return true;
             case R.id.action_mybp_station_next_to_me:
-                //ShowNearestMyBPStationToMe();
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(NearestMyBPStationToMe().GetPosition(), 17));
+                ShowNearestMyBPStationToMe();
+                //googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(NearestMyBPStationToMe().GetPosition(), 17));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -214,7 +206,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             currentMarker = map.addMarker(new MarkerOptions().title(markerName).snippet(markerDescription).position(receivedMyBPStationsMarkers.get(i).GetPosition()));
 
-            myBPStationMarkersHM.put(currentMarker, receivedMyBPStationsMarkers.get(i));
+            myBPStationMarkersHM.put(receivedMyBPStationsMarkers.get(i), currentMarker);
 
         }
 
@@ -224,8 +216,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void ShowNearestMyBPStationToMe(){
 
         MyBPStationMarker nearestMyBPStationToMe = NearestMyBPStationToMe();
+        Marker marker = myBPStationMarkersHM.get(nearestMyBPStationToMe);
 
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(nearestMyBPStationToMe.GetPosition(), 17));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 17));
+
+        marker.showInfoWindow();
 
 
     }
@@ -233,13 +228,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     // Searches the nearest myBpstation to the user position only between stations with free places available
     public MyBPStationMarker NearestMyBPStationToMe(){
 
-        // save my location
-        Location myLocation = googleMap.getMyLocation();
+//        // save my location
+//        Location myLocation = googleMap.getMyLocation();
 
-//        //Debug my Location
-//        Location myLocation = new Location("");
-//        myLocation.setLatitude(45.062936);
-//        myLocation.setLongitude(7.660747);
+        //Debug my Location
+        Location myLocation = new Location("");
+        myLocation.setLatitude(45.062936);
+        myLocation.setLongitude(7.660747);
 
         Location testedLocation = new Location("");
         MyBPStationMarker nearestMyBPStation = null;
