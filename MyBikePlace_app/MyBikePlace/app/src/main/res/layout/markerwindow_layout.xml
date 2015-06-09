@@ -12,13 +12,13 @@
 
     <TableRow>
         <TextView
-            android:id="@+id/markerwindow_free_on_total_places"
+            android:id="@+id/markerwindow_free_places"
             android:padding="3dip" />
     </TableRow>
 
     <TableRow>
         <TextView
-            android:id="@+id/markerwindow_distance"
+            android:id="@+id/markerwindow_tot_places"
             android:padding="3dip" />
     </TableRow>
 

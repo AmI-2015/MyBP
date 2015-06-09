@@ -46,6 +46,49 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //catch the map object
         this.googleMap = map;
 
+        // Setting a custom info window adapter for the google map
+        googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+
+
+            // use custom frame
+            @Override
+            public View getInfoWindow(Marker marker) {
+                return null;
+            }
+
+            // Defines the contents of the InfoWindow
+            @Override
+            public View getInfoContents(Marker marker) {
+
+                // Getting view from the layout file info_window_layout
+                View infoWindow = getLayoutInflater().inflate(R.layout.markerwindow_layout, null);
+
+                // Getting reference to the TextView to set station number
+                TextView stationNumber = (TextView) infoWindow.findViewById(R.id.markerwindow_mybp_station_number);
+
+                // Getting reference to the TextView to set free places
+                TextView freePlaces = (TextView) infoWindow.findViewById(R.id.markerwindow_free_places);
+
+                // Getting reference to the TextView to set total places
+                TextView totPlaces = (TextView) infoWindow.findViewById(R.id.markerwindow_tot_places);
+
+                // Setting station number text
+                stationNumber.setText("MyBP Station n.: "/*+station_ID*/);
+
+                // Setting free places text
+                freePlaces.setText("Free places: "/*+free_places*/);
+
+                // Setting totale places text
+                totPlaces.setText("Total places: "/*+tot_places*/);
+
+                // Returning the view containing InfoWindow contents
+                return infoWindow;
+
+            }
+
+            
+        });
+
         //map.setMyLocationEnabled(true);
 
         //set initial marker: Politecnico di Torino
