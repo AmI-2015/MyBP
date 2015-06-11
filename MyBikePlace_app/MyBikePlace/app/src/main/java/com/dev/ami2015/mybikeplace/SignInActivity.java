@@ -119,6 +119,7 @@ public class SignInActivity extends ActionBarActivity {
         }
 
     }
+
     //GCM REG ID REQUEST
     public void getRegId(){
         new AsyncTask<Void, Void, String>() {
