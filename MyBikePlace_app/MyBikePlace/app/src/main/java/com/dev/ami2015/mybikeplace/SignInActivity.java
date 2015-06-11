@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -37,6 +38,13 @@ public class SignInActivity extends ActionBarActivity {
     public static final String MYBPSERVER_URL ="http://192.168.56.1:7000/myBP_server/users/sign_in";
     Intent logInIntent;
 
+    // view elements from activty
+    EditText editUsername = null;
+    EditText editPassword = null;
+    CheckBox checkRememberMe = null;
+    CheckBox checkSkip = null;
+
+    // Objects to manage GCM
     GoogleCloudMessaging gcm;
     String regid;
     String PROJECT_NUMBER = "80513371534";
@@ -58,16 +66,25 @@ public class SignInActivity extends ActionBarActivity {
         String username = intent.getStringExtra(SignInActivity.EXTRA_USERNAME);
 
         setContentView(R.layout.activity_signin);
+
+        // Acquiring view elements from activty
+        editUsername = (EditText) findViewById(R.id.usernameText);
+        editPassword = (EditText) findViewById(R.id.passwordText);
+        checkRememberMe = (CheckBox) findViewById(R.id.rememberMeCheckBox);
+        checkSkip = (CheckBox) findViewById(R.id.skipCheckBox);
+
         if(username != null) {
             // modify text view content
-            TextView userID = (TextView) findViewById(R.id.usernameText);
-            userID.setText(username);
+            editUsername.setText(username);
         }
 
         getRegId();
 
         // Creating shared preference file
         userSettings = this.getSharedPreferences(getString(R.string.USER_SETTINGS), Context.MODE_PRIVATE);
+
+        // Check shared preference file
+        SetUsernamePasswordByPreferenceFile();
 
     }
 
@@ -138,12 +155,10 @@ public class SignInActivity extends ActionBarActivity {
     // called when the user clicks the send button
     public void sendCredentials(View view) throws UnsupportedEncodingException, JSONException, NoSuchAlgorithmException {
 
-        // Acquiring view elements from activty
-        EditText editUsername = (EditText) findViewById(R.id.usernameText);
-        EditText editPassword = (EditText) findViewById(R.id.passwordText);
-        CheckBox checkRememberMe = (CheckBox) findViewById(R.id.rememberMeCheckBox);
-        CheckBox checkSkip = (CheckBox) findViewById(R.id.skipCheckBox);
-
+        editUsername = (EditText) findViewById(R.id.usernameText);
+        editPassword = (EditText) findViewById(R.id.passwordText);
+        checkRememberMe = (CheckBox) findViewById(R.id.rememberMeCheckBox);
+        checkSkip = (CheckBox) findViewById(R.id.skipCheckBox);
 
         // Manage Username TextView
         String username = editUsername.getText().toString();
@@ -202,12 +217,10 @@ public class SignInActivity extends ActionBarActivity {
     // called when user click on clear button
     public void clearCredentials(View view){
 
-        EditText editUsername = (EditText) findViewById(R.id.usernameText);
         editUsername.setText("");
         editUsername.setHint(R.string.username_hint);
         editUsername.setHintTextColor(getResources().getColor(R.color.hint_foreground_material_light));
 
-        EditText editPassword = (EditText) findViewById(R.id.passwordText);
         editPassword.setText("");
         editPassword.setHint(R.string.password_hint);
         editPassword.setHintTextColor(getResources().getColor(R.color.hint_foreground_material_light));
@@ -282,5 +295,36 @@ public class SignInActivity extends ActionBarActivity {
         startActivity(logInIntent);
 
     }
+
+    //checks if preference file contains valid username and password to automatically set inside
+    //editUsername and editPassword view elements
+    public void SetUsernamePasswordByPreferenceFile(){
+
+        //Retrieving data from User Settings file
+        boolean skip = userSettings.getBoolean(getString(R.string.USER_SKIP), false /*default value*/);
+        boolean rememberMe = userSettings.getBoolean(getString(R.string.USER_REMEMBER_ME), false /*default value*/);
+        String username = userSettings.getString(getString(R.string.USER_USERNAME), null /*default value*/);
+        String password = userSettings.getString(getString(R.string.USER_PASSWORD), null /*default value*/);
+
+        //Populates/Skip sign in depending on retrieved data
+        if(skip){ //skip check box is checked
+            // Restore user setting about: skip
+            checkSkip.setChecked(true);
+            if(rememberMe){ //rememberMe check box is checked
+                // Restore user setting about: remember me
+                checkRememberMe.setChecked(true);
+                if(username != null && password != null){ //username and password data are presents inside user settings file
+                    //Compile sign in form
+                    editUsername.setText(username);
+                    editPassword.setText(password);
+                    //Execute sign in
+                    Button continueButton = (Button) findViewById(R.id.continueButton);
+                    continueButton.performClick();
+                }
+            }
+        }
+
+    }
+
 }
 
