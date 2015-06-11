@@ -1,6 +1,8 @@
 package com.dev.ami2015.mybikeplace;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -46,19 +48,43 @@ public class PersonalActivity extends ActionBarActivity {
 
         Intent intentPerAct = getIntent();
         String message = intentPerAct.getStringExtra(GcmMessageHandler.EXTRA_MESSAGE);
-        String messageView = "";
         if(Objects.equals(message, "ALARM"))
         {
-            messageView = "YOUR BIKE HAS BEEN MOVED";
-            setContentView(R.layout.activity_personal);
+            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    String messageView = "";
+                    TextView textAlarm = (TextView) findViewById(R.id.textAlarm);
+                    switch (which){
+                        case DialogInterface.BUTTON_POSITIVE:
+                            messageView = "YOUR BIKE HAS BEEN MOVED";
+                            setContentView(R.layout.activity_personal);
 
-            // modify text view content
-            TextView textAlarm = (TextView) findViewById(R.id.textAlarm);
-            textAlarm.setText(messageView);
-            textAlarm.setTextColor(Color.RED);
+                            // modify text view content
+                            textAlarm.setText(messageView);
+                            textAlarm.setTextColor(Color.RED);
+                            break;
+
+                        case DialogInterface.BUTTON_NEGATIVE:
+                            messageView = "YOUR BIKE HAS BEEN SUCCESSFULLY DISLOCKED";
+                            setContentView(R.layout.activity_personal);
+
+                            // modify text view content
+                            textAlarm.setText(messageView);
+                            textAlarm.setTextColor(Color.GREEN);
+                            break;
+                    }
+                }
+            };
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Have you dislocked the bike?").setNegativeButton("No", dialogClickListener)
+                    .setPositiveButton("Yes", dialogClickListener).show();
+
         }
         else
         {
+            String messageView = "";
             messageView = "YOUR BIKE HAS BEEN SUCCESSFULLY DISLOCKED";
             setContentView(R.layout.activity_personal);
 
