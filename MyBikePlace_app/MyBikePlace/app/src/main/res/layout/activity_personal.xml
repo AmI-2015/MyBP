@@ -19,13 +19,10 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
         android:id="@+id/userID"
         android:layout_below="@+id/welcomeSignIn"
         android:layout_alignStart="@+id/textAlarm"
-        android:layout_marginTop="103dp"
-        android:layout_alignEnd="@+id/textAlarm"
-        android:visibility="visible" />
+        android:layout_alignEnd="@+id/textAlarm" />
 
     <TextView
         android:layout_width="wrap_content"
