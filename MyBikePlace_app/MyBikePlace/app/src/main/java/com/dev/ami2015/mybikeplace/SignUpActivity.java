@@ -199,5 +199,4 @@ public class SignUpActivity extends ActionBarActivity {
         editPassword.setHintTextColor(getResources().getColor(R.color.hint_foreground_material_light));
 
     }
-
 }
