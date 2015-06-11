@@ -54,7 +54,6 @@ public class LoginActivity extends ActionBarActivity {
         }
 
         getRegId();
-
     }
 
     @Override
@@ -62,6 +61,31 @@ public class LoginActivity extends ActionBarActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_login, menu);
         return true;
+    }
+
+    //GCM REG ID REQUEST
+    public void getRegId(){
+        new AsyncTask<Void, Void, String>() {
+            @Override
+            protected String doInBackground(Void... params) {
+                String msg = "";
+                try {
+                    if (gcm == null) {
+                        gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
+                    }
+                    regid = gcm.register(PROJECT_NUMBER);
+                    msg = "Device registered, registration ID=" + regid;
+                    Log.i("GCM", msg);
+
+
+                } catch (IOException ex) {
+                    msg = "Error :" + ex.getMessage();
+
+                }
+                return msg;
+            }
+
+        }.execute(null, null, null);
     }
 
     @Override
@@ -96,30 +120,7 @@ public class LoginActivity extends ActionBarActivity {
         }
 
     }
-    //GCM REG ID REQUEST
-    public void getRegId(){
-        new AsyncTask<Void, Void, String>() {
-            @Override
-            protected String doInBackground(Void... params) {
-                String msg = "";
-                try {
-                    if (gcm == null) {
-                        gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
-                    }
-                    regid = gcm.register(PROJECT_NUMBER);
-                    msg = "Device registered, registration ID=" + regid;
-                    Log.i("GCM", msg);
 
-
-                } catch (IOException ex) {
-                    msg = "Error :" + ex.getMessage();
-
-                }
-                return msg;
-            }
-
-        }.execute(null, null, null);
-    }
 
     // called when the user clicks the send button
     public void sendCredentials(View view) throws UnsupportedEncodingException, JSONException, NoSuchAlgorithmException {
