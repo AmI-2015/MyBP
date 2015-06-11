@@ -58,9 +58,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_map" >
+        </activity>
+
+        <activity
+            android:name=".SignUpActivity"
+            android:label="@string/title_activity_sign_up"
+            android:parentActivityName=".SignInActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".SignInActivity" />
+        </activity>
+
+        <activity
+            android:name=".PersonalActivity"
+            android:label="@string/title_activity_personal">
         </activity>
 
         <!-- Follow line to abilitate maps download -->
@@ -71,22 +86,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBgeFxs85Xg0-IkwbBn0HqZq3jvG7VEq9Y" />
 
-        <activity
-            android:name=".SignUpActivity"
-            android:label="@string/title_activity_sign_up"
-            android:parentActivityName=".SignInActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".SignInActivity" />
-        </activity>
-        <activity
-            android:name=".PersonalActivity"
-            android:label="@string/title_activity_personal"
-            android:parentActivityName=".SignInActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".SignInActivity" />
-        </activity>
 
         <receiver
             android:name=".GcmBroadcastReceiver"

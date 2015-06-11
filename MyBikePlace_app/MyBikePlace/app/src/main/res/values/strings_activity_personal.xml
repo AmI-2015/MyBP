@@ -5,6 +5,6 @@
     <string name="action_restore_default_settings">Restore default settings</string>
     <string name="action_clear_remember_me_checkbox">Not Remember Me</string>
     <string name="action_clear_skip_checkbox">Not Skip sign-in</string>
-
+    <string name="action_go_to_maps">Go to maps</string>
 
 </resources>
