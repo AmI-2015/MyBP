@@ -102,14 +102,6 @@ public class SignInActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        Intent actionIntent;
-        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            Intent i = new Intent(this, TestHTTPActivity.class);
-//            startActivity(i);
-//            return true;
-//        }
-
         switch(id){
 
             case R.id.actionSignUp:
@@ -231,20 +223,21 @@ public class SignInActivity extends ActionBarActivity {
 
         int errorSIGNIN = 0;
         String errStr = serverResponse.getString("error_str");
-        if(Objects.equals(errStr, "ERROR_SIGNIN"))
+        if (Objects.equals(errStr, "ERROR_SIGNIN"))
             errorSIGNIN = 1;
-        else
+        else{
             // Sign in was successful
             errorSIGNIN = 0;
-            // Open editor to write inside Preference File
-            userSettingsEditor = userSettings.edit();
-            // save username and password inside user settings file
-            userSettingsEditor.putString(getString(R.string.USER_USERNAME), prefUsername);
-            userSettingsEditor.putString(getString(R.string.USER_PASSWORD), prefPassword);
-            // COMMIT MODIFICATION!!!
-            userSettingsEditor.commit();
-
-
+            // Open editor to write inside Preference File ONLY IF REMEMBER ME IS CHECKED
+            if (userSettings.getBoolean(getString(R.string.USER_REMEMBER_ME), false)) {
+                userSettingsEditor = userSettings.edit();
+                // save username and password inside user settings file
+                userSettingsEditor.putString(getString(R.string.USER_USERNAME), prefUsername);
+                userSettingsEditor.putString(getString(R.string.USER_PASSWORD), prefPassword);
+                // COMMIT MODIFICATION!!!
+                userSettingsEditor.commit();
+            }
+        }
 
         goToPersonalActivity(userID,errorSIGNIN);
     }
@@ -308,22 +301,64 @@ public class SignInActivity extends ActionBarActivity {
 
         //Populates/Skip sign in depending on retrieved data
         if(skip){ //skip check box is checked
+
             // Restore user setting about: skip
             checkSkip.setChecked(true);
+
             if(rememberMe){ //rememberMe check box is checked
+
                 // Restore user setting about: remember me
                 checkRememberMe.setChecked(true);
+
                 if(username != null && password != null){ //username and password data are presents inside user settings file
+
                     //Compile sign in form
                     editUsername.setText(username);
                     editPassword.setText(password);
                     //Execute sign in
                     Button continueButton = (Button) findViewById(R.id.continueButton);
                     continueButton.performClick();
+
+                } else { //username and password data aren't presents inside user settings file: AUTO SIGN IN NOT POSSIBLE
+
+                    //Reset default value for check box
+                    checkSkip.setChecked(false);
+                    checkRememberMe.setChecked(false);
+
                 }
+            } else { //rememberMe check box is unchecked
+
+                //Go automatically to map without sign in procedure
+                this.GoToMaps();
+
+            }
+
+        } else { //skip check box is unchecked
+
+            if(rememberMe){ //rememberMe check box is checked
+
+                // Restore user setting about: remember me
+                checkRememberMe.setChecked(true);
+
+                if(username != null && password != null){ //username and password data are presents inside user settings file
+
+                    //Compile sign in form
+                    editUsername.setText(username);
+                    editPassword.setText(password);
+                    //Wait user action
+
+                } else { //username and password data aren't presents inside user settings file: AUTO SIGN IN NOT POSSIBLE
+
+                    //Reset default value for remember me check box
+                    checkRememberMe.setChecked(false);
+
+                }
+
+            } else { //rememberMe check box is unchecked
+
+                //Do Nothing wait user action
             }
         }
-
     }
 
 }

@@ -1,23 +1,25 @@
 <resources>
 
-    <!-- Strings related to login -->
+    <!-- ##############Strings related to sign-in #################### -->
     <string name="username_hint">Username</string>
     <string name="password_hint">Password</string>
 
-    <string name="button_continue">Continue</string>
+    <string name="button_continue">Sign In</string>
     <string name="button_clear">Clear</string>
     <string name="button_map">Map</string>
 
     <string name="checkbox_remember_me">Remember Me</string>
     <string name="checkbox_skip">Skip</string>
 
+    <!-- ############### ACTION NAMES ################# -->
     <string name="action_sign_up">Sign Up</string>
     <string name="action_test_connection">Connection Status</string>
     <!--string name="action_update_map">Update Map</string-->
     <string name="action_go_to_map">Go to Map</string>
 
+    <!-- ############### ERROR MESSAGES ################# -->
     <string name="error_invalid_username">Type a valid Username</string>
     <string name="error_invalid_password">Type a valid Password</string>
-
     <string name="error_field_required">This field is required</string>
+
 </resources>
