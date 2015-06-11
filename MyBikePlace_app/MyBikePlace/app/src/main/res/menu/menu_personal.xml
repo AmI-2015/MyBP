@@ -13,9 +13,16 @@
         android:orderInCategory="100"
         app:showAsAction="never" />
 
+    <item android:id="@+id/action_go_to_maps"
+        android:title="@string/action_go_to_maps"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+    <!--
     <item android:id="@+id/action_clear_skip_checkbox"
         android:title="@string/action_clear_skip_checkbox"
         android:orderInCategory="100"
         app:showAsAction="never" />
+    -->
 
 </menu>

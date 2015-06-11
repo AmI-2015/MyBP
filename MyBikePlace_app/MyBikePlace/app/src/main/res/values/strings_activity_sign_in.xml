@@ -4,12 +4,12 @@
     <string name="username_hint">Username</string>
     <string name="password_hint">Password</string>
 
-    <string name="button_continue">Sign In</string>
+    <string name="button_continue">Continue</string>
     <string name="button_clear">Clear</string>
     <string name="button_map">Map</string>
 
     <string name="checkbox_remember_me">Remember Me</string>
-    <string name="checkbox_skip">Skip</string>
+    <string name="checkbox_skip">Skip sign-in</string>
 
     <!-- ############### ACTION NAMES ################# -->
     <string name="action_sign_up">Sign Up</string>

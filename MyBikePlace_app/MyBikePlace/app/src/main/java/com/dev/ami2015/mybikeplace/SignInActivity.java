@@ -65,7 +65,7 @@ public class SignInActivity extends ActionBarActivity {
         Intent intent = getIntent();
         String username = intent.getStringExtra(SignInActivity.EXTRA_USERNAME);
 
-        setContentView(R.layout.activity_signin);
+        setContentView(R.layout.activity_sign_in);
 
         // Acquiring view elements from activty
         editUsername = (EditText) findViewById(R.id.usernameText);
@@ -148,60 +148,67 @@ public class SignInActivity extends ActionBarActivity {
     // called when the user clicks the send button
     public void sendCredentials(View view) throws UnsupportedEncodingException, JSONException, NoSuchAlgorithmException {
 
-        editUsername = (EditText) findViewById(R.id.usernameText);
-        editPassword = (EditText) findViewById(R.id.passwordText);
-        checkRememberMe = (CheckBox) findViewById(R.id.rememberMeCheckBox);
-        checkSkip = (CheckBox) findViewById(R.id.skipCheckBox);
-
-        // Manage Username TextView
-        String username = editUsername.getText().toString();
-        // copying username to save it into preference file
-        prefUsername = username;
-        SignInActivity.userID = username;
-
-        // Manage Password TextView
-        String password = editPassword.getText().toString();
-        // copying password to save it into preference file
-        prefPassword = password;
-
-        // Save Remember Me and Skip CheckBox status inside user settings preference file
+        // First save Remember Me and Skip CheckBox status inside user settings preference file
         userSettingsEditor = userSettings.edit();
         userSettingsEditor.putBoolean(getString(R.string.USER_REMEMBER_ME), checkRememberMe.isChecked());
         userSettingsEditor.putBoolean(getString(R.string.USER_SKIP), checkSkip.isChecked());
         userSettingsEditor.commit();
 
-
-        byte[] bytesOfUser = username.getBytes("UTF-8");
-        byte[] bytesOfPwd = password.getBytes("UTF-8");
-        MessageDigest mdUser = null;
-        MessageDigest mdPwd = null;
-
-        if (Objects.equals(username, "")) {
-            editUsername.setHint("type a valid username");
-            editUsername.setHintTextColor(getResources().getColor(R.color.red));
-            editPassword.setText("");
+        if(userSettings.getBoolean(getString(R.string.USER_SKIP), false)){
+            // if skip check box is checked continue button brings directly to map activity without sign in
+            GoToMaps();
         } else {
-            if (Objects.equals(password, "")) {
-                editPassword.setHint("type a valid password");
-                editPassword.setHintTextColor(getResources().getColor(R.color.red));
+            // if skip check box in unchecked continue button performs a sign in and brings to personal activity
+
+            editUsername = (EditText) findViewById(R.id.usernameText);
+            editPassword = (EditText) findViewById(R.id.passwordText);
+            checkRememberMe = (CheckBox) findViewById(R.id.rememberMeCheckBox);
+            checkSkip = (CheckBox) findViewById(R.id.skipCheckBox);
+
+            // Manage Username TextView
+            String username = editUsername.getText().toString();
+            // copying username to save it into preference file
+            prefUsername = username;
+            SignInActivity.userID = username;
+
+            // Manage Password TextView
+            String password = editPassword.getText().toString();
+            // copying password to save it into preference file
+            prefPassword = password;
+
+
+            byte[] bytesOfUser = username.getBytes("UTF-8");
+            byte[] bytesOfPwd = password.getBytes("UTF-8");
+            MessageDigest mdUser = null;
+            MessageDigest mdPwd = null;
+
+            if (Objects.equals(username, "")) {
+                editUsername.setHint("type a valid username");
+                editUsername.setHintTextColor(getResources().getColor(R.color.red));
+                editPassword.setText("");
             } else {
+                if (Objects.equals(password, "")) {
+                    editPassword.setHint("type a valid password");
+                    editPassword.setHintTextColor(getResources().getColor(R.color.red));
+                } else {
 
-                //Encryption of user and pwd
-                mdUser = MessageDigest.getInstance("MD5");
-                mdPwd = MessageDigest.getInstance("MD5");
-                byte[] digestUser = mdUser.digest(bytesOfUser);
-                byte[] digestPwd = mdPwd.digest(bytesOfPwd);
-                username = android.util.Base64.encodeToString(digestUser, android.util.Base64.DEFAULT);
-                password = android.util.Base64.encodeToString(digestPwd, android.util.Base64.DEFAULT);
-                //#########################################//
-                JSONObject obj =new JSONObject();
-                JSONObject objResponse= new JSONObject();
-                obj.put("pwd_code",  password);
-                obj.put("user_code", username);
-                obj.put("registration_id", regid);
+                    //Encryption of user and pwd
+                    mdUser = MessageDigest.getInstance("MD5");
+                    mdPwd = MessageDigest.getInstance("MD5");
+                    byte[] digestUser = mdUser.digest(bytesOfUser);
+                    byte[] digestPwd = mdPwd.digest(bytesOfPwd);
+                    username = android.util.Base64.encodeToString(digestUser, android.util.Base64.DEFAULT);
+                    password = android.util.Base64.encodeToString(digestPwd, android.util.Base64.DEFAULT);
+                    //#########################################//
+                    JSONObject obj =new JSONObject();
+                    JSONObject objResponse= new JSONObject();
+                    obj.put("pwd_code",  password);
+                    obj.put("user_code", username);
+                    obj.put("registration_id", regid);
 
-                new signInConnection(this).execute(MYBPSERVER_URL, obj.toString());
+                    new signInConnection(this).execute(MYBPSERVER_URL, obj.toString());
 
+                }
             }
         }
     }
@@ -301,42 +308,17 @@ public class SignInActivity extends ActionBarActivity {
         String password = userSettings.getString(getString(R.string.USER_PASSWORD), null /*default value*/);
 
         //Populates/Skip sign in depending on retrieved data
-        if(skip){ //skip check box is checked
+        if(skip){ //skip check box is checked then go directly to map without sign in
 
             // Restore user setting about: skip
             checkSkip.setChecked(true);
 
-            if(rememberMe){ //rememberMe check box is checked
-
-                // Restore user setting about: remember me
-                checkRememberMe.setChecked(true);
-
-                if(username != null && password != null){ //username and password data are presents inside user settings file
-
-                    //Compile sign in form
-                    editUsername.setText(username);
-                    editPassword.setText(password);
-                    //Execute sign in
-                    Button continueButton = (Button) findViewById(R.id.continueButton);
-                    continueButton.performClick();
-
-                } else { //username and password data aren't presents inside user settings file: AUTO SIGN IN NOT POSSIBLE
-
-                    //Reset default value for check box
-                    checkSkip.setChecked(false);
-                    checkRememberMe.setChecked(false);
-
-                }
-            } else { //rememberMe check box is unchecked
-
-                //Go automatically to map without sign in procedure
-                this.GoToMaps();
-
-            }
+            //Go automatically to map without sign in procedure ignoring data in username, password and remember me
+            this.GoToMaps();
 
         } else { //skip check box is unchecked
 
-            if(rememberMe){ //rememberMe check box is checked
+            if(rememberMe){ //if rememberMe check box is checked go directly to personal activity with sign in
 
                 // Restore user setting about: remember me
                 checkRememberMe.setChecked(true);
@@ -346,7 +328,9 @@ public class SignInActivity extends ActionBarActivity {
                     //Compile sign in form
                     editUsername.setText(username);
                     editPassword.setText(password);
-                    //Wait user action
+                    //go to personal activity
+                    Button continueButton = (Button) findViewById(R.id.continueButton);
+                    continueButton.performClick();
 
                 } else { //username and password data aren't presents inside user settings file: AUTO SIGN IN NOT POSSIBLE
 
@@ -361,6 +345,5 @@ public class SignInActivity extends ActionBarActivity {
             }
         }
     }
-
 }
 

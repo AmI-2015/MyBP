@@ -159,11 +159,14 @@ public class PersonalActivity extends ActionBarActivity {
                 userSettingsEditor.putBoolean(getString(R.string.USER_REMEMBER_ME), false);
                 userSettingsEditor.commit();
                 return true;
-            case R.id.action_clear_skip_checkbox:
-                userSettingsEditor = userSettings.edit();
-                userSettingsEditor.putBoolean(getString(R.string.USER_SKIP), false);
-                userSettingsEditor.commit();
-                return true;
+            case R.id.action_go_to_maps:
+                Intent personalIntent = new Intent(this, MapsActivity.class);
+                startActivity(personalIntent);
+//            case R.id.action_clear_skip_checkbox:
+//                userSettingsEditor = userSettings.edit();
+//                userSettingsEditor.putBoolean(getString(R.string.USER_SKIP), false);
+//                userSettingsEditor.commit();
+//                return true;
             default:
                 return super.onOptionsItemSelected(item);
 
