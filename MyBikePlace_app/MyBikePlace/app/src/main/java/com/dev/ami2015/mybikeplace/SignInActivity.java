@@ -33,7 +33,7 @@ import java.util.Objects;
 public class SignInActivity extends ActionBarActivity {
 
     public final static String EXTRA_USERNAME = "com.dev.ami2015.mybikeplace.USERNAME";
-    public final static String EXTRA_PASSWORD = "com.dev.ami2015.mybikeplace.PASSWORD";
+    //public final static String EXTRA_PASSWORD = "com.dev.ami2015.mybikeplace.PASSWORD";
     public static String userID = null;
     public static final String MYBPSERVER_URL ="http://192.168.56.1:7000/myBP_server/users/sign_in";
     Intent logInIntent;
@@ -169,7 +169,7 @@ public class SignInActivity extends ActionBarActivity {
             String username = editUsername.getText().toString();
             // copying username to save it into preference file
             prefUsername = username;
-            SignInActivity.userID = username;
+            this.userID = username;
 
             // Manage Password TextView
             String password = editPassword.getText().toString();
@@ -247,7 +247,7 @@ public class SignInActivity extends ActionBarActivity {
             }
         }
 
-        goToPersonalActivity(userID,errorSIGNIN);
+        goToPersonalActivity(userID, errorSIGNIN);
     }
 
     public void GoToMaps(){
@@ -259,12 +259,10 @@ public class SignInActivity extends ActionBarActivity {
     public void goToPersonalActivity(String userID, int error)
     {
         Intent i = new Intent(this, PersonalActivity.class);
-        Intent err_i = new Intent(this, SignInActivity.class);
-        if(error == 1)
-        {
-            //SOLO PER DEBUG
-            err_i.putExtra(EXTRA_USERNAME, "USER_ID o PWD ERRATE\n");
-            startActivity(err_i);
+
+        if(error == 1) {
+            editUsername.setText("USER_ID o PWD ERRATE");
+            editPassword.setText("");
         }
         else {
             i.putExtra(EXTRA_USERNAME, userID);

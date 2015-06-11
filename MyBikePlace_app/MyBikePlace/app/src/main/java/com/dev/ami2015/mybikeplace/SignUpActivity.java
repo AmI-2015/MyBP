@@ -28,9 +28,10 @@ public class SignUpActivity extends ActionBarActivity {
     public static int MIN_PASSWORD_LENGHT = 8;
     public static int MAX_PASSWORD_LENGHT = 16;
     public static String regid;
+    public static String username = null;
+    public static String password = null;
     public final static String EXTRA_USERNAME = "com.dev.ami2015.mybikeplace.USERNAME";
     public final static String EXTRA_PASSWORD = "com.dev.ami2015.mybikeplace.PASSWORD";
-    public static String userID = null;
     public static final String MYBPSERVER_URL ="http://192.168.56.1:7000/myBP_server/users/sign_up";
 
     EditText editUsername;
@@ -77,14 +78,10 @@ public class SignUpActivity extends ActionBarActivity {
         }
         else
         {
-            EditText editUsername = (EditText) findViewById(R.id.usernameEditSignUpActivity);
-            String username       = editUsername.getText().toString();
+            username       = editUsername.getText().toString();
+            password       = editPassword.getText().toString();
 
-
-            SignInActivity.userID  = username;
-            EditText editPassword = (EditText) findViewById(R.id.passwordEditSignUpActivity);
-            String password       = editPassword.getText().toString();
-
+           // SignInActivity.userID  = username;
 
             byte[] bytesOfUser    = username.getBytes("UTF-8");
             byte[] bytesOfPwd     = password.getBytes("UTF-8");
@@ -96,14 +93,14 @@ public class SignUpActivity extends ActionBarActivity {
             mdPwd = MessageDigest.getInstance("MD5");
             byte[] digestUser = mdUser.digest(bytesOfUser);
             byte[] digestPwd  = mdPwd.digest(bytesOfPwd);
-            username = android.util.Base64.encodeToString(digestUser, android.util.Base64.DEFAULT);
-            password = android.util.Base64.encodeToString(digestPwd, android.util.Base64.DEFAULT);
+            String cryptedUsername = android.util.Base64.encodeToString(digestUser, android.util.Base64.DEFAULT);
+            String cryptedPassword = android.util.Base64.encodeToString(digestPwd, android.util.Base64.DEFAULT);
 
             //#########################################//
             JSONObject obj =new JSONObject();
             JSONObject objResponse= new JSONObject();
-            obj.put("pwd_code",  password);
-            obj.put("user_code", username);
+            obj.put("pwd_code",  cryptedPassword);
+            obj.put("user_code", cryptedUsername);
             obj.put("registration_id", regid);
 
             new signUpConnection(this).execute(MYBPSERVER_URL, obj.toString());
@@ -164,18 +161,16 @@ public class SignUpActivity extends ActionBarActivity {
             // sign up completed successfully
             errorSIGNUP = 0;
         }
-        goToPersonalActivity(userID,errorSIGNUP);
+        goToPersonalActivity(username,errorSIGNUP);
     }
 
     public void goToPersonalActivity(String userID, int error)
     {
         Intent i = new Intent(this, PersonalActivity.class);
-        Intent err_i = new Intent(this, SignUpActivity.class);
         if(error == 1)
         {
-            //SOLO PER DEBUG
-            err_i.putExtra(EXTRA_USERNAME, "ERROR SIGN UP! THIS USER ALREADY EXISTS\n");
-            startActivity(err_i);
+            editUsername.setText("ERROR SIGN UP! THIS USER ALREADY EXISTS");
+            editPassword.setText("");
         }
         else {
             i.putExtra(EXTRA_USERNAME, userID);

@@ -96,7 +96,7 @@ public class PersonalActivity extends ActionBarActivity {
         getRegId();
 
         // Creating shared preference file
-        userSettings = this.getSharedPreferences(getString(R.string.USER_SETTINGS), Context.MODE_PRIVATE);
+        //userSettings = this.getSharedPreferences(getString(R.string.USER_SETTINGS), Context.MODE_PRIVATE);
     }
 
 //
