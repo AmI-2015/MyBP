@@ -16,7 +16,7 @@ public class PersonalActivity extends ActionBarActivity {
 
         // get the two extras containg credentials from the intent
         Intent intent = getIntent();
-        String username = intent.getStringExtra(LoginActivity.EXTRA_USERNAME);
+        String username = intent.getStringExtra(SignInActivity.EXTRA_USERNAME);
 
         setContentView(R.layout.activity_personal);
 

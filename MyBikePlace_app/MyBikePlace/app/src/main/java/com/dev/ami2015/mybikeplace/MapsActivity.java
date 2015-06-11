@@ -1,13 +1,9 @@
 package com.dev.ami2015.mybikeplace;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,17 +16,17 @@ import com.google.android.gms.maps.model.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     Intent mapsIntent;
-    ArrayList<MapsMarker> roomsMarkers;
+    ArrayList<RoomMarker> roomsMarkers;
     GoogleMap googleMap;
 
     public ArrayList<MyBPStationMarker> myBPStationMarkers;
     public HashMap<MyBPStationMarker, Marker> myBPStationMarkersHM = new HashMap<MyBPStationMarker, Marker>(); //HM => HashMap
+    public HashMap<RoomMarker, Marker> roomMarkersHM= new HashMap<RoomMarker, Marker>(); //HM => HashMap
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,81 +45,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //catch the map object
         this.googleMap = map;
 
-        // Setting a custom info window adapter for the google map
-        googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+        map.setMyLocationEnabled(true);
 
-            int stationID;
-            int freePlacesInt;
-            int totPlacesInt;
+//        // Setting the MyBPStationInfoWindowAdapter to add the right infoWindow
+//        googleMap.setInfoWindowAdapter(new MyBPStationInfoWindowAdapter());
 
-
-            // use custom frame
-            @Override
-            public View getInfoWindow(Marker marker) {
-                return null;
-            }
-
-            // Defines the contents of the InfoWindow
-            @Override
-            public View getInfoContents(Marker marker) {
-
-                // Getting view from the layout file info_window_layout
-                View infoWindow = getLayoutInflater().inflate(R.layout.markerwindow_layout, null);
-
-                // Getting reference to the TextView to set station number
-                TextView stationNumber = (TextView) infoWindow.findViewById(R.id.markerwindow_mybp_station_number);
-
-                // Getting reference to the TextView to set free places
-                TextView freePlaces = (TextView) infoWindow.findViewById(R.id.markerwindow_free_places);
-
-                // Getting reference to the TextView to set total places
-                TextView totPlaces = (TextView) infoWindow.findViewById(R.id.markerwindow_tot_places);
-
-                // Setting station number text
-                stationNumber.setText("MyBP Station n.: " + marker.getTitle());
-                stationNumber.setAllCaps(true);
-
-                // Extracting free places string from snipper string
-
-                String snippetStr = marker.getSnippet();
-                String freePlacesStr = "";
-                String totPlacesStr = "";
-                char tmpChr;
-                boolean snippetSecondHalf = false;
-
-                for(int i = 0; i < snippetStr.length(); i++){
-
-                    tmpChr = snippetStr.charAt(i);
-                    if((tmpChr == '/') && (snippetSecondHalf == false)){
-                        snippetSecondHalf = true;
-                    }
-
-                    if((snippetSecondHalf == false) && (tmpChr != '/')){
-                        freePlacesStr += Character.toString(tmpChr);
-                    }
-
-                    if((snippetSecondHalf == true) && (tmpChr != '/')){
-                        totPlacesStr += Character.toString(tmpChr);
-                    }
-                }
-
-                // Setting free places text
-                freePlaces.setText("Free places: " + freePlacesStr);
-
-                // Setting totale places text
-                totPlaces.setText("Total places: " + totPlacesStr);
-
-                // Returning the view containing InfoWindow contents
-                return infoWindow;
-
-            }
-
-        });
-
-        //map.setMyLocationEnabled(true);
 
         //set initial marker: Politecnico di Torino
-        MapsMarker poliMarker = new MapsMarker("Politecnico", "Universita' di Torino", 45.062936, 7.660747);
+        RoomMarker poliMarker = new RoomMarker("Politecnico", "Universita' di Torino", 45.062936, 7.660747);
 
         //don't show politecnico marker
         //setMarkerInMap(map, poliMarker);
@@ -161,7 +90,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return true;
             case R.id.action_mybp_station_next_to_me:
                 ShowNearestMyBPStationToMe();
-                //googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(NearestMyBPStationToMe().GetPosition(), 17));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -170,46 +98,46 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    public void setMarkerInMap(GoogleMap map, MapsMarker mapsMarker){
-
-        map.addMarker(new MarkerOptions().title(mapsMarker.markerName).snippet(mapsMarker.markerDescription).position(mapsMarker.GetPosition()));
-
-    }
-
     //rooms marker are received from PoliOrari API and inserted in map
-    public void setAllRoomMarkerInMap(GoogleMap map, ArrayList<MapsMarker> receivedRoomsMarkers){
+    public void setAllRoomMarkerInMap(GoogleMap map, ArrayList<RoomMarker> receivedRoomsMarkers){
 
-
+        Marker currentMarker;
 
         roomsMarkers = receivedRoomsMarkers;
 
         int len = roomsMarkers.size();
         for (int i = 0; i < len; i++){
 
-            setMarkerInMap(map, roomsMarkers.get(i));
+            //setting room marker without making it visible
+            currentMarker = map.addMarker(new MarkerOptions().title(roomsMarkers.get(i).markerName).snippet(roomsMarkers.get(i).markerDescription).position(roomsMarkers.get(i).GetPosition()).visible(false));
+
+            roomMarkersHM.put(roomsMarkers.get(i), currentMarker);
+
         }
 
     }
 
 
     //MyBP station markers are received from MyBPServer API and inserted in map
-    public void setAllMyBPStationMarkerInMap(GoogleMap map, ArrayList<MyBPStationMarker> receivedMyBPStationsMarkers){
+    public void setAllMyBPStationMarkerInMap(GoogleMap map, ArrayList<MyBPStationMarker> receivedMyBPStationsMarkers) {
 
         Marker currentMarker;
 
         int len = receivedMyBPStationsMarkers.size();
-        for(int i = 0; i < len; i++){
+        for (int i = 0; i < len; i++) {
 
             String markerName = String.valueOf(receivedMyBPStationsMarkers.get(i).stationID);
             String markerDescription = String.valueOf(receivedMyBPStationsMarkers.get(i).freePlaces) + " / " +
                     String.valueOf(receivedMyBPStationsMarkers.get(i).totalPlaces);
+
+            // Setting the MyBPStationInfoWindowAdapter to add the right infoWindow
+            googleMap.setInfoWindowAdapter(new MyBPStationInfoWindowAdapter());
 
             currentMarker = map.addMarker(new MarkerOptions().title(markerName).snippet(markerDescription).position(receivedMyBPStationsMarkers.get(i).GetPosition()));
 
             myBPStationMarkersHM.put(receivedMyBPStationsMarkers.get(i), currentMarker);
 
         }
-
     }
 
     // Shows the nearest MyBPStation to the user with available places
@@ -222,19 +150,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         marker.showInfoWindow();
 
-
     }
 
     // Searches the nearest myBpstation to the user position only between stations with free places available
     public MyBPStationMarker NearestMyBPStationToMe(){
 
-//        // save my location
-//        Location myLocation = googleMap.getMyLocation();
+        // save my location
+        Location myLocation = googleMap.getMyLocation();
 
-        //Debug my Location
-        Location myLocation = new Location("");
-        myLocation.setLatitude(45.062936);
-        myLocation.setLongitude(7.660747);
+//        //Debug my Location
+//        Location myLocation = new Location("");
+//        myLocation.setLatitude(45.062936);
+//        myLocation.setLongitude(7.660747);
 
         Location testedLocation = new Location("");
         MyBPStationMarker nearestMyBPStation = null;
@@ -289,7 +216,79 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         return freeStation;
     }
 
+    public class MyBPStationInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
+
+        // Constructor
+        public MyBPStationInfoWindowAdapter()
+        {
+        }
+
+        // use custom frame
+        @Override
+        public View getInfoWindow(Marker marker) {
+            return null;
+        }
+
+        // Defines the contents of the InfoWindow
+        @Override
+        public View getInfoContents(Marker marker) {
+
+            // Getting view from the layout file info_window_layout
+            View infoWindow = getLayoutInflater().inflate(R.layout.markerwindow_layout, null);
+
+            // Getting reference to the TextView to set station number
+            TextView stationNumber = (TextView) infoWindow.findViewById(R.id.markerwindow_mybp_station_number);
+
+            // Getting reference to the TextView to set free places
+            TextView freePlaces = (TextView) infoWindow.findViewById(R.id.markerwindow_free_places);
+
+            // Getting reference to the TextView to set total places
+            TextView totPlaces = (TextView) infoWindow.findViewById(R.id.markerwindow_tot_places);
+
+            // Setting station number text
+            stationNumber.setText("MyBP Station n.: " + marker.getTitle());
+            stationNumber.setAllCaps(true);
+
+            // Extracting free places string from snipper string
+
+            String snippetStr = marker.getSnippet();
+            String freePlacesStr = "";
+            String totPlacesStr = "";
+            char tmpChr;
+            boolean snippetSecondHalf = false;
+
+            for(int i = 0; i < snippetStr.length(); i++){
+
+                tmpChr = snippetStr.charAt(i);
+                if((tmpChr == '/') && (snippetSecondHalf == false)){
+                    snippetSecondHalf = true;
+                }
+
+                if((snippetSecondHalf == false) && (tmpChr != '/')){
+                    freePlacesStr += Character.toString(tmpChr);
+                }
+
+                if((snippetSecondHalf == true) && (tmpChr != '/')){
+                    totPlacesStr += Character.toString(tmpChr);
+                }
+            }
+
+            // Setting free places text
+            freePlaces.setText("Free places: " + freePlacesStr);
+
+            // Setting totale places text
+            totPlaces.setText("Total places: " + totPlacesStr);
+
+            // Returning the view containing InfoWindow contents
+            return infoWindow;
+
+        }
+
+    }
+
     public GoogleMap getMap() {
         return googleMap;
     }
+
+
 }

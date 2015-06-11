@@ -1,10 +1,7 @@
 package com.dev.ami2015.mybikeplace.tasks;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
-import com.dev.ami2015.mybikeplace.LoginActivity;
-import com.dev.ami2015.mybikeplace.MyBPStationMarker;
 import com.dev.ami2015.mybikeplace.SignUpActivity;
 
 import org.json.JSONException;
@@ -18,7 +15,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 
 /*
  * Created by root on 06/06/15.

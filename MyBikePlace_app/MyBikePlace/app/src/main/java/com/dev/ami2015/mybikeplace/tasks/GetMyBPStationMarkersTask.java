@@ -102,7 +102,7 @@ public class GetMyBPStationMarkersTask extends AsyncTask</*params*/ Void, /*prog
                 Double stationLat = Double.valueOf(stationLatString);
                 Double stationLon = Double.valueOf(stationLonString);
 
-                // public MapsMarker(String markerName, String markerDescription, double Latitude, double Longitude){
+                // public RoomMarker(String markerName, String markerDescription, double Latitude, double Longitude){
                 myBPStationsMapMarkersList.add(new MyBPStationMarker(stationID, stationLat, stationLon, stationTotPlaces, stationFreePlaces));
 
 

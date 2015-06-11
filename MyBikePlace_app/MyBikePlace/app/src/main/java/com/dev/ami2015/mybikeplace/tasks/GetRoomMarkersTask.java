@@ -1,12 +1,9 @@
 package com.dev.ami2015.mybikeplace.tasks;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Parcelable;
 import android.util.Log;
 
-import com.dev.ami2015.mybikeplace.MapsMarker;
+import com.dev.ami2015.mybikeplace.RoomMarker;
 import com.dev.ami2015.mybikeplace.MapsActivity;
 
 import org.json.JSONArray;
@@ -20,7 +17,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * Created by Zephyr on 25/05/2015.
@@ -31,7 +27,7 @@ import java.util.Map;
 // an InputStream. Finally, the InputStream is converted into a string, which is
 // displayed in the UI by the AsyncTask's onPostExecute method.
 
-public class GetRoomMarkersTask extends AsyncTask</*params*/ Void, /*progress not used*/ Void, /*result*/ ArrayList<MapsMarker>> {
+public class GetRoomMarkersTask extends AsyncTask</*params*/ Void, /*progress not used*/ Void, /*result*/ ArrayList<RoomMarker>> {
 
     public static final String POLIORARI_URL ="http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_elenco_aule";
     public static final String DEBUG_TAG = "HttpExample";
@@ -45,9 +41,9 @@ public class GetRoomMarkersTask extends AsyncTask</*params*/ Void, /*progress no
     }
 
     @Override
-    protected ArrayList<MapsMarker> doInBackground(Void... params) {
+    protected ArrayList<RoomMarker> doInBackground(Void... params) {
 
-        ArrayList<MapsMarker> mapsMarker = null;
+        ArrayList<RoomMarker> roomMarker = null;
 
         // params comes from the execute() call: params[0] is the url.
         try {
@@ -55,25 +51,24 @@ public class GetRoomMarkersTask extends AsyncTask</*params*/ Void, /*progress no
             JSONObject jsonObjectRooms = MakePostRequestToPoliOrari(POLIORARI_URL);
             JSONArray jsonArrayRooms = GetJsonRoomsList(jsonObjectRooms);
 
-            mapsMarker = GetRoomsMapMarkers(jsonArrayRooms);
+            roomMarker = GetRoomsMapMarkers(jsonArrayRooms);
 
-            return mapsMarker;
+            return roomMarker;
 
         } catch (IOException e) {
             return null;
         } catch (JSONException e) {
             e.printStackTrace();
-            return mapsMarker;
+            return roomMarker;
         }
     }
 
     @Override
-    protected void onPostExecute(ArrayList<MapsMarker> mapsMarkers) {
-        super.onPostExecute(mapsMarkers);
+    protected void onPostExecute(ArrayList<RoomMarker> roomMarkers) {
+        super.onPostExecute(roomMarkers);
 
         //we don't need to load rooms marker directly inside maps
-        //parentActivity.setAllRoomMarkerInMap(parentActivity.getMap(), mapsMarkers);
-        //new GetMyBPStationMarkersTask(this.parentActivity).execute();
+        parentActivity.setAllRoomMarkerInMap(parentActivity.getMap(), roomMarkers);
 
     }
 
@@ -81,9 +76,9 @@ public class GetRoomMarkersTask extends AsyncTask</*params*/ Void, /*progress no
     // the web page content as a InputStream, which it returns as
     // a string.
 
-    public ArrayList<MapsMarker> GetRoomsMapMarkers (JSONArray jsonRoomsList) throws JSONException {
+    public ArrayList<RoomMarker> GetRoomsMapMarkers (JSONArray jsonRoomsList) throws JSONException {
 
-        ArrayList<MapsMarker> roomsMapMarkersList = new ArrayList<MapsMarker>();
+        ArrayList<RoomMarker> roomsMapMarkersList = new ArrayList<RoomMarker>();
 
         int len = jsonRoomsList.length();
 
@@ -114,8 +109,8 @@ public class GetRoomMarkersTask extends AsyncTask</*params*/ Void, /*progress no
                 Double roomLat = Double.valueOf(roomLatString);
                 Double roomLon = Double.valueOf(roomLonString);
 
-                // public MapsMarker(String markerName, String markerDescription, double Latitude, double Longitude){
-                roomsMapMarkersList.add(new MapsMarker(roomName, roomLocation, roomLat, roomLon));
+                // public RoomMarker(String markerName, String markerDescription, double Latitude, double Longitude){
+                roomsMapMarkersList.add(new RoomMarker(roomName, roomLocation, roomLat, roomLon));
 
 
 

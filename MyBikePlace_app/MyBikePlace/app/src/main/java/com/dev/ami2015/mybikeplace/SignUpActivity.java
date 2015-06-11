@@ -1,6 +1,8 @@
 package com.dev.ami2015.mybikeplace;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -8,7 +10,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
-import com.dev.ami2015.mybikeplace.tasks.signInConnection;
 import com.dev.ami2015.mybikeplace.tasks.signUpConnection;
 
 import org.json.JSONException;
@@ -78,9 +79,12 @@ public class SignUpActivity extends ActionBarActivity {
         {
             EditText editUsername = (EditText) findViewById(R.id.usernameEditSignUpActivity);
             String username       = editUsername.getText().toString();
-            LoginActivity.userID  = username;
+
+
+            SignInActivity.userID  = username;
             EditText editPassword = (EditText) findViewById(R.id.passwordEditSignUpActivity);
             String password       = editPassword.getText().toString();
+
 
             byte[] bytesOfUser    = username.getBytes("UTF-8");
             byte[] bytesOfPwd     = password.getBytes("UTF-8");
@@ -156,9 +160,10 @@ public class SignUpActivity extends ActionBarActivity {
         String errStr = serverResponse.getString("error_str");
         if(Objects.equals(errStr, "ERROR_SIGNUP"))
             errorSIGNUP = 1;
-        else
+        else {
+            // sign up completed successfully
             errorSIGNUP = 0;
-
+        }
         goToPersonalActivity(userID,errorSIGNUP);
     }
 

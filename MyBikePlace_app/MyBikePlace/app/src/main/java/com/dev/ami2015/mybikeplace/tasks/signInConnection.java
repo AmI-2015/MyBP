@@ -1,10 +1,8 @@
 package com.dev.ami2015.mybikeplace.tasks;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
-import com.dev.ami2015.mybikeplace.LoginActivity;
-import com.dev.ami2015.mybikeplace.MyBPStationMarker;
+import com.dev.ami2015.mybikeplace.SignInActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,7 +15,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 
 /*
  * Created by root on 06/06/15.
@@ -27,10 +24,10 @@ public class signInConnection extends AsyncTask<String , Void , JSONObject>  {
 
     public static final String DEBUG_TAG = "HttpExample";
 
-    public LoginActivity parentActivity;
+    public SignInActivity parentActivity;
 
-    //costructor receives as parameter the parent activity that started the task
-    public signInConnection(LoginActivity activity){
+    //constructor receives as parameter the parent activity that started the task
+    public signInConnection(SignInActivity activity){
         this.parentActivity = activity;
     }
 

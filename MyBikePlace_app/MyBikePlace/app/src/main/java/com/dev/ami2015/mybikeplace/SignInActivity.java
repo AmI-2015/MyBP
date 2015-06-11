@@ -2,6 +2,7 @@ package com.dev.ami2015.mybikeplace;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -27,7 +29,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
 
-public class LoginActivity extends ActionBarActivity {
+public class SignInActivity extends ActionBarActivity {
 
     public final static String EXTRA_USERNAME = "com.dev.ami2015.mybikeplace.USERNAME";
     public final static String EXTRA_PASSWORD = "com.dev.ami2015.mybikeplace.PASSWORD";
@@ -39,14 +41,23 @@ public class LoginActivity extends ActionBarActivity {
     String regid;
     String PROJECT_NUMBER = "80513371534";
 
+    // Shared Preference file
+    SharedPreferences userSettings = null;
+    // Creating editor to write inside Preference File
+    SharedPreferences.Editor userSettingsEditor = null;
+
+    // Username and Password to copy inside Preference File
+    String prefUsername = null;
+    String prefPassword = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // get the two extras containg credentials from the intent
         Intent intent = getIntent();
-        String username = intent.getStringExtra(LoginActivity.EXTRA_USERNAME);
+        String username = intent.getStringExtra(SignInActivity.EXTRA_USERNAME);
 
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_signin);
         if(username != null) {
             // modify text view content
             TextView userID = (TextView) findViewById(R.id.usernameText);
@@ -54,6 +65,9 @@ public class LoginActivity extends ActionBarActivity {
         }
 
         getRegId();
+
+        // Creating shared preference file
+        userSettings = this.getSharedPreferences(getString(R.string.USER_SETTINGS), Context.MODE_PRIVATE);
 
     }
 
@@ -124,11 +138,30 @@ public class LoginActivity extends ActionBarActivity {
     // called when the user clicks the send button
     public void sendCredentials(View view) throws UnsupportedEncodingException, JSONException, NoSuchAlgorithmException {
 
+        // Acquiring view elements from activty
         EditText editUsername = (EditText) findViewById(R.id.usernameText);
-        String username = editUsername.getText().toString();
-        LoginActivity.userID = username;
         EditText editPassword = (EditText) findViewById(R.id.passwordText);
+        CheckBox checkRememberMe = (CheckBox) findViewById(R.id.rememberMeCheckBox);
+        CheckBox checkSkip = (CheckBox) findViewById(R.id.skipCheckBox);
+
+
+        // Manage Username TextView
+        String username = editUsername.getText().toString();
+        // copying username to save it into preference file
+        prefUsername = username;
+        SignInActivity.userID = username;
+
+        // Manage Password TextView
         String password = editPassword.getText().toString();
+        // copying password to save it into preference file
+        prefPassword = password;
+
+        // Save Remember Me and Skip CheckBox status inside user settings preference file
+        userSettingsEditor = userSettings.edit();
+        userSettingsEditor.putBoolean(getString(R.string.USER_REMEMBER_ME), checkRememberMe.isChecked());
+        userSettingsEditor.putBoolean(getString(R.string.USER_SKIP), checkSkip.isChecked());
+        userSettingsEditor.commit();
+
 
         byte[] bytesOfUser = username.getBytes("UTF-8");
         byte[] bytesOfPwd = password.getBytes("UTF-8");
@@ -188,7 +221,17 @@ public class LoginActivity extends ActionBarActivity {
         if(Objects.equals(errStr, "ERROR_SIGNIN"))
             errorSIGNIN = 1;
         else
+            // Sign in was successful
             errorSIGNIN = 0;
+            // Open editor to write inside Preference File
+            userSettingsEditor = userSettings.edit();
+            // save username and password inside user settings file
+            userSettingsEditor.putString(getString(R.string.USER_USERNAME), prefUsername);
+            userSettingsEditor.putString(getString(R.string.USER_PASSWORD), prefPassword);
+            // COMMIT MODIFICATION!!!
+            userSettingsEditor.commit();
+
+
 
         goToPersonalActivity(userID,errorSIGNIN);
     }
@@ -202,7 +245,7 @@ public class LoginActivity extends ActionBarActivity {
     public void goToPersonalActivity(String userID, int error)
     {
         Intent i = new Intent(this, PersonalActivity.class);
-        Intent err_i = new Intent(this, LoginActivity.class);
+        Intent err_i = new Intent(this, SignInActivity.class);
         if(error == 1)
         {
             //SOLO PER DEBUG
