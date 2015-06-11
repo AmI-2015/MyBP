@@ -1,8 +1,11 @@
 package com.dev.ami2015.mybikeplace;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
+
+import android.content.SharedPreferences;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,6 +24,11 @@ public class PersonalActivity extends ActionBarActivity {
     GoogleCloudMessaging gcm;
     String regid;
     String PROJECT_NUMBER = "80513371534";
+    //Make personale activity able to access User Settings file
+    // Shared Preference file
+    SharedPreferences userSettings = null;
+    // Creating editor to write inside Preference File
+    SharedPreferences.Editor userSettingsEditor = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +36,7 @@ public class PersonalActivity extends ActionBarActivity {
 
         // get the two extras containg credentials from the intent
         Intent intent = getIntent();
-        String username = intent.getStringExtra(LoginActivity.EXTRA_USERNAME);
+        String username = intent.getStringExtra(SignInActivity.EXTRA_USERNAME);
 
         setContentView(R.layout.activity_personal);
 
@@ -60,34 +68,40 @@ public class PersonalActivity extends ActionBarActivity {
             textAlarm.setTextColor(Color.GREEN);
         }
         getRegId();
+
+        // Creating shared preference file
+        userSettings = this.getSharedPreferences(getString(R.string.USER_SETTINGS), Context.MODE_PRIVATE);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        String message = getIntent().getStringExtra(GcmMessageHandler.EXTRA_MESSAGE);
-        String messageView = "";
-        if(Objects.equals(message, "ALARM"))
-        {
-            setContentView(R.layout.activity_personal);
-            messageView = "YOUR BIKE HAS BEEN MOVED";
-            // modify text view content
-            TextView textAlarm = (TextView) findViewById(R.id.textAlarm);
-            textAlarm.setText(messageView);
-            textAlarm.setTextColor(Color.RED);
-        }
-        else
-        {
-            messageView = "YOUR BIKE HAS BEEN SUCCESSFULLY DISLOCKED";
-            setContentView(R.layout.activity_personal);
-
-            // modify text view content
-            TextView textAlarm = (TextView) findViewById(R.id.textAlarm);
-            textAlarm.setText(message);
-            textAlarm.setTextColor(Color.GREEN);
-        }
-    }
+//
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//
+//        String message = getIntent().getStringExtra(GcmMessageHandler.EXTRA_MESSAGE);
+//        String messageView = "";
+//        if(Objects.equals(message, "ALARM"))
+//        {
+//            setContentView(R.layout.activity_personal);
+//            messageView = "YOUR BIKE HAS BEEN MOVED";
+//            // modify text view content
+//            TextView textAlarm = (TextView) findViewById(R.id.textAlarm);
+//            textAlarm.setText(messageView);
+//            textAlarm.setTextColor(Color.RED);
+//        }
+//        else
+//        {
+//            messageView = "YOUR BIKE HAS BEEN SUCCESSFULLY DISLOCKED";
+//            setContentView(R.layout.activity_personal);
+//
+//            // modify text view content
+//            TextView textAlarm = (TextView) findViewById(R.id.textAlarm);
+//            textAlarm.setText(message);
+//            textAlarm.setTextColor(Color.GREEN);
+//        }
+//
+//
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -103,12 +117,31 @@ public class PersonalActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+        switch(id){
 
-        return super.onOptionsItemSelected(item);
+            case R.id.action_restore_default_settings:
+                // restore default settings preference file
+                userSettingsEditor = userSettings.edit();
+                userSettingsEditor.putString(getString(R.string.USER_USERNAME), null);
+                userSettingsEditor.putString(getString(R.string.USER_PASSWORD), null);
+                userSettingsEditor.putBoolean(getString(R.string.USER_REMEMBER_ME), false);
+                userSettingsEditor.putBoolean(getString(R.string.USER_SKIP), false);
+                userSettingsEditor.commit();
+                return true;
+            case R.id.action_clear_remember_me_checkbox:
+                userSettingsEditor = userSettings.edit();
+                userSettingsEditor.putBoolean(getString(R.string.USER_REMEMBER_ME), false);
+                userSettingsEditor.commit();
+                return true;
+            case R.id.action_clear_skip_checkbox:
+                userSettingsEditor = userSettings.edit();
+                userSettingsEditor.putBoolean(getString(R.string.USER_SKIP), false);
+                userSettingsEditor.commit();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
+        }
     }
 
     //GCM REG ID REQUEST

@@ -4,16 +4,15 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 
-public class MapsMarker implements Parcelable {
+public class RoomMarker implements Parcelable {
     public String markerName;
     public String markerDescription;
     public Double markerLat;
     public Double markerLng;
 
     //costruttore
-    public MapsMarker(String markerName, String markerDescription, double Latitude, double Longitude){
+    public RoomMarker(String markerName, String markerDescription, double Latitude, double Longitude){
         this.markerName = markerName;
         this.markerDescription = markerDescription;
         this.markerLat = Latitude;
@@ -25,7 +24,7 @@ public class MapsMarker implements Parcelable {
      * This will be used only by the 'CREATOR'
      * @param in a parcel to read this object
      */
-    public MapsMarker(Parcel in) {
+    public RoomMarker(Parcel in) {
         this.markerName = in.readString();
         this.markerDescription = in.readString();
         this.markerLat = in.readDouble();
@@ -62,14 +61,14 @@ public class MapsMarker implements Parcelable {
      * If you don't do that, Android framework will through exception
      * Parcelable protocol requires a Parcelable.Creator object called CREATOR
      */
-    public static final Parcelable.Creator<MapsMarker> CREATOR = new Parcelable.Creator<MapsMarker>() {
+    public static final Parcelable.Creator<RoomMarker> CREATOR = new Parcelable.Creator<RoomMarker>() {
 
-        public MapsMarker createFromParcel(Parcel in) {
-            return new MapsMarker(in);
+        public RoomMarker createFromParcel(Parcel in) {
+            return new RoomMarker(in);
         }
 
-        public MapsMarker[] newArray(int size) {
-            return new MapsMarker[size];
+        public RoomMarker[] newArray(int size) {
+            return new RoomMarker[size];
         }
     };
 
