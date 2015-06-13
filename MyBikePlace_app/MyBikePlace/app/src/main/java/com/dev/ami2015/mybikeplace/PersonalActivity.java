@@ -41,7 +41,7 @@ public class PersonalActivity extends ActionBarActivity {
         //set the flag to not change personal activity
         alarm = -1;
 
-        // get the two extras containg credentials from the intent
+        // get the two extras containing credentials from the intent
         Intent intent = getIntent();
         String username = intent.getStringExtra(SignInActivity.EXTRA_USERNAME);
 
@@ -51,7 +51,7 @@ public class PersonalActivity extends ActionBarActivity {
         TextView userID = (TextView) findViewById(R.id.userID);
         userID.setText(username);
 
-        //Intent intentPerAct = getIntent();
+        Intent intentPerAct = getIntent();
         String message = intent.getStringExtra(GcmMessageHandler.EXTRA_MESSAGE);
         if (Objects.equals(message, "ALARM")) {
             DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
