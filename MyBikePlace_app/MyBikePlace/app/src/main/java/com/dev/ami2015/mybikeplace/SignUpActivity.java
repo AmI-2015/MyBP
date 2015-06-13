@@ -81,6 +81,7 @@ public class SignUpActivity extends ActionBarActivity {
         }
         else
         {
+
             // Taking credentials by User Interface
             username = editUsername.getText().toString();
             password = editPassword.getText().toString();
