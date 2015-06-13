@@ -81,7 +81,8 @@ public class SignUpActivity extends ActionBarActivity {
             username       = editUsername.getText().toString();
             password       = editPassword.getText().toString();
 
-           // SignInActivity.userID  = username;
+            //This is able to maintain the userID saved into the program, during its lifecycle
+            SignInActivity.userID  = username;
 
             byte[] bytesOfUser    = username.getBytes("UTF-8");
             byte[] bytesOfPwd     = password.getBytes("UTF-8");

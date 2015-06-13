@@ -19,18 +19,18 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/userID"
-        android:layout_below="@+id/welcomeSignIn"
-        android:layout_alignStart="@+id/textAlarm"
-        android:layout_alignEnd="@+id/textAlarm" />
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/textAlarm"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
-        android:id="@+id/textAlarm"
-        android:layout_centerVertical="true"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Medium Text"
+        android:id="@+id/userID"
+        android:layout_below="@+id/welcomeSignIn"
         android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
