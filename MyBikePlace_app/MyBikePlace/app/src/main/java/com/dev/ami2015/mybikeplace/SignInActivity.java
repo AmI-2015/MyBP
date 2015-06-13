@@ -159,12 +159,6 @@ public class SignInActivity extends ActionBarActivity {
             GoToMaps();
         } else {
             // if skip check box in unchecked continue button performs a sign in and brings to personal activity
-
-            editUsername = (EditText) findViewById(R.id.usernameText);
-            editPassword = (EditText) findViewById(R.id.passwordText);
-            checkRememberMe = (CheckBox) findViewById(R.id.rememberMeCheckBox);
-            checkSkip = (CheckBox) findViewById(R.id.skipCheckBox);
-
             // Manage Username TextView
             String username = editUsername.getText().toString();
             // copying username to save it into preference file
@@ -208,6 +202,7 @@ public class SignInActivity extends ActionBarActivity {
 
                     new signInConnection(this).execute(MYBPSERVER_URL, obj.toString());
 
+                    // DEVO AGGIUNGERE QUI IL SALVATAGGIO DELL'USERNAME E DELLA PASSWORD SE IL SIGN IN VA A BUON FINE
                 }
             }
         }

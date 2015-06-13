@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -34,6 +35,11 @@ public class PersonalActivity extends ActionBarActivity {
     //this is a flag to set the personal activity
     public int alarm = -1;
 
+    // Creating link to view elements
+    TextView welcomeMessage;
+    EditText myBPStationNumber;
+    EditText myBPStationPlace;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,95 +53,102 @@ public class PersonalActivity extends ActionBarActivity {
 
         setContentView(R.layout.activity_personal);
 
-        // modify text view content
-        TextView userID = (TextView) findViewById(R.id.userID);
-        userID.setText(username);
+        welcomeMessage = (TextView) findViewById(R.id.welcomeMessage);
+        myBPStationNumber = (EditText) findViewById(R.id.bikeStatusStationNumber);
+        myBPStationPlace = (EditText) findViewById(R.id.bikeStatusPlaceNumber);
 
-        Intent intentPerAct = getIntent();
-        String message = intent.getStringExtra(GcmMessageHandler.EXTRA_MESSAGE);
-        if (Objects.equals(message, "ALARM")) {
-            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-//                    String messageView = "";
-//                    TextView textAlarm = (TextView) findViewById(R.id.textAlarm);
-                    switch (which) {
-                        case DialogInterface.BUTTON_NEGATIVE:
-                            alarm = 1;
-//                            messageView = "YOUR BIKE HAS BEEN MOVED";
-//                            setContentView(R.layout.activity_personal);
-//                            // modify text view content
-//                            textAlarm.setText(messageView);
-//                            textAlarm.setTextColor(Color.RED);
-                            break;
-
-                        case DialogInterface.BUTTON_POSITIVE:
-                            alarm = 0;
-//                            messageView = "YOUR BIKE HAS BEEN SUCCESSFULLY DISLOCKED";
-//                            setContentView(R.layout.activity_personal);
+//        // modify text view content
+//        TextView userID = (TextView) findViewById(R.id.userID);
+//        userID.setText(username);
 //
-//                            // modify text view content
-//                            textAlarm.setText(messageView);
-//                            textAlarm.setTextColor(Color.GREEN);
-                            break;
-                    }
-                }
-            };
+//        Intent intentPerAct = getIntent();
+//        String message = intent.getStringExtra(GcmMessageHandler.EXTRA_MESSAGE);
+//        if (Objects.equals(message, "ALARM")) {
+//            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+//                @Override
+//                public void onClick(DialogInterface dialog, int which) {
+////                    String messageView = "";
+////                    TextView textAlarm = (TextView) findViewById(R.id.textAlarm);
+//                    switch (which) {
+//                        case DialogInterface.BUTTON_NEGATIVE:
+//                            alarm = 1;
+////                            messageView = "YOUR BIKE HAS BEEN MOVED";
+////                            setContentView(R.layout.activity_personal);
+////                            // modify text view content
+////                            textAlarm.setText(messageView);
+////                            textAlarm.setTextColor(Color.RED);
+//                            break;
+//
+//                        case DialogInterface.BUTTON_POSITIVE:
+//                            alarm = 0;
+////                            messageView = "YOUR BIKE HAS BEEN SUCCESSFULLY DISLOCKED";
+////                            setContentView(R.layout.activity_personal);
+////
+////                            // modify text view content
+////                            textAlarm.setText(messageView);
+////                            textAlarm.setTextColor(Color.GREEN);
+//                            break;
+//                    }
+//                }
+//            };
+//
+//            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//            builder.setMessage("Have you dislocked the bike?").setNegativeButton("No", dialogClickListener)
+//                    .setPositiveButton("Yes", dialogClickListener).show();
+//
+//        } else if (Objects.equals(message, "OK")) {
+////            TextView textAlarm = (TextView) findViewById(R.id.textAlarm);
+////            String messageView = "";
+//            alarm = 0;
+////            messageView = "YOUR BIKE HAS BEEN SUCCESSFULLY DISLOCKED";
+////            setContentView(R.layout.activity_personal);
+////
+////            // modify text view content
+////            textAlarm.setText(message);
+////            textAlarm.setTextColor(Color.GREEN);
+//        }
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Have you dislocked the bike?").setNegativeButton("No", dialogClickListener)
-                    .setPositiveButton("Yes", dialogClickListener).show();
+        getRegId();
 
-        } else if (Objects.equals(message, "OK")) {
+        //Creating shared preference file
+        userSettings = this.getSharedPreferences(getString(R.string.USER_SETTINGS), Context.MODE_PRIVATE);
+        //Setting welcome message with username
+        welcomeMessage.setText("Welcome, " + userSettings.getString(getString(R.string.USER_USERNAME), null));
+
+    }
+
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//
+//       // String message = getIntent().getStringExtra(GcmMessageHandler.EXTRA_MESSAGE);
+//        String messageView = "";
+//        if(alarm == 1)
+//        {
+//            setContentView(R.layout.activity_personal);
+//            messageView = "YOUR BIKE HAS BEEN MOVED";
+//            // modify text view content
 //            TextView textAlarm = (TextView) findViewById(R.id.textAlarm);
-//            String messageView = "";
-            alarm = 0;
+//            textAlarm.setText(messageView);
+//            textAlarm.setTextColor(Color.RED);
+//        }
+//        else if(alarm == 0)
+//        {
 //            messageView = "YOUR BIKE HAS BEEN SUCCESSFULLY DISLOCKED";
 //            setContentView(R.layout.activity_personal);
 //
 //            // modify text view content
-//            textAlarm.setText(message);
+//            TextView textAlarm = (TextView) findViewById(R.id.textAlarm);
+//            textAlarm.setText(messageView);
 //            textAlarm.setTextColor(Color.GREEN);
-        }
-
-        getRegId();
-
-        // Creating shared preference file
-        //userSettings = this.getSharedPreferences(getString(R.string.USER_SETTINGS), Context.MODE_PRIVATE);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-       // String message = getIntent().getStringExtra(GcmMessageHandler.EXTRA_MESSAGE);
-        String messageView = "";
-        if(alarm == 1)
-        {
-            setContentView(R.layout.activity_personal);
-            messageView = "YOUR BIKE HAS BEEN MOVED";
-            // modify text view content
-            TextView textAlarm = (TextView) findViewById(R.id.textAlarm);
-            textAlarm.setText(messageView);
-            textAlarm.setTextColor(Color.RED);
-        }
-        else if(alarm == 0)
-        {
-            messageView = "YOUR BIKE HAS BEEN SUCCESSFULLY DISLOCKED";
-            setContentView(R.layout.activity_personal);
-
-            // modify text view content
-            TextView textAlarm = (TextView) findViewById(R.id.textAlarm);
-            textAlarm.setText(messageView);
-            textAlarm.setTextColor(Color.GREEN);
-        }
-
-        getRegId();
-
-        // Accessing to shared preference file
-        userSettings = this.getSharedPreferences(getString(R.string.USER_SETTINGS), Context.MODE_PRIVATE);
-
-    }
+//        }
+//
+//        getRegId();
+//
+//        // Accessing to shared preference file
+//        userSettings = this.getSharedPreferences(getString(R.string.USER_SETTINGS), Context.MODE_PRIVATE);
+//
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -183,27 +196,27 @@ public class PersonalActivity extends ActionBarActivity {
         }
     }
 
-    public void setPersonalActivity(int alarm){
-        String messageView = "";
-        TextView textAlarm = (TextView) findViewById(R.id.textAlarm);
-        if(alarm == 0)
-        {
-            messageView = "YOUR BIKE HAS BEEN MOVED";
-            setContentView(R.layout.activity_personal);
-            // modify text view content
-            textAlarm.setText(messageView);
-            textAlarm.setTextColor(Color.RED);
-        }
-        else if (alarm == 1)
-        {
-            messageView = "YOUR BIKE HAS BEEN SUCCESSFULLY DISLOCKED";
-            setContentView(R.layout.activity_personal);
-
-            // modify text view content
-            textAlarm.setText(messageView);
-            textAlarm.setTextColor(Color.GREEN);
-        }
-    }
+//    public void setPersonalActivity(int alarm){
+//        String messageView = "";
+//        TextView textAlarm = (TextView) findViewById(R.id.textAlarm);
+//        if(alarm == 0)
+//        {
+//            messageView = "YOUR BIKE HAS BEEN MOVED";
+//            setContentView(R.layout.activity_personal);
+//            // modify text view content
+//            textAlarm.setText(messageView);
+//            textAlarm.setTextColor(Color.RED);
+//        }
+//        else if (alarm == 1)
+//        {
+//            messageView = "YOUR BIKE HAS BEEN SUCCESSFULLY DISLOCKED";
+//            setContentView(R.layout.activity_personal);
+//
+//            // modify text view content
+//            textAlarm.setText(messageView);
+//            textAlarm.setTextColor(Color.GREEN);
+//        }
+//    }
     //GCM REG ID REQUEST
     public void getRegId(){
         new AsyncTask<Void, Void, String>() {
