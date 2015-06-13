@@ -26,7 +26,7 @@ public class PersonalActivity extends ActionBarActivity {
     GoogleCloudMessaging gcm;
     String regid;
     String PROJECT_NUMBER = "80513371534";
-    //Make personale activity able to access User Settings file
+    // Make personale activity able to access User Settings file
     // Shared Preference file
     SharedPreferences userSettings = null;
     // Creating editor to write inside Preference File
@@ -36,7 +36,7 @@ public class PersonalActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // get the two extras containg credentials from the intent
+        // get the string extra containing username from the intent
         Intent intent = getIntent();
         String username = intent.getStringExtra(SignInActivity.EXTRA_USERNAME);
 
@@ -95,8 +95,8 @@ public class PersonalActivity extends ActionBarActivity {
         }
         getRegId();
 
-        // Creating shared preference file
-        //userSettings = this.getSharedPreferences(getString(R.string.USER_SETTINGS), Context.MODE_PRIVATE);
+        // Accessing to shared preference file
+        userSettings = this.getSharedPreferences(getString(R.string.USER_SETTINGS), Context.MODE_PRIVATE);
     }
 
 //
@@ -153,6 +153,8 @@ public class PersonalActivity extends ActionBarActivity {
                 userSettingsEditor.putBoolean(getString(R.string.USER_REMEMBER_ME), false);
                 userSettingsEditor.putBoolean(getString(R.string.USER_SKIP), false);
                 userSettingsEditor.commit();
+                Intent comeBackIntent = new Intent(this, SignInActivity.class);
+                startActivity(comeBackIntent);
                 return true;
             case R.id.action_clear_remember_me_checkbox:
                 userSettingsEditor = userSettings.edit();
