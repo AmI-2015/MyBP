@@ -37,8 +37,8 @@ public class PersonalActivity extends ActionBarActivity {
 
     // Creating link to view elements
     TextView welcomeMessage;
-    EditText myBPStationNumber;
-    EditText myBPStationPlace;
+    public EditText myBPStationNumber;
+    public EditText myBPStationPlace;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
