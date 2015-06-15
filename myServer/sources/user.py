@@ -16,9 +16,7 @@ class user:
         self.pwd_code=None
         #package the data from database in a dictionary
         self.data = self.getdata()
-        
-    ##############################################################################
-    # ATTENZIONE QUEI NUMERI VANNO IN PARENTESI VANNO CAMBIATI ERA SOLO DI PROVA #   
+         
     def set_userandpwd(self, user_code, pwd_code):
         self.username_code=user_code
         self.pwd_code=pwd_code
@@ -72,10 +70,10 @@ class user:
                 user_data['error_str']=data[6]
                 # Now print fetched result to debug
                 print user_data 
-                ###############################################################################
-                # REGISTRATION ID HAS TO BE UPDATED TO TALK TO THE GCM (GOOGLE CLOUD MESSAGING#
-                # IF AN UPDATING ERROR OCCURS REGISTRATION_ID IS SET TO -1                    #
-                ###############################################################################
+                ################################################################################
+                # REGISTRATION ID HAS TO BE UPDATED TO TALK TO THE GCM (GOOGLE CLOUD MESSAGING)#
+                # IF AN UPDATING ERROR OCCURS REGISTRATION_ID IS SET TO -1                     #
+                ################################################################################
                 if(user_data['registration_id']!=registration_id):
                     update_sql="UPDATE users SET registration_id='"+registration_id+"' WHERE username_code='"+str(self.username_code)+"' AND pwd_code='"+str(self.pwd_code)+"';"
                     user_data['registration_id']=registration_id
@@ -150,13 +148,47 @@ class user:
             if (security_key=="none" and status==0):  
                 parking_data['station_id'] = station_id
                 parking_data['place_id']   = place_id
-                update_sql="UPDATE station SET security_key='"+security_keyFromApp+"', stop_alarm=0, registration_id='"+registration_id+"' WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
-                print update_sql
-                cursor.execute(update_sql)
+                update_station_sql="UPDATE station SET security_key='"+security_keyFromApp+"', stop_alarm=0, registration_id='"+registration_id+"' WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
+                update_users_sql = "UPDATE users SET status=1 WHERE station_id='"+security_keyFromApp[0:25]+"' AND place_id='"+security_keyFromApp[25:50]+"';"
+                print update_station_sql
+                print update_users_sql
+                try:
+                    search_in_station_spec = "SELECT free_places FROM station_spec WHERE station_id ='"+str(station_id)+"';"
+                    cursor.execute(search_in_station_spec)
+                except:
+                    print "SEARCH ERROR in station_spec [connection_stationDB()]"
+                    
+                try:
+                    free_places = cursor.fetchone()
+                    free_places = free_places-1
+                    update_station_spec = "UPDATE station_spec SET free_places = '"+free_places+"' WHERE station_id='"+str(station_id)+"';"
+                    cursor.execute(update_station_spec)
+                    db.commit()
+                except:
+                    print "station_spec NOT UPDATED in connection_stationDB()"
+                cursor.execute(update_station_sql)
+                cursor.execute(update_users_sql)
                 db.commit()
             elif (security_key == security_keyFromApp):
-                update_sql="UPDATE station SET security_key='none', status=0, stop_alarm=1, registration_id='none'  WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
-                cursor.execute(update_sql)
+                update_station_sql="UPDATE station SET security_key='none', status=0, stop_alarm=1, registration_id='none'  WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
+                update_users_sql = "UPDATE users SET status=0 WHERE station_id='"+security_keyFromApp[0:25]+"' AND place_id='"+security_keyFromApp[25:50]+"';"
+                try:
+                    search_in_station_spec = "SELECT free_places FROM station_spec WHERE station_id ='"+str(station_id)+"';"
+                    cursor.execute(search_in_station_spec)
+                except:
+                    print "SEARCH ERROR in station_spec [connection_stationDB()]"
+                    
+                try:
+                    free_places = cursor.fetchone()
+                    free_places = free_places+1
+                    update_station_spec = "UPDATE station_spec SET free_places = '"+free_places+"' WHERE station_id='"+str(station_id)+"';"
+                    cursor.execute(update_station_spec)
+                    db.commit()
+                except:
+                    print "station_spec NOT UPDATED in connection_stationDB()"
+                
+                cursor.execute(update_station_sql)
+                cursor.execute(update_users_sql)
                 db.commit()
                 parking_data['station_id'] = station_id
                 parking_data['place_id']   = place_id
@@ -167,7 +199,14 @@ class user:
             print "FETCH EXCEPTION"
             parking_data['station_id'] = -1
             parking_data['place_id']   = -1
-             
+        '''
+        try:
+            update_sql="UPDATE station SET  stop_alarm=0 WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
+            cursor.execute(update_sql)
+            db.commit()
+        except:
+            print "UPDATING ERROR in [stealing_controller()]"     
+        '''
         db.close() 
         return parking_data
     

@@ -17,40 +17,40 @@ class raspberry:
         db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB")
         # prepare a cursor object using cursor() method
         cursor = db.cursor()
-        search_sql="SELECT security_key FROM station WHERE station_id="+str(station_id)+" AND place_id="+str(place_id)+";"
+        search_sql="SELECT security_key FROM station WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
         print search_sql
         
         try:
             cursor.execute(search_sql)
-            print "SEARCH SUCCESFUL COMPLETED [rqstlckin_db()]"
+            print "SEARCH SUCCESFUL COMPLETED"
         except:
-            print "SEARCH ERROR [rqstlckin_db()]"
+            print "SEARCH ERROR"
         
         try:
             security_key=cursor.fetchone()
             print security_key
             if (security_key[0]=="None"): #if the timeout is over
-                update_sql="UPDATE station SET security_key='UNCHANGEABLE' WHERE station_id="+str(station_id)+" AND place_id="+str(place_id)+";"
+                update_sql="UPDATE station SET security_key='UNCHANGEABLE' WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
                 print update_sql
             
                 try:
                     cursor.execute(update_sql)
                     db.commit()
-                    print "UPDATING SUCCESFUL COMPLETED [rqstlckin_db()]"
+                    print "UPDATING SUCCESFUL COMPLETED [1]"
                 except:
-                    print "UPDATING ERROR [rqstlckin_db()]"
+                    print "UPDATING ERROR"
             else: #if the user has locked in
-                update_sql="UPDATE station SET status="+str(status)+" WHERE station_id="+str(station_id)+" AND place_id="+str(place_id)+";"
+                update_sql="UPDATE station SET status='"+str(status)+"'WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
                 print update_sql
             
                 try:
                     cursor.execute(update_sql)
                     db.commit()
-                    print "UPDATING SUCCESFUL COMPLETED [rqstlckin_db()]"
+                    print "UPDATING SUCCESFUL COMPLETED"
                 except:
-                    print "UPDATING ERROR [rqstlckin_db()]"               
+                    print "UPDATING ERROR"               
         except:
-            print "ERROR FETCHING [rqstlckin_db()]"
+            print "ERROR FETCHING"
                 
         # disconnect from server
         db.close()
@@ -67,7 +67,7 @@ class raspberry:
         
         try:
             cursor.execute(search_sql)
-            print "SEARCH SUCCESFUL COMPLETED [stealing_controller()]"
+            print "SEARCH SUCCESFUL COMPLETED"
         except:
             parking_data['error']="SEARCH_ERROR"
             print "SEARCH ERROR [stealing_controller()]"
@@ -85,7 +85,7 @@ class raspberry:
                 parking_data['registration_id']=registration_id
                 parking_data['security_key']=security_key
                 parking_data['stop_alarm']=stop_alarm
-                parking_data['action']="ALARM"
+                parking_data['action']="ALLARM"
                 print parking_data['action']
             else:
                 parking_data['station_id']=station_id
@@ -128,28 +128,19 @@ class raspberry:
         
         print stop_alarm
         
-        try:
-            update_sql = "UPDATE station SET stop_alarm = 0 WHERE station_id="+str(station_id)+" and place_id ="+str(place_id)+";" 
-            print update_sql
-            cursor.execute(update_sql)
-            db.commit()
-        except:
-            print "UPDATE in station FAILED  [upd_stnSpcTbl()]"   
-        
-        db.close()  
         return stop_alarm[0]
     
-    def upd_stnSpcTbl(self, station_id, place_id, status):
+    def upd_stnSpcTbl(self, station_id, status):
         # Open database connection
         db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB")
         # prepare a cursor object using cursor() method
-        cursor  = db.cursor()
-        search_stnSpc_sql = "SELECT free_places, tot_places FROM station_spec WHERE station_id='"+str(station_id)+"';"
-        
+        cursor = db.cursor()
+        search_sql="SELECT free_places, tot_places FROM station_spec WHERE station_id='"+str(station_id)+"';"
+       
         response_data = {}
         
         try:
-            cursor.execute(search_stnSpc_sql)
+            cursor.execute(search_sql)
             print "SEARCH SUCCESFUL COMPLETED [upd_stnSpcTbl()]"
         except:
             stop_alarm = -1
@@ -160,18 +151,18 @@ class raspberry:
             free_places=int(row[0])
             tot_places = int(row[1])
             
-            if int(status) == 1:
-                free_places = free_places - 1
-                update_sql = "UPDATE station_spec SET free_places = '"+str(free_places)+"' WHERE station_id='"+str(station_id)+"';" 
+            if free_places == 1:
+                free_places = free_places + 1
+                update_sql = "UPDATE station SET free_places = '"+str(free_places)+"' WHERE station_id='"+str(station_id)+"';" 
                 try:
                     cursor.execute(update_sql)
                     db.commit()
                     print "UPDATING SUCCESFUL COMPLETED [upd_stnSpcTbl()]"
                 except:
                     print "UPDATING ERROR [upd_stnSpcTbl()]"
-            elif int(status) == 0:
-                free_places = free_places + 1
-                update_sql  = "UPDATE station_spec SET free_places = '"+str(free_places)+"' WHERE station_id='"+str(station_id)+"';" 
+            elif free_places == 0:
+                free_places = free_places - 1
+                update_sql  = "UPDATE station SET free_places = '"+str(free_places)+"' WHERE station_id='"+str(station_id)+"';" 
                 try:
                     cursor.execute(update_sql)
                     db.commit()
@@ -186,17 +177,7 @@ class raspberry:
 
         except:
             print "FETCH_FAILED [upd_stnSpcTbl()]"
-        
-        #####################################
-        
-        try:
-            update_sql = "UPDATE station SET status = "+str(status)+" WHERE station_id="+str(station_id)+" and place_id ="+str(place_id)+";" 
-            print update_sql
-            cursor.execute(update_sql)
-            db.commit()
-        except:
-            print "UPDATE in station FAILED  [upd_stnSpcTbl()]"   
-              
+
         db.close()
         
         response_data['station_id']  = station_id
@@ -204,8 +185,7 @@ class raspberry:
         response_data['free_places'] = free_places
         
         return response_data
-    
-    
+        
     def __init__(self):
         pass
         

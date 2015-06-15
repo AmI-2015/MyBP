@@ -4,6 +4,8 @@ Created on 04/mag/2015
 @author: MyBP
 
 '''
+#!/usr/bin/env python
+# -*- coding: utf-8 -*- 
 import request_processor, json
 from flask import Flask, jsonify, request
 from gcm import *
@@ -56,33 +58,28 @@ def sign_up():
     user_data=request_processor.sign_up(user_code, pwd_code, registration_id)
     return jsonify({"pwd_code": user_data['pwd_code'], "error_str": user_data['error_str']})
     
-#the following method is to get the settings
-'''
-header json 
-{
-    "user_code": "username",
-    "pwd_code":  "password",
-    "registraion_id": "registration_id"
-}
-'''
-@app.route('/myBP_server/users/get_status', methods=['POST'])
-def  get_settings():
+
+@app.route('/myBP_server/users/get_info', methods=['POST'])
+def  get_info():
     secret_packet=request.json
     print(secret_packet)
     user_data={}
     
     pwd_code=secret_packet.get('pwd_code')
     user_code=secret_packet.get('user_code')
+    registration_id = secret_packet.get('registration_id')
     security_key=user_code+pwd_code
     
-    user_data=request_processor.sign_in(security_key)
+    user_data=request_processor.sign_in(user_code, pwd_code, registration_id)
+    
+    diz_to_jsonify={}
     
     if(user_data['error_str']!="ERROR_SIGNIN"):
-        return jsonify({"myBP_status": user_data['myBP_status']})
+        diz_to_jsonify = {'station_id': user_data['station_id'], 'place_id': user_data['place_id'], 'status': user_data['status']}
     else:
-        return jsonify({"myBP_status": "ERROR_STATUS"})
+        return jsonify({'station_id': -1, 'place_id': -1, 'status': -1})
     
-
+    return jsonify(diz_to_jsonify)
 
 #the following method is to log in "LOCK IN" from raspberry
 '''
@@ -168,26 +165,28 @@ def stealing_controller():
 
     autorization_key="AIzaSyCHX63txYHN9kcICuJzYVg26Q2bHWPjASU"
     
-    if parking_data['action']=="ALLARM":
+    if parking_data['action']=="ALARM":
         #USE GOOGLE CLOUD MESSAGING API
         gcm = GCM(autorization_key)
-        data = {'the_message': 'ALLARM'}
+        data = {'the_message': 'ALARM'}
         dataj = json.dumps(data)
         
         # plaintext request
         reg_id = parking_data['registration_id']
+        print reg_id
         gcm.plaintext_request(registration_id=reg_id, data=data)
 
         return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
-        return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
+        #return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
     elif parking_data['action']=="OK":
         #USE GOOGLE CLOUD MESSAGING API
         gcm = GCM(autorization_key)
-        data = {'the_message': 'ALLARM'}
+        data = {'the_message': 'ALARM'}
         dataj = json.dumps(data)
         
         # plaintext request
         reg_id = parking_data['registration_id']
+        print reg_id        
         gcm.plaintext_request(registration_id=reg_id, data=data)
         
         return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
@@ -212,7 +211,8 @@ def stop_alarm():
     
     print station_id, place_id
     stop_alarm=request_processor.stop_alarmProcess(station_id, place_id)
-    
+    print stop_alarm
+    #stop_alarm = 1
     return jsonify({"station_id":station_id, "place_id": place_id, "stop_alarm": str(stop_alarm)})
 
 '''
@@ -234,13 +234,14 @@ the raspberry sends a json
     "status": "1"
 }
 '''
-@app.route('/myBP_server/users/update_station_spec_table')
+@app.route('/myBP_server/users/update_station_spec_table', methods = ['POST'])
 def update_station_spec_table():
     request_packet=request.json
     station_id = request_packet.get("station_id")
     status   = request_packet.get("status")
+    place_id = request_packet.get("place_id")
        
-    stn_updSpc = request_processor.stn_updSpcStnProcess(station_id, status)
+    stn_updSpc = request_processor.stn_updSpcStnProcess(station_id, place_id,status)
     
     return jsonify({"station_id":stn_updSpc['station_id'], "place_id": stn_updSpc['free_places']})
 
