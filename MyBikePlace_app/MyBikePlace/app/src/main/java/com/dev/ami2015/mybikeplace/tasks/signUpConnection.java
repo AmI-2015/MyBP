@@ -26,7 +26,7 @@ public class signUpConnection extends AsyncTask<String , Void , JSONObject>  {
 
     public SignUpActivity parentActivity;
 
-    //costructor receives as parameter the parent activity that started the task
+    //constructor receives as parameter the parent activity that started the task
     public signUpConnection(SignUpActivity activity){
         this.parentActivity = activity;
     }

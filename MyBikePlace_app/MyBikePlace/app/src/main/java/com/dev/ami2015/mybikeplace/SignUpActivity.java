@@ -28,14 +28,17 @@ public class SignUpActivity extends ActionBarActivity {
     public static int MIN_PASSWORD_LENGHT = 8;
     public static int MAX_PASSWORD_LENGHT = 16;
     public static String regid;
-    public static String username = null;
-    public static String password = null;
     public final static String EXTRA_USERNAME = "com.dev.ami2015.mybikeplace.USERNAME";
     public final static String EXTRA_PASSWORD = "com.dev.ami2015.mybikeplace.PASSWORD";
     public static final String MYBPSERVER_URL ="http://192.168.56.1:7000/myBP_server/users/sign_up";
 
+    // editText view elements
     EditText editUsername;
     EditText editPassword;
+
+    // credentials inserted by user
+    public String username = null;
+    public String password = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,12 +81,12 @@ public class SignUpActivity extends ActionBarActivity {
         }
         else
         {
-            username       = editUsername.getText().toString();
-            password       = editPassword.getText().toString();
 
-            //This is able to maintain the userID saved into the program, during its lifecycle
-            SignInActivity.userID  = username;
+            // Taking credentials by User Interface
+            username = editUsername.getText().toString();
+            password = editPassword.getText().toString();
 
+            // Preparing Encryption
             byte[] bytesOfUser    = username.getBytes("UTF-8");
             byte[] bytesOfPwd     = password.getBytes("UTF-8");
             MessageDigest mdUser  = null;
