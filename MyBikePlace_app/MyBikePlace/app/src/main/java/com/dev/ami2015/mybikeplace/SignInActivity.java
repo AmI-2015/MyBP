@@ -36,7 +36,7 @@ public class SignInActivity extends ActionBarActivity {
     //public final static String EXTRA_PASSWORD = "com.dev.ami2015.mybikeplace.PASSWORD";
     public static String userID = null;
     public static final String MYBPSERVER_URL ="http://192.168.56.1:7000/myBP_server/users/sign_in";
-    Intent logInIntent;
+    Intent signInIntent;
 
     // view elements from activty
     EditText editUsername = null;
@@ -61,7 +61,7 @@ public class SignInActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // get the two extras containing credentials from the intent
+        // get the extra containing credentials from the SignUp Intent
         Intent intent = getIntent();
         String username = intent.getStringExtra(SignInActivity.EXTRA_USERNAME);
 
@@ -145,8 +145,8 @@ public class SignInActivity extends ActionBarActivity {
         }.execute(null, null, null);
     }
 
-    // called when the user clicks the send button
-    public void sendCredentials(View view) throws UnsupportedEncodingException, JSONException, NoSuchAlgorithmException {
+    // called when the user clicks the continue button
+    public void continueButton(View view) throws UnsupportedEncodingException, JSONException, NoSuchAlgorithmException {
 
         // First save Remember Me and Skip CheckBox status inside user settings preference file
         userSettingsEditor = userSettings.edit();
@@ -158,7 +158,7 @@ public class SignInActivity extends ActionBarActivity {
             // if skip check box is checked continue button brings directly to mapActivity without sign in
             GoToMaps();
         } else {
-            // if skip check box in unchecked "continue button" performs a sign in and brings to personal activity
+            // if skip check box is unchecked "continue button" performs a sign in and brings to personal activity
             // Manage Username TextView
             String username = editUsername.getText().toString();
             // copying username to save it into preference file
@@ -219,6 +219,9 @@ public class SignInActivity extends ActionBarActivity {
         editPassword.setHint(R.string.password_hint);
         editPassword.setHintTextColor(getResources().getColor(R.color.hint_foreground_material_light));
 
+        checkRememberMe.setChecked(false);
+        checkSkip.setChecked(false);
+
     }
 
     public void setServerResponse(JSONObject serverResponse) throws JSONException {
@@ -230,25 +233,25 @@ public class SignInActivity extends ActionBarActivity {
         else{
             // Sign in was successful
             errorSIGNIN = 0;
-            // Open editor to write inside Preference File ONLY IF REMEMBER ME IS CHECKED
-            if (userSettings.getBoolean(getString(R.string.USER_REMEMBER_ME), false)) {
-                userSettingsEditor = userSettings.edit();
-                // save username and password inside user settings file
-                userSettingsEditor.putString(getString(R.string.USER_USERNAME), prefUsername);
-                userSettingsEditor.putString(getString(R.string.USER_PASSWORD), prefPassword);
-                // COMMIT MODIFICATION!!!
-                userSettingsEditor.commit();
-            }
+            // Open editor to write inside Preference File the credentials (also if remember me is unchecked)
+            userSettingsEditor = userSettings.edit();
+            // save username and password inside user settings file
+            userSettingsEditor.putString(getString(R.string.USER_USERNAME), prefUsername);
+            userSettingsEditor.putString(getString(R.string.USER_PASSWORD), prefPassword);
+            // COMMIT MODIFICATION!!!
+            userSettingsEditor.commit();
         }
 
 //        goToPersonalActivity(userID, errorSIGNIN); //Old Damian version
         goToPersonalActivity(errorSIGNIN);
     }
 
+
+
     public void GoToMaps(){
 
-        logInIntent = new Intent(this, MapsActivity.class);
-        startActivity(logInIntent);
+        signInIntent = new Intent(this, MapsActivity.class);
+        startActivity(signInIntent);
     }
 
     public void goToPersonalActivity(int error)
@@ -285,8 +288,8 @@ public class SignInActivity extends ActionBarActivity {
     //called when Sign Up in action bar is pressed
     public void SignUp(){
         SignUpActivity.regid = regid;
-        logInIntent = new Intent(this, SignUpActivity.class);
-        startActivity(logInIntent);
+        signInIntent = new Intent(this, SignUpActivity.class);
+        startActivity(signInIntent);
 
     }
 
@@ -311,7 +314,7 @@ public class SignInActivity extends ActionBarActivity {
 
         } else { //skip check box is unchecked
 
-            if(rememberMe){ //if rememberMe check box is checked go directly to personal activity with sign in
+            if(rememberMe){ //if rememberMe check box is checked go directly to personal activity with automatic sign in
 
                 // Restore user setting about: remember me
                 checkRememberMe.setChecked(true);
@@ -332,7 +335,7 @@ public class SignInActivity extends ActionBarActivity {
 
                 }
 
-            } else { //rememberMe check box is unchecked
+            } else { //rememberMe check box is unchecked so just try to memeorize username and password
 
                 //Do Nothing wait user action
             }

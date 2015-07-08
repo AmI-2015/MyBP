@@ -38,7 +38,7 @@
         android:text="@string/button_continue"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:onClick="sendCredentials" />
+        android:onClick="continueButton" />
 
     <Button
         android:id="@+id/clearButton"

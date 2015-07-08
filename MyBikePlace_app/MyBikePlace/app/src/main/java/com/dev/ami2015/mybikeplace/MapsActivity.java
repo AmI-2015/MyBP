@@ -1,6 +1,8 @@
 package com.dev.ami2015.mybikeplace;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -90,6 +92,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return true;
             case R.id.action_mybp_station_next_to_me:
                 ShowNearestMyBPStationToMe();
+                return true;
+            case R.id.action_sign_in:
+                //Opening shared preference file
+                SharedPreferences userSettings = this.getSharedPreferences(getString(R.string.USER_SETTINGS), Context.MODE_PRIVATE);
+                SharedPreferences.Editor userSettingsEditor = userSettings.edit();
+                //Clear skip sign-in checkbox
+                userSettingsEditor.putBoolean(getString(R.string.USER_SKIP), false);
+                userSettingsEditor.commit();
+                //Start SignIn Activity
+                mapsIntent = new Intent(this, SignInActivity.class);
+                startActivity(mapsIntent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
