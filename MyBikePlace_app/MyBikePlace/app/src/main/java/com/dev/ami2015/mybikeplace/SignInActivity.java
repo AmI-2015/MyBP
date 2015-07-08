@@ -61,7 +61,7 @@ public class SignInActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // get the two extras containg credentials from the intent
+        // get the two extras containing credentials from the intent
         Intent intent = getIntent();
         String username = intent.getStringExtra(SignInActivity.EXTRA_USERNAME);
 
@@ -91,7 +91,7 @@ public class SignInActivity extends ActionBarActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_login, menu);
+        getMenuInflater().inflate(R.menu.menu_sign_in, menu);
         return true;
     }
 
@@ -110,9 +110,9 @@ public class SignInActivity extends ActionBarActivity {
             case R.id.actionTestConnection:
                 TestConnection();
                 return true;
-            case R.id.actionGoToMap:
-                GoToMaps();
-                return true;
+//            case R.id.actionGoToMap:
+//                GoToMaps();
+//                return true;
             default:
                 return super.onOptionsItemSelected(item);
 
@@ -155,10 +155,10 @@ public class SignInActivity extends ActionBarActivity {
         userSettingsEditor.commit();
 
         if(userSettings.getBoolean(getString(R.string.USER_SKIP), false)){
-            // if skip check box is checked continue button brings directly to map activity without sign in
+            // if skip check box is checked continue button brings directly to mapActivity without sign in
             GoToMaps();
         } else {
-            // if skip check box in unchecked continue button performs a sign in and brings to personal activity
+            // if skip check box in unchecked "continue button" performs a sign in and brings to personal activity
             // Manage Username TextView
             String username = editUsername.getText().toString();
             // copying username to save it into preference file
@@ -202,7 +202,6 @@ public class SignInActivity extends ActionBarActivity {
 
                     new signInConnection(this).execute(MYBPSERVER_URL, obj.toString());
 
-                    // DEVO AGGIUNGERE QUI IL SALVATAGGIO DELL'USERNAME E DELLA PASSWORD SE IL SIGN IN VA A BUON FINE
                 }
             }
         }
@@ -242,7 +241,8 @@ public class SignInActivity extends ActionBarActivity {
             }
         }
 
-        goToPersonalActivity(userID, errorSIGNIN);
+//        goToPersonalActivity(userID, errorSIGNIN); //Old Damian version
+        goToPersonalActivity(errorSIGNIN);
     }
 
     public void GoToMaps(){
@@ -251,16 +251,16 @@ public class SignInActivity extends ActionBarActivity {
         startActivity(logInIntent);
     }
 
-    public void goToPersonalActivity(String userID, int error)
+    public void goToPersonalActivity(int error)
     {
         Intent i = new Intent(this, PersonalActivity.class);
 
         if(error == 1) {
-            editUsername.setText("USER_ID o PWD ERRATE");
+            editUsername.setText("USER_ID or PWD ERRATE");
             editPassword.setText("");
         }
         else {
-            i.putExtra(EXTRA_USERNAME, userID);
+//            i.putExtra(EXTRA_USERNAME, userID);
             startActivity(i);
         }
     }
