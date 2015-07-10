@@ -165,12 +165,12 @@ public class SignUpActivity extends ActionBarActivity {
             // sign up completed successfully
             errorSIGNUP = 0;
         }
-        goToPersonalActivity(username,errorSIGNUP);
+        goToSignInActivity(username,errorSIGNUP);
     }
 
-    public void goToPersonalActivity(String userID, int error)
+    public void goToSignInActivity(String userID, int error)
     {
-        Intent i = new Intent(this, PersonalActivity.class);
+        Intent i = new Intent(this, SignInActivity.class);
         if(error == 1)
         {
             editUsername.setText("ERROR SIGN UP! THIS USER ALREADY EXISTS");
