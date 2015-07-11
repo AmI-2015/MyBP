@@ -67,7 +67,7 @@ public class GcmMessageHandler extends IntentService{
 
         //get the notification manager
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notification.setLatestEventInfo(this, "MyBP", message, contentIntent);
+        notification.setLatestEventInfo(this, "MyBP", "MyBP System Alarm Notification", contentIntent);
         //send the notification
         notificationManager.notify((int) System.currentTimeMillis(), notification);
     }
