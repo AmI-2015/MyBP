@@ -89,6 +89,7 @@ public class PersonalActivity extends ActionBarActivity {
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
                             Toast.makeText(PersonalActivity.this, "System Alarm is running", Toast.LENGTH_LONG).show();
+                            goToPersonalActivity(1);
                             }
                         })
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -169,6 +170,35 @@ public class PersonalActivity extends ActionBarActivity {
         }
     }
 
+    public void setServerResponse(JSONObject serverResponse) throws JSONException{
+        int alarm = 0;
+        String stop_alarm = serverResponse.getString("stop_alarm");
+        if(Objects.equals(stop_alarm, "1"))
+            alarm = 1;
+        else {
+            // sign up completed successfully
+            alarm = 0;
+        }
+        goToPersonalActivity(alarm);
+    }
+
+    public void goToPersonalActivity(int alarm)
+    {
+        Intent i = new Intent(this, PersonalActivity.class);
+        if(alarm == 1)
+        {
+            myBPStationNumber.setText("BIKE ALARM");
+            myBPStationNumber.setTextColor(Color.RED);
+            myBPStationNumber.setKeyListener(null);
+            myBPStationPlace.setKeyListener(null);
+        }
+        else {
+            myBPStationNumber.setText("BIKE DISLOCKED");
+            myBPStationNumber.setTextColor(Color.GREEN);
+            myBPStationNumber.setKeyListener(null);
+            myBPStationPlace.setKeyListener(null);
+        }
+    }
     //GCM REG ID REQUEST
     public void getRegId(){
         new AsyncTask<Void, Void, String>() {

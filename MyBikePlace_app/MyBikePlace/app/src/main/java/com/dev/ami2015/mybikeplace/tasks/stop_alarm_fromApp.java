@@ -36,11 +36,11 @@ public class stop_alarm_fromApp extends AsyncTask<String , Void , JSONObject> {
     protected void onPostExecute(JSONObject serverResponse) {
         super.onPostExecute(serverResponse);
 
-//        try {
-//            parentActivity.setServerResponse(serverResponse);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            parentActivity.setServerResponse(serverResponse);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         //new GetMyBPStationMarkersTask(this.parentActivity).execute();
 
     }
