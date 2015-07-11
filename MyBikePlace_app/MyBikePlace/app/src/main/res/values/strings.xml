@@ -27,5 +27,9 @@
     <string name="USER_PASSWORD">user_password</string>
     <string name="USER_REMEMBER_ME">user_remember_me</string>
     <string name="USER_SKIP">user_skip</string>
+    <string name="USER_REGID">user_regid</string>
+    <string name="USER_STATUS">user_status</string>
+    <string name="USER_BIKE_STATION_ID">user_station</string>
+    <string name="USER_BIKE_PLACE_ID">user_place</string>
 
 </resources>

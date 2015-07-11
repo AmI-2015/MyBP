@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dev.ami2015.mybikeplace.tasks.GetUsersInfoTask;
 import com.dev.ami2015.mybikeplace.tasks.stop_alarm_fromApp;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
@@ -33,7 +34,7 @@ public class PersonalActivity extends ActionBarActivity {
     GoogleCloudMessaging gcm;
     String regid;
     String PROJECT_NUMBER = "80513371534";
-    // Make personale activity able to access User Settings file
+    // Make Personal activity able to access User Settings file
     // Shared Preference file
     SharedPreferences userSettings = null;
     // Creating editor to write inside Preference File
@@ -76,9 +77,21 @@ public class PersonalActivity extends ActionBarActivity {
 
         //Creating shared preference file
         userSettings = this.getSharedPreferences(getString(R.string.USER_SETTINGS), Context.MODE_PRIVATE);
-        //Setting welcome message with username
+        //add RegId inside preference file
+        userSettingsEditor = userSettings.edit();
+        userSettingsEditor.putString(getString(R.string.USER_REGID), regid);
+        userSettingsEditor.commit();
 
+        //Setting welcome message with username
         welcomeMessage.setText("Welcome, " + userSettings.getString(getString(R.string.USER_USERNAME), null));
+
+        //retrieve MyPU info through MyBP server
+        //load all the MyBP Stations markers with an asyncTask
+        final AsyncTask<Void, Void, Void> UserInfoTask = new GetUsersInfoTask(this).execute();
+        UserInfoTask.execute();
+
+        myBPStationNumber.setText(userSettings.getString(getString(R.string.USER_PASSWORD), "pappa" /*default value*/));
+
 
     }
 
