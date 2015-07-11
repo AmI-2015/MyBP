@@ -85,12 +85,12 @@ public class PersonalActivity extends ActionBarActivity {
         //Setting welcome message with username
         welcomeMessage.setText("Welcome, " + userSettings.getString(getString(R.string.USER_USERNAME), null));
 
-        //retrieve MyPU info through MyBP server
-        //load all the MyBP Stations markers with an asyncTask
-        final AsyncTask<Void, Void, Void> UserInfoTask = new GetUsersInfoTask(this).execute();
-        UserInfoTask.execute();
-
-        myBPStationNumber.setText(userSettings.getString(getString(R.string.USER_PASSWORD), "pappa" /*default value*/));
+//        //retrieve MyPU info through MyBP server
+//        //load all the MyBP Stations markers with an asyncTask
+//        final AsyncTask<Void, Void, Void> UserInfoTask = new GetUsersInfoTask(this).execute();
+//        UserInfoTask.execute();
+//
+//        myBPStationNumber.setText(userSettings.getString(getString(R.string.USER_PASSWORD), "pappa" /*default value*/));
 
 
     }
