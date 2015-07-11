@@ -100,7 +100,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 //Clear skip sign-in checkbox
                 userSettingsEditor.putBoolean(getString(R.string.USER_SKIP), false);
                 userSettingsEditor.commit();
-                //Start SignIn Activity
+                //Come-back to SignIn Activity
                 mapsIntent = new Intent(this, SignInActivity.class);
                 startActivity(mapsIntent);
                 return true;
