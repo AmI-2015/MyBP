@@ -79,16 +79,20 @@ public class PersonalActivity extends ActionBarActivity {
         userSettings = this.getSharedPreferences(getString(R.string.USER_SETTINGS), Context.MODE_PRIVATE);
 
         //Setting welcome message with username
-        welcomeMessage.setText("Welcome, " + userSettings.getString(getString(R.string.USER_USERNAME), null));
+        welcomeMessage.setText("Welcome, " + userSettings.getString(getString(R.string.USER_USERNAME), null) + "!");
 
-        //retrieve RegId code
+        //retrieve RegId code and MyPU info through MyBP server
         getRegId();
 
-        //retrieve MyPU info through MyBP server
-        new GetUsersInfoTask(PersonalActivity.this).execute();
+//        //Debug code begin
+//        userSettingsEditor = userSettings.edit();
+//        userSettingsEditor.putString(getString(R.string.USER_BIKE_STATION_ID), "25");
+//        userSettingsEditor.commit();
+//        //Debug code end
 
-        myBPStationNumber.setText(Integer.toString(userSettings.getInt(getString(R.string.USER_STATUS), 5 /*default value*/)));
 
+        //Retrieve MyPU status from MYBPSERVER
+        new GetUsersInfoTask(this).execute();
 
     }
 
@@ -241,13 +245,42 @@ public class PersonalActivity extends ActionBarActivity {
                 taskUserSettingsEditor.putString(getString(R.string.USER_REGID), regid);
                 taskUserSettingsEditor.commit();
 
-                //retrieve MyPU info through MyBP server
-                //load all the MyBP Stations markers with an asyncTask
-                //load all the MyBP Stations markers with an asyncTask
-                new GetUsersInfoTask(PersonalActivity.this).execute();
+//                //retrieve MyPU info through MyBP server
+//                new GetUsersInfoTask(PersonalActivity.this).execute();
 
 
             }
         }.execute(null, null, null);
     }
+
+    //Invoked by GetUsersInfoTask on postExecute
+    public void checkMyPUStatus(){
+
+        //Catch data from updated preference file
+        Integer MyPUStatus = userSettings.getInt(getString(R.string.USER_STATUS), -2 /*default value*/);
+        String MyPUStationID = userSettings.getString(getString(R.string.USER_BIKE_STATION_ID), "-2" /*default value*/);
+        String MyPUPlaceID = userSettings.getString(getString(R.string.USER_BIKE_PLACE_ID), "-2" /*default value*/);
+
+        //Check Status value
+        switch(MyPUStatus){
+            case -1: //Error from server!
+            case -2: //Error inside app!
+                myBPStationNumber.setText("ERROR");
+                myBPStationPlace.setText("ERROR");
+                break;
+            case 0: //MyPU not locked-in
+                myBPStationNumber.setText("null");
+                myBPStationNumber.setEnabled(true);
+                myBPStationPlace.setText("null");
+                myBPStationPlace.setEnabled(true);
+                break;
+            case 1: //MyPU locked-in, in this condition user cannot modify value of Station id and Place id
+                myBPStationNumber.setText(MyPUStationID);
+                myBPStationNumber.setEnabled(false);
+                myBPStationPlace.setText(MyPUPlaceID);
+                myBPStationPlace.setEnabled(false);
+        }
+
+    }
+
 }

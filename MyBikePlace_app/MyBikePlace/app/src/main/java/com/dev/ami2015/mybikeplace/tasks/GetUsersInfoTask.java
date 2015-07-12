@@ -66,10 +66,13 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
             switch(MyPUInfoReceivedJson.getString("status")){
                 case "0":
                     myPUStatus = 0; //user with no yet bike locked
+                    break;
                 case "1":
                     myPUStatus = 1; //user with bike already locked
+                    break;
                 default:
                     myPUStatus = -1; //error -1
+                    break;
             }
 
 
@@ -90,6 +93,15 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
         userSettingsEditor.putString(this.parentActivity.getString(R.string.USER_BIKE_PLACE_ID), myPUStationPlace);
         userSettingsEditor.putInt(this.parentActivity.getString(R.string.USER_STATUS), myPUStatus);
         userSettingsEditor.commit();
+
+//        //Debug code begin
+//        userSettingsEditor = userSettings.edit();
+//        userSettingsEditor.putInt(this.parentActivity.getString(R.string.USER_STATUS), 1);
+//        userSettingsEditor.commit();
+//        //Debug code end
+
+        //Invoke checkStatus Method from PersonalActivity
+        parentActivity.checkMyPUStatus();
 
     }
 
