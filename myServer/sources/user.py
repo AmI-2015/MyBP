@@ -36,7 +36,7 @@ class user:
         user_data['place_id']=-1
         
         #user status on the board
-        user_data['status']=-1
+        user_data['status'] = 0
         #schedule to insert
         
         user_data['error_str']="NO_ERROR"
@@ -236,3 +236,36 @@ class user:
         db.close()
         return stnSpec_list 
     
+    def stop_alarm_fromApp(self, station_id, place_id):
+        stop_alarm = -1
+        # Open database connection
+        db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB")
+        # prepare a cursor object using cursor() method
+        cursor = db.cursor()
+        search_sql="SELECT stop_alarm FROM station WHERE station_id="+str(station_id)+" AND place_id="+str(place_id)+";"
+        print search_sql
+        
+        try:
+            cursor.execute(search_sql)
+            print "SEARCH SUCCESFUL COMPLETED [check_alarm_fromApp()]"
+        except:
+            stop_alarm = -1
+            print "SEARCH ERROR [check_alarm_fromApp()]"
+        
+        try:
+            stop_alarm = cursor.fetchone()
+            print "stop_alarm (after fetching):"+str(stop_alarm)
+        except:
+            stop_alarm = -1
+            print "FETCH ERROR [check_alarm_fromApp()]"
+        
+        try:
+            update_sql = "UPDATE station SET stop_alarm = 1 WHERE station_id="+str(station_id)+" and place_id ="+str(place_id)+";" 
+            cursor.execute(update_sql)
+            db.commit()
+        except:
+            print "UPDATE in station FAILED  [check_alarm_fromApp()]"   
+        
+        db.close()  
+        
+        return stop_alarm

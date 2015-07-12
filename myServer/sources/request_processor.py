@@ -57,10 +57,19 @@ def stealing_controller(station_id, place_id):
     return parking_data
 
 def stop_alarmProcess(station_id, place_id):
-    print station_id, place_id
     raspberry_connected=raspberry()
     stop_alarm = raspberry_connected.check_alarm(station_id, place_id)   
     return stop_alarm     
+
+def stop_alarm_fromApp_Process(station_id, place_id):
+    user_connected = user()
+    stop_alarm = user_connected.stop_alarm_fromApp(station_id, place_id)
+    return stop_alarm
+    
+def check_securityKeyProcess(station_id, place_id):
+    raspberry_connected=raspberry()
+    security_checker = raspberry_connected.check_securityKey(station_id, place_id)   
+    return security_checker 
 
 def stn_spcProcess():
     stn_spc = {}
@@ -69,12 +78,12 @@ def stn_spcProcess():
     
     return stn_spc
 
-def stn_updSpcStnProcess(station_id,place_id,status):
+def stn_updDbProcess(station_id,place_id,status):
     stn_updSpc = {}
     raspberry_connected = raspberry()
     
     stn_updSpc = raspberry_connected.upd_stnSpcTbl(station_id, place_id, status)
-    
+    raspberry_connected.upd_stationTbl(station_id, place_id, status)
     return stn_updSpc
 
 if __name__ == '__main__':

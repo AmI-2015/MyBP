@@ -74,7 +74,8 @@ def  get_info():
     
     diz_to_jsonify={}
     
-    if(user_data['error_str']!="ERROR_SIGNIN"):
+    print user_data['error_str']
+    if(user_data['error_str']=="NO_ERROR"):
         diz_to_jsonify = {'station_id': user_data['station_id'], 'place_id': user_data['place_id'], 'status': user_data['status']}
     else:
         return jsonify({'station_id': -1, 'place_id': -1, 'status': -1})
@@ -174,7 +175,9 @@ def stealing_controller():
         # plaintext request
         reg_id = parking_data['registration_id']
         print reg_id
-        gcm.plaintext_request(registration_id=reg_id, data=data)
+        
+        if(parking_data['registration_id'] != 'None'):
+            gcm.plaintext_request(registration_id=reg_id, data=data)
 
         return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
         #return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
@@ -216,6 +219,36 @@ def stop_alarm():
     return jsonify({"station_id":station_id, "place_id": place_id, "stop_alarm": str(stop_alarm)})
 
 '''
+The app sends a json packet through POST http only when it wants that MyBP System Alarm has to be stopped
+{
+    "station_id": "4",
+    "place_id": "3",
+    "stop_alarm": "1"
+}
+
+the server's response has to set stop_alarm to 1 so that the alarm stops on RaspPi
+'''    
+@app.route('/myBP_server/users/stop_alarm_fromApp', methods=['POST'])
+def stop_alarm_fromApp():
+    request_packet=request.json
+    station_id = request_packet.get("station_id")
+    place_id   = request_packet.get("place_id")
+    stop_alarm=request_processor.stop_alarm_fromApp_Process(station_id, place_id)
+    print "stop_alarm_fromApp: "+str(stop_alarm)
+    return jsonify({"station_id":station_id, "place_id": place_id, "stop_alarm": str(stop_alarm)})
+
+@app.route('/myBP_server/users/check_securityKey', methods=['POST'])
+def check_securityKey():
+    print "RICHIESTA CHECKER SECURITY KEY"
+    request_packet=request.json
+    station_id = request_packet.get("station_id")
+    place_id   = request_packet.get("place_id")
+    
+    security_checker=request_processor.check_securityKeyProcess(station_id, place_id)
+    print "security: "+str(security_checker)
+    return jsonify({"security_checker": str(security_checker)})
+
+'''
 The app request is a json 
 {}
 
@@ -234,14 +267,14 @@ the raspberry sends a json
     "status": "1"
 }
 '''
-@app.route('/myBP_server/users/update_station_spec_table', methods = ['POST'])
+@app.route('/myBP_server/users/update_dbServer', methods = ['POST'])
 def update_station_spec_table():
     request_packet=request.json
     station_id = request_packet.get("station_id")
     status   = request_packet.get("status")
     place_id = request_packet.get("place_id")
        
-    stn_updSpc = request_processor.stn_updSpcStnProcess(station_id, place_id,status)
+    stn_updSpc = request_processor.stn_updDbProcess(station_id, place_id, status)
     
     return jsonify({"station_id":stn_updSpc['station_id'], "place_id": stn_updSpc['free_places']})
 
