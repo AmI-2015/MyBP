@@ -1,5 +1,6 @@
 package com.dev.ami2015.mybikeplace;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 import com.dev.ami2015.mybikeplace.tasks.GetUsersInfoTask;
 import com.dev.ami2015.mybikeplace.tasks.stop_alarm_fromApp;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.plus.model.people.Person;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,7 +46,7 @@ public class PersonalActivity extends ActionBarActivity {
     TextView welcomeMessage;
     public EditText myBPStationNumber;
     public EditText myBPStationPlace;
-    public static final String MYBPSERVER_URL ="http://192.168.56.1:7000/myBP_server/users/stop_alarm_fromApp";
+    public static final String MYBPSERVER_ALARM_URL ="http://192.168.56.1:7000/myBP_server/users/stop_alarm_fromApp";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,24 +75,19 @@ public class PersonalActivity extends ActionBarActivity {
         String message = intent.getStringExtra(GcmMessageHandler.EXTRA_MESSAGE);
         createNotification(message);
 
-        getRegId();
-
         //Creating shared preference file
         userSettings = this.getSharedPreferences(getString(R.string.USER_SETTINGS), Context.MODE_PRIVATE);
-        //add RegId inside preference file
-        userSettingsEditor = userSettings.edit();
-        userSettingsEditor.putString(getString(R.string.USER_REGID), regid);
-        userSettingsEditor.commit();
 
         //Setting welcome message with username
         welcomeMessage.setText("Welcome, " + userSettings.getString(getString(R.string.USER_USERNAME), null));
 
-//        //retrieve MyPU info through MyBP server
-//        //load all the MyBP Stations markers with an asyncTask
-//        final AsyncTask<Void, Void, Void> UserInfoTask = new GetUsersInfoTask(this).execute();
-//        UserInfoTask.execute();
-//
-//        myBPStationNumber.setText(userSettings.getString(getString(R.string.USER_PASSWORD), "pappa" /*default value*/));
+        //retrieve RegId code
+        getRegId();
+
+        //retrieve MyPU info through MyBP server
+        new GetUsersInfoTask(PersonalActivity.this).execute();
+
+        myBPStationNumber.setText(Integer.toString(userSettings.getInt(getString(R.string.USER_STATUS), 5 /*default value*/)));
 
 
     }
@@ -126,7 +123,7 @@ public class PersonalActivity extends ActionBarActivity {
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
-                            new stop_alarm_fromApp(PersonalActivity.this).execute(MYBPSERVER_URL, obj.toString());
+                            new stop_alarm_fromApp(PersonalActivity.this).execute(MYBPSERVER_ALARM_URL, obj.toString());
                             }
                         });
 
@@ -212,6 +209,7 @@ public class PersonalActivity extends ActionBarActivity {
             myBPStationPlace.setKeyListener(null);
         }
     }
+
     //GCM REG ID REQUEST
     public void getRegId(){
         new AsyncTask<Void, Void, String>() {
@@ -234,6 +232,22 @@ public class PersonalActivity extends ActionBarActivity {
                 return msg;
             }
 
+            @Override
+            protected void onPostExecute(String s) {
+                super.onPostExecute(s);
+
+                //add RegId inside preference file
+                SharedPreferences.Editor taskUserSettingsEditor = PersonalActivity.this.userSettings.edit();
+                taskUserSettingsEditor.putString(getString(R.string.USER_REGID), regid);
+                taskUserSettingsEditor.commit();
+
+                //retrieve MyPU info through MyBP server
+                //load all the MyBP Stations markers with an asyncTask
+                //load all the MyBP Stations markers with an asyncTask
+                new GetUsersInfoTask(PersonalActivity.this).execute();
+
+
+            }
         }.execute(null, null, null);
     }
 }

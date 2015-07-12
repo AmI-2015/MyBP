@@ -15,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -32,7 +33,7 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
     //Variable to set in Personal Activity
     String myPUStationNumber;
     String myPUStationPlace;
-    Boolean myPUStatus; //if status == 0 => myPUStatus false, status == 1 => myPUStatus true
+    Integer myPUStatus; //if status == 0 => myPUStatus false, status == 1 => myPUStatus true
 
     // Make GetUserInfo task able to access User Settings file
     // Shared Preference file
@@ -64,11 +65,11 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
             myPUStationPlace = MyPUInfoReceivedJson.getString("place_id");
             switch(MyPUInfoReceivedJson.getString("status")){
                 case "0":
-                    myPUStatus = false; //user with no yet bike locked
+                    myPUStatus = 0; //user with no yet bike locked
                 case "1":
-                    myPUStatus = true; //user with bike already locked
+                    myPUStatus = 1; //user with bike already locked
                 default:
-                    myPUStatus = null;
+                    myPUStatus = -1; //error -1
             }
 
 
@@ -87,7 +88,7 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
         //set preference file
         userSettingsEditor.putString(this.parentActivity.getString(R.string.USER_BIKE_STATION_ID), myPUStationNumber);
         userSettingsEditor.putString(this.parentActivity.getString(R.string.USER_BIKE_PLACE_ID), myPUStationPlace);
-        userSettingsEditor.putBoolean(this.parentActivity.getString(R.string.USER_STATUS), myPUStatus);
+        userSettingsEditor.putInt(this.parentActivity.getString(R.string.USER_STATUS), myPUStatus);
         userSettingsEditor.commit();
 
     }
@@ -108,23 +109,29 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
             //create Json object to send inside POST request
             MyPUInfoSendedJson  = new JSONObject();
 
-            MyPUInfoSendedJson.put("user_code", userSettings.getString(this.parentActivity.getString(R.string.USER_USERNAME), null /*default value*/));
-            MyPUInfoSendedJson.put("pwd_code", userSettings.getString(this.parentActivity.getString(R.string.USER_PASSWORD), null /*default value*/));
+            MyPUInfoSendedJson.put("user_code", userSettings.getString(this.parentActivity.getString(R.string.USER_USER_CODE), null /*default value*/));
+            MyPUInfoSendedJson.put("pwd_code", userSettings.getString(this.parentActivity.getString(R.string.USER_PWD_CODE), null /*default value*/));
             MyPUInfoSendedJson.put("registration_id", userSettings.getString(this.parentActivity.getString(R.string.USER_REGID), null /*default value*/));
 
 
             // Set request nature and parameters
             conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+            conn.setInstanceFollowRedirects(false);
+            conn.setUseCaches(false);
             conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Accept", "application/json");
 
             //write json inside request
-            OutputStreamWriter wr= new OutputStreamWriter(conn.getOutputStream());
+            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
             wr.write(MyPUInfoSendedJson.toString());
 
-            conn.setDoInput(true);
+            wr.flush();
 
-            // Starts the query
-            conn.connect();
+
+//            // Starts the query
+//            conn.connect();
 
             // Get the HTTP response
             int responseCode = conn.getResponseCode();

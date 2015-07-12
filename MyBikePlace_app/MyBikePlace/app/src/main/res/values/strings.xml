@@ -25,6 +25,8 @@
     <string name="USER_SETTINGS">com.dev.ami2015.mybikeplace.USER_SETTINGS</string>
     <string name="USER_USERNAME">user_username</string>
     <string name="USER_PASSWORD">user_password</string>
+    <string name="USER_USER_CODE">user_user_code</string>
+    <string name="USER_PWD_CODE">user_pwd_code</string>
     <string name="USER_REMEMBER_ME">user_remember_me</string>
     <string name="USER_SKIP">user_skip</string>
     <string name="USER_REGID">user_regid</string>

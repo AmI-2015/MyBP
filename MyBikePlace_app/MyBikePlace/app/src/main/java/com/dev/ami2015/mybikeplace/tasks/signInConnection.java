@@ -22,6 +22,10 @@ import java.net.URL;
 
 public class signInConnection extends AsyncTask<String , Void , JSONObject>  {
 
+    public String user_code = null;
+    public String pwd_code = null;
+//    public String registration_id = null;
+
     public static final String DEBUG_TAG = "HttpExample";
 
     public SignInActivity parentActivity;
@@ -36,7 +40,7 @@ public class signInConnection extends AsyncTask<String , Void , JSONObject>  {
         super.onPostExecute(serverResponse);
 
         try {
-            parentActivity.setServerResponse(serverResponse);
+            parentActivity.setServerResponse(serverResponse, user_code, pwd_code);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -82,6 +86,11 @@ public class signInConnection extends AsyncTask<String , Void , JSONObject>  {
             //conn.setRequestProperty("Host", "http://192.168.56.1:7000");
 
             data = new JSONObject(headerRqst);
+
+            //catch user_code, pwd_code and registration_id
+            user_code = data.getString("user_code");
+            pwd_code = data.getString("pwd_code");
+//            registration_id = data.getString("registration_id");
 
             // Starts the query
             //conn.connect();

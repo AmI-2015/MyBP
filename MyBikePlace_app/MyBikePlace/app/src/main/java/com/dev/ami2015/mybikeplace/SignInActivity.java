@@ -202,6 +202,8 @@ public class SignInActivity extends ActionBarActivity {
 
                     new signInConnection(this).execute(MYBPSERVER_URL, obj.toString());
 
+                    //
+
                 }
             }
         }
@@ -224,7 +226,7 @@ public class SignInActivity extends ActionBarActivity {
 
     }
 
-    public void setServerResponse(JSONObject serverResponse) throws JSONException {
+    public void setServerResponse(JSONObject serverResponse, String user_code, String pwd_code) throws JSONException {
 
         int errorSIGNIN = 0;
         String errStr = serverResponse.getString("error_str");
@@ -238,6 +240,9 @@ public class SignInActivity extends ActionBarActivity {
             // save username and password inside user settings file
             userSettingsEditor.putString(getString(R.string.USER_USERNAME), prefUsername);
             userSettingsEditor.putString(getString(R.string.USER_PASSWORD), prefPassword);
+            userSettingsEditor.putString(getString(R.string.USER_USER_CODE), user_code);
+            userSettingsEditor.putString(getString(R.string.USER_PWD_CODE), pwd_code);
+//            userSettingsEditor.putString(getString(R.string.USER_PASSWORD), registration_id);
             // COMMIT MODIFICATION!!!
             userSettingsEditor.commit();
         }
