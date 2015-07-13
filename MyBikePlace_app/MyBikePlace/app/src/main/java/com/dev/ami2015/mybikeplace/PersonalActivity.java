@@ -43,7 +43,8 @@ public class PersonalActivity extends ActionBarActivity {
     SharedPreferences.Editor userSettingsEditor = null;
 
     // Creating link to view elements
-    TextView welcomeMessage;
+    public TextView welcomeMessage;
+    public TextView myPUBikeStatus;
     public EditText myBPStationNumber;
     public EditText myBPStationPlace;
     public static final String MYBPSERVER_ALARM_URL ="http://192.168.56.1:7000/myBP_server/users/stop_alarm_fromApp";
@@ -64,6 +65,7 @@ public class PersonalActivity extends ActionBarActivity {
         setContentView(R.layout.activity_personal);
 
         welcomeMessage = (TextView) findViewById(R.id.welcomeMessage);
+        myPUBikeStatus = (TextView) findViewById(R.id.bikeStatusStatus);
         myBPStationNumber = (EditText) findViewById(R.id.bikeStatusStationNumber);
         myBPStationPlace = (EditText) findViewById(R.id.bikeStatusPlaceNumber);
 
@@ -170,9 +172,20 @@ public class PersonalActivity extends ActionBarActivity {
                 userSettingsEditor.putBoolean(getString(R.string.USER_REMEMBER_ME), false);
                 userSettingsEditor.commit();
                 return true;
+            case R.id.action_update_status:
+
+//                //Debug code begin
+//                userSettingsEditor = userSettings.edit();
+//                userSettingsEditor.putInt(getString(R.string.USER_STATUS), 1);
+//                userSettingsEditor.commit();
+//                //Debug code end
+
+                new GetUsersInfoTask(this).execute();
+                return true;
             case R.id.action_go_to_maps:
                 Intent personalIntent = new Intent(this, MapsActivity.class);
                 startActivity(personalIntent);
+                return true;
 //            case R.id.action_clear_skip_checkbox:
 //                userSettingsEditor = userSettings.edit();
 //                userSettingsEditor.putBoolean(getString(R.string.USER_SKIP), false);
@@ -265,16 +278,24 @@ public class PersonalActivity extends ActionBarActivity {
         switch(MyPUStatus){
             case -1: //Error from server!
             case -2: //Error inside app!
-                myBPStationNumber.setText("ERROR");
-                myBPStationPlace.setText("ERROR");
+                myPUBikeStatus.setText("ERROR");
+                myPUBikeStatus.setTextColor(getResources().getColor(R.color.red));
+                myBPStationNumber.setText("error");
+                myBPStationNumber.setEnabled(true);
+                myBPStationPlace.setText("error");
+                myBPStationPlace.setEnabled(true);
                 break;
             case 0: //MyPU not locked-in
+                myPUBikeStatus.setText("Not Locked-in");
+                myPUBikeStatus.setTextColor(getResources().getColor(R.color.orange));
                 myBPStationNumber.setText("null");
                 myBPStationNumber.setEnabled(true);
                 myBPStationPlace.setText("null");
                 myBPStationPlace.setEnabled(true);
                 break;
             case 1: //MyPU locked-in, in this condition user cannot modify value of Station id and Place id
+                myPUBikeStatus.setText("Locked-in");
+                myPUBikeStatus.setTextColor(getResources().getColor(R.color.green));
                 myBPStationNumber.setText(MyPUStationID);
                 myBPStationNumber.setEnabled(false);
                 myBPStationPlace.setText(MyPUPlaceID);

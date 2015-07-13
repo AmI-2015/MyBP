@@ -6,5 +6,6 @@
     <string name="action_clear_remember_me_checkbox">Not remember me</string>
     <string name="action_clear_skip_checkbox">Not Skip sign-in</string>
     <string name="action_go_to_maps">Go to maps</string>
+    <string name="action_update_status">Update status</string>
 
 </resources>

@@ -2,7 +2,7 @@
 <resources>
 
     <!-- ############### ACTION NAMES ################# -->
-    <string name="action_mybp_station_next_to_me">Nearest station next to me</string>
+    <string name="action_mybp_station_next_to_me">Station next to me</string>
     <string name="action_sign_in">Back to sign in</string>
 
 </resources>
