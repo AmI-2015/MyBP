@@ -107,7 +107,8 @@
         android:text="Lock In"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:layout_marginBottom="57dp" />
+        android:layout_marginBottom="57dp"
+        android:onClick="LockInProcedure"/>
 
     <Button
         android:id="@+id/buttonBikeOnMap"
@@ -126,24 +127,5 @@
         android:layout_alignTop="@+id/buttonLockIn"
         android:layout_alignEnd="@+id/tableLayout" />
 
-
-    <!--
-    <TextView
-        android:id="@+id/userID"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/welcomeSignIn" />
-    -->
-
-    <!--
-    <TextView
-        android:id="@+id/textAlarm"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/userID"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
-        android:layout_centerVertical="true" />
-    -->
 
 </RelativeLayout>

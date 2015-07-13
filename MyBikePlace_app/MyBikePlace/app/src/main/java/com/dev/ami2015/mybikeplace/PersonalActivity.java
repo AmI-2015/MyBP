@@ -15,11 +15,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dev.ami2015.mybikeplace.tasks.GetUsersInfoTask;
+import com.dev.ami2015.mybikeplace.tasks.MakeLockInRequest;
+import com.dev.ami2015.mybikeplace.tasks.MakeLockOutRequest;
 import com.dev.ami2015.mybikeplace.tasks.stop_alarm_fromApp;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.plus.model.people.Person;
@@ -163,6 +166,12 @@ public class PersonalActivity extends ActionBarActivity {
                 userSettingsEditor.putString(getString(R.string.USER_PASSWORD), null);
                 userSettingsEditor.putBoolean(getString(R.string.USER_REMEMBER_ME), false);
                 userSettingsEditor.putBoolean(getString(R.string.USER_SKIP), false);
+                userSettingsEditor.putInt(getString(R.string.USER_STATUS), -1);
+                userSettingsEditor.putString(getString(R.string.USER_USER_CODE), null);
+                userSettingsEditor.putString(getString(R.string.USER_PWD_CODE), null);
+                userSettingsEditor.putString(getString(R.string.USER_REGID), null);
+                userSettingsEditor.putString(getString(R.string.USER_BIKE_STATION_ID), "-1");
+                userSettingsEditor.putString(getString(R.string.USER_BIKE_PLACE_ID), "-1");
                 userSettingsEditor.commit();
                 Intent comeBackIntent = new Intent(this, SignInActivity.class);
                 startActivity(comeBackIntent);
@@ -302,6 +311,36 @@ public class PersonalActivity extends ActionBarActivity {
                 myBPStationPlace.setEnabled(false);
         }
 
+    }
+
+    public void LockInProcedure(View view){
+
+        //Check current MyPU status: operation done only if user is not-locked in
+        if( userSettings.getInt(getString(R.string.USER_STATUS), -1) != 1) {
+
+            //Retrieve the Station Id and Place Id inserted by user
+            String stationId = myBPStationNumber.getText().toString();
+            String placeId = myBPStationPlace.getText().toString();
+
+            //Make a Lock-In request to MYBPSERVER
+            new MakeLockInRequest(this, stationId, placeId).execute();
+
+        }
+    }
+
+    public void LockOutProcedure(View view){
+
+        //Check current MyPU status: operation done only if user is locked in
+        if( userSettings.getInt(getString(R.string.USER_STATUS), -1) == 1) {
+
+            //Retrieve the Station Id and Place Id saved during lock-in procedure
+            String stationId = userSettings.getString(getString(R.string.USER_BIKE_STATION_ID), "-1");
+            String placeId = userSettings.getString(getString(R.string.USER_BIKE_PLACE_ID), "-1");
+
+            //Make a Lock-In request to MYBPSERVER
+            new MakeLockOutRequest(this, stationId, placeId).execute();
+
+        }
     }
 
 }
