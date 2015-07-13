@@ -331,7 +331,8 @@ public class PersonalActivity extends ActionBarActivity {
     public void LockOutProcedure(View view){
 
         //Check current MyPU status: operation done only if user is locked in
-        if( userSettings.getInt(getString(R.string.USER_STATUS), -1) == 1) {
+        if( userSettings.getInt(getString(R.string.USER_STATUS), -1) == 1)
+        {
 
             //Retrieve the Station Id and Place Id saved during lock-in procedure
             String stationId = userSettings.getString(getString(R.string.USER_BIKE_STATION_ID), "-1");

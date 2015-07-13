@@ -125,7 +125,8 @@
         android:layout_height="wrap_content"
         android:text="Lock Out"
         android:layout_alignTop="@+id/buttonLockIn"
-        android:layout_alignEnd="@+id/tableLayout" />
+        android:layout_alignEnd="@+id/tableLayout"
+        android:onClick="LockOutProcedure"/>
 
 
 </RelativeLayout>
