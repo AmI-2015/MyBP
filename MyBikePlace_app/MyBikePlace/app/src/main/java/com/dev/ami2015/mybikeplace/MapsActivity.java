@@ -30,6 +30,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public HashMap<MyBPStationMarker, Marker> myBPStationMarkersHM = new HashMap<MyBPStationMarker, Marker>(); //HM => HashMap
     public HashMap<RoomMarker, Marker> roomMarkersHM= new HashMap<RoomMarker, Marker>(); //HM => HashMap
 
+    //Creating flag to differentiate intent and action
+    public boolean showMyStation = false;
+    public String stationId = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -39,6 +43,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        showMyStation = false;
+
+        Intent intent = getIntent();
+        String calling_activity = intent.getStringExtra(SignInActivity.EXTRA_CALL_FROM);
+
+        if (calling_activity.equals("PersonalActivity")){
+            stationId = intent.getStringExtra(PersonalActivity.EXTRA_STATION_ID);
+            showMyStation = true;
+        }
     }
 
     @Override
@@ -207,6 +220,35 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         return nearestMyBPStation;
+    }
+
+    // searches MyBP station where i left my bike
+    public void ShowMyStation(String stationId){
+
+        MyBPStationMarker myStation = null;
+        MyBPStationMarker tmpMyBPStation;
+
+        int len = myBPStationMarkers.size();
+        int i = 0;
+
+        while(i < len && myStation.equals(null)){
+
+            tmpMyBPStation = myBPStationMarkers.get(i);
+
+            //check the temporary station with the station id passed to the method
+            if(tmpMyBPStation.stationID == Integer.valueOf(stationId) ){
+                myStation = tmpMyBPStation;
+            }
+
+            i++;
+        }
+
+        Marker marker = myBPStationMarkersHM.get(myStation);
+
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 17));
+
+        marker.showInfoWindow();
+
     }
 
     // searches MyBP stations with available free places

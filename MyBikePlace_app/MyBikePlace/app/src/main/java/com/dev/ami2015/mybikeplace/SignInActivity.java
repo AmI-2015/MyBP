@@ -32,6 +32,7 @@ import java.util.Objects;
 
 public class SignInActivity extends ActionBarActivity {
 
+    public final static String EXTRA_CALL_FROM = "com.dev.ami2015.mybikeplace.CALL_FROM";
     public final static String EXTRA_USERNAME = "com.dev.ami2015.mybikeplace.USERNAME";
     //public final static String EXTRA_PASSWORD = "com.dev.ami2015.mybikeplace.PASSWORD";
     public static String userID = null;
@@ -256,6 +257,7 @@ public class SignInActivity extends ActionBarActivity {
     public void GoToMaps(){
 
         signInIntent = new Intent(this, MapsActivity.class);
+        signInIntent.putExtra(EXTRA_CALL_FROM,"SignInActivity");
         startActivity(signInIntent);
     }
 

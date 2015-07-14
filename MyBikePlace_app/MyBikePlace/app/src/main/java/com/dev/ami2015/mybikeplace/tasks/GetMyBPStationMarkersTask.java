@@ -64,6 +64,10 @@ public class GetMyBPStationMarkersTask extends AsyncTask</*params*/ Void, /*prog
         parentActivity.setAllMyBPStationMarkerInMap(parentActivity.getMap(), myBPStationMarkers);
         parentActivity.myBPStationMarkers = myBPStationMarkers;
 
+        if(parentActivity.showMyStation) {
+            parentActivity.ShowMyStation(parentActivity.stationId);
+        }
+
     }
 
     // Given a URL, establishes an HttpUrlConnection and retrieves

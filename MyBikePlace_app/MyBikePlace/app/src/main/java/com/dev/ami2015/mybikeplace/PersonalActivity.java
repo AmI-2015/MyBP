@@ -36,6 +36,7 @@ import java.util.Objects;
 
 public class PersonalActivity extends ActionBarActivity {
 
+    public final static String EXTRA_STATION_ID = "com.dev.ami2015.mybikeplace.STATION_ID";
     GoogleCloudMessaging gcm;
     String regid;
     String PROJECT_NUMBER = "80513371534";
@@ -51,6 +52,7 @@ public class PersonalActivity extends ActionBarActivity {
     public EditText myBPStationNumber;
     public EditText myBPStationPlace;
     public static final String MYBPSERVER_ALARM_URL ="http://192.168.56.1:7000/myBP_server/users/stop_alarm_fromApp";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -342,6 +344,24 @@ public class PersonalActivity extends ActionBarActivity {
             new MakeLockOutRequest(this, stationId, placeId).execute();
 
         }
+    }
+
+    public void bikeOnMap(View view){
+
+        //Check current MyPU status: operation done only if user is locked in
+        if( userSettings.getInt(getString(R.string.USER_STATUS), -1) == 1){
+
+            //Retrieve the Station Id
+            String stationId = userSettings.getString(getString(R.string.USER_BIKE_STATION_ID), "-1");
+
+            //Launch MapsActivity and search mystation
+            Intent intent = new Intent(this, MapsActivity.class);
+            intent.putExtra(EXTRA_STATION_ID, stationId);
+            intent.putExtra(SignInActivity.EXTRA_CALL_FROM, "PersonalActivity");
+            startActivity(intent);
+
+        }
+
     }
 
 }
