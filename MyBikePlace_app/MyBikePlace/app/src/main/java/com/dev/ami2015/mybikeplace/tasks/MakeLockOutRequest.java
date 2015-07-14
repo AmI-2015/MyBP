@@ -47,6 +47,10 @@ public class MakeLockOutRequest extends AsyncTask<Void, Void, Void> {
         //Creating shared preference file
         userSettings = this.parentActivity.getSharedPreferences(this.parentActivity.getString(R.string.USER_SETTINGS), Context.MODE_PRIVATE);
 
+        //Settling statioId and placeID
+        lockOutStationID = stationId;
+        lockOutPlaceID = placeId;
+
     }
 
     @Override

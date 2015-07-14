@@ -97,6 +97,8 @@ public class MakeLockInRequest extends AsyncTask<Void, Void, Void>  {
 //        //Debug code begin
 //        userSettingsEditor = userSettings.edit();
 //        userSettingsEditor.putInt(this.parentActivity.getString(R.string.USER_STATUS), 1);
+//        userSettingsEditor.putString(this.parentActivity.getString(R.string.USER_BIKE_STATION_ID), "1");
+//        userSettingsEditor.putString(this.parentActivity.getString(R.string.USER_BIKE_PLACE_ID), "1");
 //        userSettingsEditor.commit();
 //        //Debug code end
 
