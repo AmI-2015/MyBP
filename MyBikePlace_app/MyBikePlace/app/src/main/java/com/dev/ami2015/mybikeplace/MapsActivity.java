@@ -230,14 +230,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         int len = myBPStationMarkers.size();
         int i = 0;
+        boolean found = false;
 
-        while(i < len && myStation.equals(null)){
+        while(i < len && !found){
 
             tmpMyBPStation = myBPStationMarkers.get(i);
 
             //check the temporary station with the station id passed to the method
             if(tmpMyBPStation.stationID == Integer.valueOf(stationId) ){
                 myStation = tmpMyBPStation;
+                found = true;
             }
 
             i++;

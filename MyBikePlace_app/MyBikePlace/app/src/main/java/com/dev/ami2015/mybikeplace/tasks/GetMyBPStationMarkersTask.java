@@ -66,6 +66,7 @@ public class GetMyBPStationMarkersTask extends AsyncTask</*params*/ Void, /*prog
 
         if(parentActivity.showMyStation) {
             parentActivity.ShowMyStation(parentActivity.stationId);
+            parentActivity.showMyStation = false;
         }
 
     }
