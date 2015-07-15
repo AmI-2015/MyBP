@@ -133,8 +133,10 @@ DATABASE SE LA TABELLA station CONTIENE GIA' LA CASELLA security_key [FATTO]
 def lock_app():
     request_packet=request.json
     station_id      = request_packet.get("station_id")
+    print "station_id: "+str(station_id)
     place_id        = request_packet.get("place_id")
     security_key    = request_packet.get("security_key")
+    print "security_key:"+security_key
     registration_id = request_packet.get("registration_id")
     parking_data={}
     parking_data=request_processor.lock_app(station_id, place_id, security_key, registration_id)
@@ -233,6 +235,7 @@ def stop_alarm_fromApp():
     request_packet=request.json
     station_id = request_packet.get("station_id")
     place_id   = request_packet.get("place_id")
+    print "station_id, place_id:  "+str(station_id)+"  "+str(place_id)
     stop_alarm=request_processor.stop_alarm_fromApp_Process(station_id, place_id)
     print "stop_alarm_fromApp: "+str(stop_alarm)
     return jsonify({"station_id":station_id, "place_id": place_id, "stop_alarm": str(stop_alarm)})
