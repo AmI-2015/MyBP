@@ -47,7 +47,7 @@ class raspberry:
                     print "UPDATING ERROR [rqstlckin_db()]"
             elif (security_key[0] == "UNCHANGEABLE"):
                 update_sql="UPDATE station SET security_key='None', status="+str(status)+" WHERE station_id="+str(station_id)+" AND place_id="+str(place_id)+";"
-                print update-sql
+                print update_sql
                 try:
                     cursor.execute(update_sql)
                     db.commit()

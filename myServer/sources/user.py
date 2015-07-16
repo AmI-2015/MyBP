@@ -56,7 +56,7 @@ class user:
         sql="SELECT * FROM users where username_code="+"'"+self.username_code+"' and pwd_code='"+self.pwd_code+"';"
         print sql
         cursor.execute(sql)
-    
+        
         try:
             data = cursor.fetchone()
                 
@@ -65,11 +65,29 @@ class user:
                 user_data['pwd_code']=data[1]
                 user_data['station_id']= int(data[2])
                 user_data['place_id']=int(data[3])
-                user_data['status']=data[4]
+                user_data['status']=int(data[4])
                 user_data['registration_id']=data[5]
                 user_data['error_str']=data[6]
                 # Now print fetched result to debug
-                print user_data 
+                #print user_data 
+                print user_data['username_code']
+                print user_data['pwd_code']
+                print user_data['station_id']
+                print user_data['place_id']
+                print user_data['status']
+                print user_data['registration_id']
+                print user_data['error_str']
+                
+                try:
+                    update_sql="UPDATE users SET station_id='"+str(user_data['station_id'])+"', place_id='"+str(user_data['place_id'])+"' WHERE username_code='"+str(user_data['username_code'])+"' AND pwd_code='"+str(user_data['pwd_code'])+"';"
+                    print update_sql
+                    cursor.execute(update_sql)
+                    db.commit()
+                    print "successful updated station_id, place_id"
+                except:
+                    print "station_id, place_id updating failed"
+                    user_data['place_id']=-1
+                    user_data['station_id']=-1
                 ################################################################################
                 # REGISTRATION ID HAS TO BE UPDATED TO TALK TO THE GCM (GOOGLE CLOUD MESSAGING)#
                 # IF AN UPDATING ERROR OCCURS REGISTRATION_ID IS SET TO -1                     #
@@ -88,7 +106,7 @@ class user:
             else:
                 user_data=error.error_sign_in(self.username_code, self.pwd_code)
         except:
-            print "Error: unable to fetch data [connect_sign_db()]"
+            print "Error: unable to fetch data [connect_signin_db()]"
             
         # disconnect from server
         db.close()
@@ -148,7 +166,7 @@ class user:
             if (security_key=="None" and status==0):  
                 parking_data['station_id'] = station_id
                 parking_data['place_id']   = place_id
-                update_station_sql="UPDATE station SET security_key='"+security_keyFromApp+"', stop_alarm='0',  registration_id='"+registration_id+"' WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
+                update_station_sql="UPDATE station SET security_key='"+security_keyFromApp+"', status = '1', stop_alarm='0',  registration_id='"+registration_id+"' WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
                 update_users_sql = "UPDATE users SET status='1' WHERE username_code='"+security_keyFromApp[0:25]+"' AND pwd_code='"+security_keyFromApp[25:50]+"';"
                 print update_station_sql
                 print update_users_sql
@@ -204,10 +222,12 @@ class user:
                 parking_data['station_id'] = station_id
                 parking_data['place_id']   = place_id
             else:
+                parking_data['status'] = -1
                 parking_data['station_id'] = -1
                 parking_data['place_id']   = -1
         except:
             print "FETCH EXCEPTION"
+            parking_data['status'] = -1
             parking_data['station_id'] = -1
             parking_data['place_id']   = -1
         '''
