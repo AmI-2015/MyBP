@@ -45,6 +45,15 @@ class raspberry:
                     print "UPDATING SUCCESFUL COMPLETED [rqstlckin_db()]"
                 except:
                     print "UPDATING ERROR [rqstlckin_db()]"
+            elif (security_key[0] == "UNCHANGEABLE"):
+                update_sql="UPDATE station SET security_key='None', status="+str(status)+" WHERE station_id="+str(station_id)+" AND place_id="+str(place_id)+";"
+                print update-sql
+                try:
+                    cursor.execute(update_sql)
+                    db.commit()
+                    print "UPDATING SUCCESFUL COMPLETED [rqstlckin_db()]"
+                except:
+                    print "UPDATING ERROR [rqstlckin_db()]"
             else: #if the user has locked in
                 update_sql="UPDATE station SET status="+str(status)+" WHERE station_id="+str(station_id)+" AND place_id="+str(place_id)+";"
 
@@ -82,7 +91,7 @@ class raspberry:
             stop_alarm = row[1]
             registration_id=row[2]
             #the following if statement checks if the request is a theft
-            if (security_key!="none"):
+            if (security_key!="None"):
                 parking_data['station_id']=-1
                 parking_data['place_id']=-1
                 parking_data['registration_id']=registration_id
@@ -137,7 +146,7 @@ class raspberry:
         
         db.close()  
         
-        return stop_alarm
+        return stop_alarm[0]
     
     
     def check_securityKey(self, station_id, place_id):
@@ -194,7 +203,10 @@ class raspberry:
             tot_places = int(row[1])
             
             if int(status) == 1:
-                free_places = free_places - 1
+                if(free_places > 0):
+                    free_places = free_places - 1
+                else:
+                    free_places = 0
                 update_station_spec = "UPDATE station_spec SET free_places = '"+str(free_places)+"' WHERE station_id='"+str(station_id)+"';" 
                 try:
                     cursor.execute(update_station_spec)
@@ -203,7 +215,10 @@ class raspberry:
                 except:
                     print "UPDATING ERROR [upd_stnSpcTbl()]"
             elif int(status) == 0:
-                free_places = free_places + 1
+                if(free_places < tot_places ):
+                    free_places = free_places + 1
+                else:
+                    free_places = tot_places
                 update_station_spec  = "UPDATE station_spec SET free_places = '"+str(free_places)+"' WHERE station_id='"+str(station_id)+"';" 
                 try:
                     cursor.execute(update_station_spec)

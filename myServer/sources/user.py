@@ -145,33 +145,44 @@ class user:
             security_key=row[0]
             status=int(row[1])
             print security_key
-            if (security_key=="none" and status==0):  
+            if (security_key=="None" and status==0):  
                 parking_data['station_id'] = station_id
                 parking_data['place_id']   = place_id
-                update_station_sql="UPDATE station SET security_key='"+security_keyFromApp+"', stop_alarm=0, registration_id='"+registration_id+"' WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
-                update_users_sql = "UPDATE users SET status=1 WHERE station_id='"+security_keyFromApp[0:25]+"' AND place_id='"+security_keyFromApp[25:50]+"';"
+                update_station_sql="UPDATE station SET security_key='"+security_keyFromApp+"', stop_alarm='0',  registration_id='"+registration_id+"' WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
+                update_users_sql = "UPDATE users SET status='1' WHERE username_code='"+security_keyFromApp[0:25]+"' AND pwd_code='"+security_keyFromApp[25:50]+"';"
                 print update_station_sql
                 print update_users_sql
                 try:
                     search_in_station_spec = "SELECT free_places FROM station_spec WHERE station_id ='"+str(station_id)+"';"
                     cursor.execute(search_in_station_spec)
+                    print "SEARCH SUCCESSFULLY COMPLETED IN station_spec"
                 except:
                     print "SEARCH ERROR in station_spec [connection_stationDB()]"
                     
                 try:
                     free_places = cursor.fetchone()
-                    free_places = free_places-1
-                    update_station_spec = "UPDATE station_spec SET free_places = '"+free_places+"' WHERE station_id='"+str(station_id)+"';"
-                    cursor.execute(update_station_spec)
+                    int_free_places = int(free_places[0])-1
+                    update_station_spec = "UPDATE station_spec SET free_places = '"+str(int_free_places)+"' WHERE station_id='"+str(station_id)+"';"
+                    print update_station_spec;
+                    try:
+                        cursor.execute(update_station_spec)
+                        db.commit()
+                    except:
+                        "station_spec UPDATING ERROR in connection_statiodnDB()"
+                except:
+                    print "station_spec FETCH ERROR in connection_stationDB()"
+                    
+                try:
+                    cursor.execute(update_station_sql)
+                    cursor.execute(update_users_sql)
                     db.commit()
                 except:
-                    print "station_spec NOT UPDATED in connection_stationDB()"
-                cursor.execute(update_station_sql)
-                cursor.execute(update_users_sql)
-                db.commit()
+                    print "station NOT updated [connection_stationDB()]"
             elif (security_key == security_keyFromApp):
-                update_station_sql="UPDATE station SET security_key='none', status=0, stop_alarm=1, registration_id='none'  WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
-                update_users_sql = "UPDATE users SET status=0 WHERE station_id='"+security_keyFromApp[0:25]+"' AND place_id='"+security_keyFromApp[25:50]+"';"
+                print "security[0:25]: "+security_keyFromApp[0:25]
+                print "security[25:0]: "+security_keyFromApp[25:50]+"FINE"
+                update_station_sql="UPDATE station SET security_key='None', status=0, stop_alarm=1, registration_id='None'  WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
+                update_users_sql = "UPDATE users SET status=0 WHERE username_code='"+security_keyFromApp[0:25]+"' AND pwd_code='"+security_keyFromApp[25:50]+"';"
                 try:
                     search_in_station_spec = "SELECT free_places FROM station_spec WHERE station_id ='"+str(station_id)+"';"
                     cursor.execute(search_in_station_spec)
@@ -180,8 +191,8 @@ class user:
                     
                 try:
                     free_places = cursor.fetchone()
-                    free_places = free_places+1
-                    update_station_spec = "UPDATE station_spec SET free_places = '"+free_places+"' WHERE station_id='"+str(station_id)+"';"
+                    int_free_places = int(free_places[0])+1
+                    update_station_spec = "UPDATE station_spec SET free_places = '"+str(int_free_places)+"' WHERE station_id='"+str(station_id)+"';"
                     cursor.execute(update_station_spec)
                     db.commit()
                 except:
@@ -261,6 +272,7 @@ class user:
         
         try:
             update_sql = "UPDATE station SET stop_alarm = 1 WHERE station_id="+str(station_id)+" and place_id ="+str(place_id)+";" 
+            print update_sql
             cursor.execute(update_sql)
             db.commit()
         except:
