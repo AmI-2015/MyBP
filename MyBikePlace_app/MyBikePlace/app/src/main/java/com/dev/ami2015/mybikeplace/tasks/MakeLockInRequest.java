@@ -25,7 +25,7 @@ import java.net.URL;
  */
 public class MakeLockInRequest extends AsyncTask<Void, Void, Void>  {
 
-    public static final String MYBPSERVER_LOCK_IN_URL ="http://192.168.56.1:7000/myBP_server/users/lock_app";
+    public static final String MYBPSERVER_LOCK_IN_URL =R.string.IP_SERVER+"/myBP_server/users/lock_app";
     public static final String DEBUG_TAG = "HttpExample";
 
     public PersonalActivity parentActivity;

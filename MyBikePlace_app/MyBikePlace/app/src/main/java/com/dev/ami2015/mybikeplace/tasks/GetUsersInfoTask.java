@@ -25,7 +25,7 @@ import java.net.URL;
  */
 public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
 
-    public static final String MYBPSERVER_GET_INFO_URL ="http://192.168.56.1:7000/myBP_server/users/get_info";
+    public static final String MYBPSERVER_GET_INFO_URL =R.string.IP_SERVER+"/myBP_server/users/get_info";
     public static final String DEBUG_TAG = "HttpExample";
 
     public PersonalActivity parentActivity;
