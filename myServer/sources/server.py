@@ -6,11 +6,13 @@ Created on 04/mag/2015
 '''
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- 
-import request_processor, json
+import request_processor, json, time
 from flask import Flask, jsonify, request
 from gcm import *
 
 app= Flask(__name__)
+
+LOCK_FLAG = 0
 
 #the following method is to sign in 
 '''
@@ -24,6 +26,7 @@ header json
 @app.route('/myBP_server/users/sign_in', methods=['POST'])
 def sign_in():
     secret_packet = request.json
+    print "SECRET PACKET RECEIVED IN sign_in:"
     print(secret_packet)    #print the packet, just for debugging
     
     user_code=secret_packet.get('user_code')
@@ -62,6 +65,7 @@ def sign_up():
 @app.route('/myBP_server/users/get_info', methods=['POST'])
 def  get_info():
     secret_packet=request.json
+    print "SECRET PACKET RECEIVED in get_info"
     print(secret_packet)
     user_data={}
     
@@ -77,6 +81,7 @@ def  get_info():
     print user_data['error_str']
     if(user_data['error_str']=="NO_ERROR"):
         diz_to_jsonify = {'station_id': user_data['station_id'], 'place_id': user_data['place_id'], 'status': user_data['status']}
+        print diz_to_jsonify
     else:
         return jsonify({'station_id': -1, 'place_id': -1, 'status': -1})
     
@@ -96,13 +101,13 @@ This request comes from the Raspberry located on the station, it is sent after t
 '''
 @app.route('/myBP_server/users/lock_ras', methods=['POST']) 
 def lock_raspberry():
+    global LOCK_FLAG
     request_packet=request.json
     station_id=request_packet.get("station_id")
     place_id=request_packet.get("place_id")
     status=request_packet.get("status")
-    
     request_processor.lockin_ras(station_id, place_id, status)
-    
+    LOCK_FLAG = 1
     return jsonify({"error_str": "OK"})
 
 #the following method is to log in "LOCK IN" by the app
@@ -131,15 +136,23 @@ DATABASE SE LA TABELLA station CONTIENE GIA' LA CASELLA security_key [FATTO]
 '''
 @app.route('/myBP_server/users/lock_app', methods=['POST']) 
 def lock_app():
+    global LOCK_FLAG
     request_packet=request.json
+    print "PACKET RECEIVED in lock_app:"
+    print(request_packet)
+
     station_id      = request_packet.get("station_id")
-    print "station_id: "+str(station_id)
     place_id        = request_packet.get("place_id")
     security_key    = request_packet.get("security_key")
     print "security_key:"+security_key
     registration_id = request_packet.get("registration_id")
-    parking_data={}
     parking_data=request_processor.lock_app(station_id, place_id, security_key, registration_id)
+#    if(LOCK_FLAG == 0):
+#        parking_data['station_id']=-1
+#        parking_data['place_id'] = -1
+#        parking_data['security_key'] = -1
+#    else:
+#        LOCK_FLAG = 0
     
     return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id'], "security_key": security_key, "registration_id": registration_id})
 
