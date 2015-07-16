@@ -121,12 +121,14 @@ public class PersonalActivity extends ActionBarActivity {
                             JSONObject obj =new JSONObject();
                             JSONObject objResponse= new JSONObject();
                             try {
-                                obj.put("station_id", "1");
+                                String station_ID = userSettings.getString(getString(R.string.USER_BIKE_STATION_ID), "-1");
+                                obj.put("station_id", station_ID);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
                             try {
-                                obj.put("place_id", "1");
+                                String place_ID = userSettings.getString(getString(R.string.USER_BIKE_PLACE_ID), "-1");
+                                obj.put("place_id", place_ID);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -223,19 +225,22 @@ public class PersonalActivity extends ActionBarActivity {
 
     public void goToPersonalActivity(int alarm)
     {
-        Intent i = new Intent(this, PersonalActivity.class);
+        //Intent i = new Intent(this, PersonalActivity.class);
         if(alarm == 1)
         {
             myBPStationNumber.setText("BIKE ALARM");
             myBPStationNumber.setTextColor(Color.RED);
-            myBPStationNumber.setKeyListener(null);
-            myBPStationPlace.setKeyListener(null);
+            myBPStationNumber.setEnabled(false);
+            myBPStationPlace.setEnabled(false);
         }
         else {
-            myBPStationNumber.setText("BIKE DISLOCKED");
-            myBPStationNumber.setTextColor(Color.GREEN);
-            myBPStationNumber.setKeyListener(null);
-            myBPStationPlace.setKeyListener(null);
+
+            new GetUsersInfoTask(this).execute();
+
+//            myBPStationNumber.setText("BIKE DISLOCKED");
+//            myBPStationNumber.setTextColor(Color.GREEN);
+//            myBPStationNumber.setKeyListener(null);
+//            myBPStationPlace.setKeyListener(null);
         }
     }
 
