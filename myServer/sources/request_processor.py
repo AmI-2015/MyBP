@@ -22,7 +22,10 @@ def sign_in(user_code, pwd_code, registration_id):
     
     return user_data
 
-
+def start_timer(user_code, pwd_code, set):
+    user_connected = user()
+    start_time = user_connected.set_start_time(user_code, pwd_code, set)
+    return start_time
 def sign_up(user_code, pwd_code, registration_id):
     user_data={}
     user_connected=user()
@@ -40,7 +43,21 @@ def sign_up(user_code, pwd_code, registration_id):
 def lockin_ras(station_id, place_id, status):
     raspberry_connected=raspberry()
     raspberry_connected.rqstlckin_db(station_id, place_id, status)
-    
+    pass
+
+def set_lock_flag(station_id, place_id, all, lock_flag):
+    user_connected = user()
+    user_connected.set_lock_flag(station_id, place_id, all, lock_flag)
+    pass
+
+def set_ras_flag(station_id, place_id, ras_flag, rd_wr_n):
+    ras_connected = raspberry()
+    ras_connected.set_ras_flag(station_id, place_id, ras_flag, rd_wr_n)
+    pass
+
+def reset_DB(station_id, place_id, security_keyFromApp, registration_id):
+    user_connected = user()
+    user_connected.reset_DB(station_id, place_id, security_keyFromApp, registration_id)
     pass
 
 def lock_app(station_id, place_id, security_key, registration_id):

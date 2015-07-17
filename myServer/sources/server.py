@@ -12,7 +12,7 @@ from gcm import *
 
 app= Flask(__name__)
 
-LOCK_FLAG = 0
+request_processor.set_lock_flag(-1, -1, 1, 1)
 
 #the following method is to sign in 
 '''
@@ -37,7 +37,7 @@ def sign_in():
     print pwd_code
     user_data=request_processor.sign_in(user_code, pwd_code, registration_id)
     
-
+    print "user_data in sign_in: "+str(user_data)
     return jsonify({"user_code": user_data['username_code'], "pwd_code": user_data['pwd_code'], "error_str": user_data['error_str']})
     
 #the following method is to sign up
@@ -61,14 +61,7 @@ def sign_up():
     user_data=request_processor.sign_up(user_code, pwd_code, registration_id)
     return jsonify({"pwd_code": user_data['pwd_code'], "error_str": user_data['error_str']})
     
-'''
-{
-    “station_id” : “XXX“,
-    “place_id“ : “XXX“,
-    “status“ : “0 oppure 1“
-    “data_valid” : “0” = not valid, continue polling  “1” = valid, stop polling
-}
-'''
+
 @app.route('/myBP_server/users/get_info', methods=['POST'])
 def  get_info():
     global LOCK_FLAG
@@ -82,20 +75,34 @@ def  get_info():
     registration_id = secret_packet.get('registration_id')
     
     user_data=request_processor.sign_in(user_code, pwd_code, registration_id)
-    
+    security_key = pwd_code+user_code
     diz_to_jsonify={}
-    
-    print user_data['error_str']
+    start_time = request_processor.start_timer(user_code, pwd_code, 0)
+    print start_time
+    elapsed = time.time() - start_time
+    print elapsed
+    #TIMER ON THE SERVER
+    if(elapsed > 10):
+        user_data['lock_flag'] = 1
+        
     if(user_data['error_str']=="NO_ERROR"):
-        diz_to_jsonify = {'station_id': user_data['station_id'], 'place_id': user_data['place_id'], 'status': user_data['status'], 'data_valid': LOCK_FLAG}
+        diz_to_jsonify = {'station_id': user_data['station_id'], 'place_id': user_data['place_id'], 'status': user_data['status'], 'data_valid': str(user_data['lock_flag'])}
     else:
-        diz_to_jsonify = {'station_id': -1, 'place_id': -1, 'status': -1, 'data_valid': LOCK_FLAG}
+        diz_to_jsonify = {'station_id': -1, 'place_id': -1, 'status': -1, 'data_valid': str(user_data['lock_flag'])}
     
-    LOCK_FLAG=0    
-    print "diz_to_jsonify: "+ diz_to_jsonify
+    print int(user_data['lock_flag'])
+    
+    if(int(user_data['lock_flag'])==1):
+        if(request_processor.set_ras_flag(user_data['station_id'], user_data['place_id'], -1, 1) ==0):
+            request_processor.reset_DB(user_data['station_id'], user_data['place_id'], security_key, registration_id)
+        request_processor.set_lock_flag(user_data['station_id'], user_data['place_id'], 0, 1)
+    else:
+        request_processor.set_lock_flag(user_data['station_id'], user_data['place_id'], 0, 0)
+        
+    print "diz_to_jsonify: "+ str(diz_to_jsonify)
     
     return jsonify(diz_to_jsonify)
-
+    
 #the following method is to log in "LOCK IN" from raspberry
 '''
 example
@@ -110,13 +117,13 @@ This request comes from the Raspberry located on the station, it is sent after t
 '''
 @app.route('/myBP_server/users/lock_ras', methods=['POST']) 
 def lock_raspberry():
-    global LOCK_FLAG
     request_packet=request.json
     station_id=request_packet.get("station_id")
     place_id=request_packet.get("place_id")
     status=request_packet.get("status")
     request_processor.lockin_ras(station_id, place_id, status)
-    LOCK_FLAG = 1 #Data Valid
+    request_processor.set_lock_flag(station_id, place_id, 0, 1)
+    request_processor.set_ras_flag(station_id, place_id, 1, 0)
     return jsonify({"error_str": "OK"})
 
 #the following method is to log in "LOCK IN" by the app
@@ -148,14 +155,14 @@ def lock_app():
     request_packet=request.json
     print "PACKET RECEIVED in lock_app:"
     print(request_packet)
-
     station_id      = request_packet.get("station_id")
     place_id        = request_packet.get("place_id")
     security_key    = request_packet.get("security_key")
-    print "security_key:"+security_key
     registration_id = request_packet.get("registration_id")
+    request_processor.start_timer(security_key[0:25], security_key[25:50], 1)
     parking_data=request_processor.lock_app(station_id, place_id, security_key, registration_id)
-
+    request_processor.set_lock_flag(station_id, place_id, 0, 0)
+    
     return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id'], "security_key": security_key, "registration_id": registration_id})
 
 '''
