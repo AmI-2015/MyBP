@@ -109,9 +109,12 @@
 
 				<header class="special container">
 					<span class="icon fa-bar-chart-o"></span>
+                    
+                  <iframe width="560" height="315" src="https://www.youtube.com/embed/jMwb_DXnTAI?rel=0" frameborder="0" allowfullscreen></iframe>	<br /><br />
+                    
 					<h2>imagine you’re arriving at Smart “Citadella Politecnico” with your bike. Maybe you’re late and you would like to find the nearest place to your classroom to leave quickly and safely your bolid but... you don’t know exactly where!
 					<br /><br />
-				</h2> What you’ve to do is take your phone, unlock it and simply open <strong>MyBikePlace app</strong>. It will do all the rest! MyBikePlace app suggests you the nearest place to you or, if you prefer, to your classroom. MyBikePlace app also helps you reach your bike if you’re forgetting it, showing where you parked it on the campus map. Moreover, if you register your arrival at the parking and someone else tries to stole your bike, MyBP avoids the theft warning you with a notification and activating an alarm at the stand.
+				</h2> What you’ve to do is take your phone, unlock it and simply open <strong>MyBikePlace app</strong>. It will do all the rest! MyBikePlace app suggests you the nearest place to you. MyBikePlace app also helps you reach your bike if you’re forgetting it, showing where you parked it on the campus map. Moreover, if you register your arrival at the parking and someone else tries to stole your bike, MyBP avoids the theft warning you with a notification and activating an alarm at the stand.
 					</p>
 				</header>
 						<footer class="major" style="text-align: center; width: 100%; margin: -80px 0 0 0;">
@@ -495,9 +498,19 @@ MyBP exploits a platform where the user can place his bike. (This platform is la
                    
                     <strong>MyBP Server:</strong> hosts web application in python language. It gathers informations from all the system components. Users interact with it through the mobile app.<br/>
                        <strong>Database: </strong>stores data system in SQL language.<br/>
-                        <strong>Mobile App: </strong>the only access to all the MyBikePlace services. It will be developed for Android smartphone (version 2.x.x or above) and it will represent the mobile computational node.<br/>
+                        <strong>Mobile App: </strong>the only access to all the MyBikePlace services. It will be developed for Android smartphone (version 2.1.1 or above) and it will represent the mobile computational node.<br/>
                        <strong>MyBP Station: </strong>set containing MyBP Board (sensing node), Raspberry (computational node) and bike log in stuff used by the mobile app (NFC and QRcode). They will be placed at each bike parking stand.<br/>
                         <strong>MyBP Board: </strong>made by bike platform (sensing node) and Status LEDs (give informations to the users about log in status).<br/>
+                       <strong>Bike Platform : </strong>it is the (physical) platform on which the bike will be placed in order to activate the pressure sensor.<br/>
+                        
+                        <br /><br /><h2>MyDB ARCHITECTURE:</h2><br />
+                    <p ><img src="images/pic20.jpg"></p>
+                    
+                    <strong>MyDB:</strong> is a mySQL Database, it is handled only by myBP Server. The Database has three table: station, station_spec and users. Users table has informations about all the users registered, station has informations about the istantaneous condition of all the stations at that time, finally, station_spec provides more specific informations on the stations like geographic postions and free places.<br /><br />
+                  
+                    <strong>MyRaspBike:</strong> is the software that runs on the Raspberry, it collects all the informations by its myBP Station and pushes them to the Server through POST requests. Also MyRaspBike has written in Python.
+
+<br />
                        
                        
                   	</header>
@@ -526,7 +539,7 @@ MyBP exploits a platform where the user can place his bike. (This platform is la
 								<section>
 									<a class="image featured"><img src="images/pic10.jpg" alt="" /></a>
 									<header>
-										<h3><strong>Raspberry Pi 2</strong></h3>
+										<h3><strong>Raspberry Pi</strong></h3>
 									</header>
 									<p>For each MyBP Station needed to organize the entire system linked to that station.</p>
 								</section>
@@ -552,7 +565,7 @@ MyBP exploits a platform where the user can place his bike. (This platform is la
 									<header>
 										<h3><strong>Ad-hoc pressure sensor</strong></h3>
 									</header>
-									<p>A sort of a switcher, able to send a voltage signal to the Raspberry.
+									<p>A sort of a switcher, able to send a voltage signal to the Raspberry. It is placed in the "Bike Platform" and, basically, recognise if there's a bike on it or not.
 
 </p>
 								</section>
@@ -569,7 +582,7 @@ MyBP exploits a platform where the user can place his bike. (This platform is la
 								</section>
 
 							</div>
-						</div>
+					
 
             
             <div class="6u 12u(narrower)">
@@ -581,14 +594,22 @@ MyBP exploits a platform where the user can place his bike. (This platform is la
 									</header>
 									<p>Is located in each place of the bike station. It is used like an interface device for the user, in this way the user mobile phone sends to the server his informations about the place that he is going to take.</p>
 								</section>
+                </div>
+						
+                
+                 <div class="6u 12u(narrower)">
 
-							</div>
+								<section>
+									<a  class="image featured"><img src="images/pic19.jpg" alt="" /></a>
+									<header>
+										<h3><strong>MyBP Server</strong></h3>
+									</header>
+									<p>Hosts web application in python language. It gathers informations from all the system components. Users interact with it through the mobile app.</p>
+								</section>
+                     
+                     
+
 						</div>
-						<footer class="major">
-							<ul class="buttons">
-								<li><a href="#pag13" class="button fit scrolly">Software Architecture</a></li>
-							</ul>
-						</footer>
             
 
 					</section>
@@ -600,22 +621,26 @@ MyBP exploits a platform where the user can place his bike. (This platform is la
 
 				<header class="special container">
 					<span class="icon fa-bar-chart-o"></span>
-					<br /><h2><strong>software architecture</strong></h2><br /><h2>MyBP SERVER:</h2><br />
-                         <p ><img src="images/PIC15.jpg"></p>
+					<br /><h2><strong>software architecture</strong></h2><br /><h2>MyBP SERVER ARCHITECTURE:</h2><br />
+                         <p ><img src="images/pic15.jpg"></p>
 			
-                       <strong>Request processor:</strong> this software module processes the request provided by an 	 external device, depending on what is the request, the system drives the elaboration in different way.<br />
-                    <strong>Sign_in():</strong> this method allows to sign in the system from an external users using a mobile device.<br />
-                    <strong>Sign_up():</strong> this method allows to sign up in the system if the user does not already exist.<br />
-                    <strong>Get_settings():</strong> this method allows to get all settings of a MyPu (see definitions).<br />
-                    <strong>Log_in():</strong> this method allows to authenticate on MyBP Board when the user wants to get a free place in a MyBP Station
-.<br />
-                    <strong>Log_out():</strong> this method allows a MyPu to deallocate a free place 
-- database connection core: it is the core to access or to modify or to update all items in the database, according to the received request.<br />
-                    <strong>Database response processor:</strong> this module provide a response after the response of the database, according to it, the module provide data or some kind of error codes.<br />
-                    <strong>MyBP Station response processor:</strong> this module can access to a particular MyBP Station and process a request received by an external mobile device.<br />
-                    <strong>MyBP System Response Processor:</strong> this module throws out a response json formatted to coordinate MyBP mobile application..<br /><br />
+                       <strong>MyBP Server:</strong> is a Restful Web Server, written in Python; the Web Server provides all the informations and the comunications between the different component of the entire MyBP System.<br />
+                    <strong>Python:</strong> It has been chosen because of its simplicity, for this system it is not required to have a deep low level insight, so an high level language is suitable. <br />
+                    <strong>JSON:</strong> all the communication between the Web Server and the other components of the system is done posting information in a JSON format.
+<br />
+                    <strong>GCM library:</strong>  Google Cloud Messaging library is a library that provides a simple interface to use the  service provided by Google.<br />
+                    <strong>MySQLdb library:</strong> it is a library that provides an interface to link the system to an SQL database; the interface simplify the interation of the database through few lines of code.
+<br />
+                    	
                     
-                     <p ><img src="images/pic18.jpg"></p>
+                  <br /><br />
+                    
+                     	<br /><br /><h2>MyBP APPLICATION:</h2><br />
+                    <p ><img src="images/pic21.jpg"></p>
+                    <br /><h2>THE MOBILE APPLICATION CONNECTION IS PROVIDED BY THE SERVER APPLICATION AND IT'S USED TO:</h2><br />
+                    
+                    
+                     
                     Request to server to find free places;<br />
                     Request to server to find personal bike;<br />
                     Request to server to Bike log-in procedure;<br />
