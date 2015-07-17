@@ -210,8 +210,8 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
 
             JSONObject MyPUInfoReceivedJson = JsonResponse;
 
-            //debug code
-            MyPUInfoReceivedJson.put("data_valid", "0");
+//            //debug code
+//            MyPUInfoReceivedJson.put("data_valid", "0");
 
             //Check data-valid from server
             if(MyPUInfoReceivedJson.getString("data_valid").equals("1")){
