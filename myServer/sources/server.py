@@ -61,9 +61,17 @@ def sign_up():
     user_data=request_processor.sign_up(user_code, pwd_code, registration_id)
     return jsonify({"pwd_code": user_data['pwd_code'], "error_str": user_data['error_str']})
     
-
+'''
+{
+    “station_id” : “XXX“,
+    “place_id“ : “XXX“,
+    “status“ : “0 oppure 1“
+    “data_valid” : “0” = not valid, continue polling  “1” = valid, stop polling
+}
+'''
 @app.route('/myBP_server/users/get_info', methods=['POST'])
 def  get_info():
+    global LOCK_FLAG
     secret_packet=request.json
     print "SECRET PACKET RECEIVED in get_info"
     print(secret_packet)
@@ -72,7 +80,6 @@ def  get_info():
     pwd_code=secret_packet.get('pwd_code')
     user_code=secret_packet.get('user_code')
     registration_id = secret_packet.get('registration_id')
-    security_key=user_code+pwd_code
     
     user_data=request_processor.sign_in(user_code, pwd_code, registration_id)
     
@@ -80,10 +87,12 @@ def  get_info():
     
     print user_data['error_str']
     if(user_data['error_str']=="NO_ERROR"):
-        diz_to_jsonify = {'station_id': user_data['station_id'], 'place_id': user_data['place_id'], 'status': user_data['status']}
-        print diz_to_jsonify
+        diz_to_jsonify = {'station_id': user_data['station_id'], 'place_id': user_data['place_id'], 'status': user_data['status'], 'data_valid': LOCK_FLAG}
     else:
-        return jsonify({'station_id': -1, 'place_id': -1, 'status': -1})
+        diz_to_jsonify = {'station_id': -1, 'place_id': -1, 'status': -1, 'data_valid': LOCK_FLAG}
+    
+    LOCK_FLAG=0    
+    print "diz_to_jsonify: "+ diz_to_jsonify
     
     return jsonify(diz_to_jsonify)
 
@@ -107,7 +116,7 @@ def lock_raspberry():
     place_id=request_packet.get("place_id")
     status=request_packet.get("status")
     request_processor.lockin_ras(station_id, place_id, status)
-    LOCK_FLAG = 1
+    LOCK_FLAG = 1 #Data Valid
     return jsonify({"error_str": "OK"})
 
 #the following method is to log in "LOCK IN" by the app
@@ -136,7 +145,6 @@ DATABASE SE LA TABELLA station CONTIENE GIA' LA CASELLA security_key [FATTO]
 '''
 @app.route('/myBP_server/users/lock_app', methods=['POST']) 
 def lock_app():
-    global LOCK_FLAG
     request_packet=request.json
     print "PACKET RECEIVED in lock_app:"
     print(request_packet)
@@ -147,13 +155,7 @@ def lock_app():
     print "security_key:"+security_key
     registration_id = request_packet.get("registration_id")
     parking_data=request_processor.lock_app(station_id, place_id, security_key, registration_id)
-#    if(LOCK_FLAG == 0):
-#        parking_data['station_id']=-1
-#        parking_data['place_id'] = -1
-#        parking_data['security_key'] = -1
-#    else:
-#        LOCK_FLAG = 0
-    
+
     return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id'], "security_key": security_key, "registration_id": registration_id})
 
 '''
@@ -284,7 +286,7 @@ the raspberry sends a json
 }
 '''
 @app.route('/myBP_server/users/update_dbServer', methods = ['POST'])
-def update_station_spec_table():
+def update_dbServer():
     request_packet=request.json
     station_id = request_packet.get("station_id")
     status   = request_packet.get("status")
@@ -292,7 +294,26 @@ def update_station_spec_table():
        
     stn_updSpc = request_processor.stn_updDbProcess(station_id, place_id, status)
     
-    return jsonify({"station_id":stn_updSpc['station_id'], "place_id": stn_updSpc['free_places']})
+    return jsonify({"station_id":stn_updSpc['station_id'], "free_places": stn_updSpc['free_places']})
+
+'''
+the raspberry sends a json
+{
+    "station_id": "1",
+    "tot_places": "5",
+    "free_places": "1"
+}
+'''
+@app.route('/myBP_server/users/update_stationSpec', methods = ['POST'])
+def update_station_spec():
+    request_packet=request.json
+    station_id = request_packet.get("station_id")
+    free_places   = request_packet.get("free_places")
+    tot_places = request_packet.get("tot_places")
+       
+    stn_updSpc = request_processor.stn_updStnSpc(station_id, free_places, tot_places)
+    
+    return jsonify({"station_id":stn_updSpc['station_id'], "free_places": stn_updSpc['free_places'], "tot_places": stn_updSpc['tot_places']})
 
 if __name__ == '__main__':
     app.run(host = '0.0.0.0', debug=True, port=7000)

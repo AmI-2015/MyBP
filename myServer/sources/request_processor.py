@@ -78,8 +78,13 @@ def stn_spcProcess():
     
     return stn_spc
 
+def stn_updStnSpc(station_id, free_places, tot_places):
+    raspberry_connected = raspberry()
+    
+    stn_updSpc = raspberry_connected.updStnSpcStart(station_id, free_places, tot_places)
+    return stn_updSpc
+
 def stn_updDbProcess(station_id,place_id,status):
-    stn_updSpc = {}
     raspberry_connected = raspberry()
     
     stn_updSpc = raspberry_connected.upd_stnSpcTbl(station_id, place_id, status)

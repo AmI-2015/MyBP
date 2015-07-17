@@ -181,6 +181,32 @@ class raspberry:
         db.close()  
         return checker
     
+    def updStnSpcStart(self, station_id, free_places, tot_places):
+        # Open database connection
+        db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB")
+        # prepare a cursor object using cursor() method
+        cursor  = db.cursor()
+
+        update_station_spec = "UPDATE station_spec SET free_places = '"+str(free_places)+"', tot_places = '"+str(tot_places)+"' WHERE station_id='"+str(station_id)+"';" 
+        try:
+            cursor.execute(update_station_spec)
+            db.commit()
+            print "UPDATING SUCCESFUL COMPLETED [upd_stnSpcTbl()]"
+        except:
+            print "UPDATING ERROR [upd_stnSpcTbl()]"
+
+
+        
+        #####################################
+        db.close()
+        
+        response_data = {}
+        response_data['station_id']  = station_id
+        response_data['tot_places']  = tot_places
+        response_data['free_places'] = free_places
+        
+        return response_data
+    
     def upd_stnSpcTbl(self, station_id, place_id, status):
         # Open database connection
         db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB")
