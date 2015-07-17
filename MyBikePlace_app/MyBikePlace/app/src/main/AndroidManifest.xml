@@ -32,14 +32,11 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     -->
 
-    <!-- MyBikePlace needs NFC feature -->1
-    <uses-feature
-        android:name="android.hardware.nfc"
-        android:required="true"/>
+    <!-- MyBikePlace needs NFC feature -->
+    <uses-feature android:name="android.hardware.nfc"/>
 
-    <!-- MyBikePlace needs NFC permission -->1
-    <uses-permission
-        android:name="android.permission.NFC"/>
+    <!-- MyBikePlace needs NFC permission -->
+    <uses-permission android:name="android.permission.NFC"/>
 
     <!--
     the below feature is used on google play to prevent download by devices

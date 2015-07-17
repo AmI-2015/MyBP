@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -16,6 +17,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import com.dev.ami2015.mybikeplace.tasks.signInConnection;
@@ -111,6 +114,9 @@ public class SignInActivity extends ActionBarActivity {
             case R.id.actionTestConnection:
                 TestConnection();
                 return true;
+            case R.id.actionTestNFC:
+                TestNFC();
+                return  true;
 //            case R.id.actionGoToMap:
 //                GoToMaps();
 //                return true;
@@ -291,6 +297,28 @@ public class SignInActivity extends ActionBarActivity {
             connectionStatus.setTextColor(getResources().getColor(R.color.red));
         }
     }
+
+    public void TestNFC(){
+
+        TextView NFCStatus = (TextView) findViewById(R.id.connectionStatusText);
+        NfcAdapter mNfcAdapter = mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+
+        if (mNfcAdapter == null) {
+            // No NFC compatibility
+            Toast.makeText(this, "This device doesn't support NFC.", Toast.LENGTH_LONG).show();
+            finish();
+        } else {
+
+            if (!mNfcAdapter.isEnabled()) {
+                NFCStatus.setText("NFC supported and disabled.");
+                NFCStatus.setTextColor(getResources().getColor(R.color.red));
+            } else {
+                NFCStatus.setText("NFC supported and enabled");
+                NFCStatus.setTextColor(getResources().getColor(R.color.green));
+            }
+        }
+    }
+
 
     //called when Sign Up in action bar is pressed
     public void SignUp(){

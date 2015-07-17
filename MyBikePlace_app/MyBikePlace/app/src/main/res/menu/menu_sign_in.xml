@@ -19,6 +19,12 @@
         android:orderInCategory="100"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/actionTestNFC"
+        android:title="@string/action_test_nfc"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
     <!--<item-->
         <!--android:id="@+id/actionGoToMap"-->
         <!--android:title="@string/action_go_to_map"-->
