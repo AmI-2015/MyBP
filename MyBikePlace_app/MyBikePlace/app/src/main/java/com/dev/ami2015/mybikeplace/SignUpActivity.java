@@ -30,7 +30,7 @@ public class SignUpActivity extends ActionBarActivity {
     public static String regid;
     public final static String EXTRA_USERNAME = "com.dev.ami2015.mybikeplace.USERNAME";
     public final static String EXTRA_PASSWORD = "com.dev.ami2015.mybikeplace.PASSWORD";
-    public static final String MYBPSERVER_URL =R.string.IP_SERVER+"/myBP_server/users/sign_up";
+    public static final String MYBPSERVER_URL ="http://192.168.56.1:7000/myBP_server/users/sign_up";
 
     // editText view elements
     EditText editUsername;

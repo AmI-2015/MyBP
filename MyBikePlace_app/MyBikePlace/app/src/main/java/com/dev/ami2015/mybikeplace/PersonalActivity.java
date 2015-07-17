@@ -53,7 +53,6 @@ public class PersonalActivity extends ActionBarActivity {
     public EditText myBPStationPlace;
     public static final String MYBPSERVER_ALARM_URL =R.string.IP_SERVER+"/myBP_server/users/stop_alarm_fromApp";
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -342,11 +341,11 @@ public class PersonalActivity extends ActionBarActivity {
         if( userSettings.getInt(getString(R.string.USER_STATUS), -1) == 1)
         {
 
-            //Retrieve the Station Id and Place Id saved during lock-in procedure
+            //Retrieve the Station Id and Place Id saved after lock-in procedure
             String stationId = userSettings.getString(getString(R.string.USER_BIKE_STATION_ID), "-1");
             String placeId = userSettings.getString(getString(R.string.USER_BIKE_PLACE_ID), "-1");
 
-            //Make a Lock-In request to MYBPSERVER
+            //Make a Lock-Out request to MYBPSERVER
             new MakeLockOutRequest(this, stationId, placeId).execute();
 
         }
@@ -368,6 +367,16 @@ public class PersonalActivity extends ActionBarActivity {
 
         }
 
+    }
+
+    //Invoked by GetUsersInfoTask on postExecute
+    public void ManagePollingState(){
+        myPUBikeStatus.setText("Wait...");
+        myPUBikeStatus.setTextColor(getResources().getColor(R.color.yellow));
+        myBPStationNumber.setText("wait...");
+        myBPStationNumber.setEnabled(false);
+        myBPStationPlace.setText("wait...");
+        myBPStationPlace.setEnabled(false);
     }
 
 }
