@@ -37,7 +37,7 @@ class MyUser():
 
     def process_rqs(self, pin_in, GREENLED, REDLED, status, place_id, station_id, security_checker):
         alarm = 0
-        wait  = 10          #wait time in second, in this time the user has to pass the smartphone on NFC, otherwise
+        wait  = 5          #wait time in second, in this time the user has to pass the smartphone on NFC, otherwise
                             #he is registered as an unregistered user
         if status==1: #falling edge
 	    print str(status)+' ho messo la bici'
@@ -102,4 +102,11 @@ class MyUser():
         print payload
 	response = requests.post(url, data=json.dumps(payload), headers = headers) 
         return response   
-            
+
+    def update_stationSpec(self, station_id,free_places,tot_places):
+        url     = "http://10.42.0.1:7000/myBP_server/users/update_stationSpec"  
+        payload = { 'station_id': str(station_id), 'free_places': str(free_places), 'tot_places': str(tot_places) }
+        headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+        print payload
+	response = requests.post(url, data=json.dumps(payload), headers = headers) 
+        return response              

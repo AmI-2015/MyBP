@@ -36,7 +36,7 @@ public class SignInActivity extends ActionBarActivity {
     public final static String EXTRA_USERNAME = "com.dev.ami2015.mybikeplace.USERNAME";
     //public final static String EXTRA_PASSWORD = "com.dev.ami2015.mybikeplace.PASSWORD";
     public static String userID = null;
-    public static final String MYBPSERVER_URL ="http://192.168.56.1:7000/myBP_server/users/sign_in";
+    public static final String MYBPSERVER_URL = "http://192.168.56.1:7000/myBP_server/users/sign_in";
     Intent signInIntent;
 
     // view elements from activty

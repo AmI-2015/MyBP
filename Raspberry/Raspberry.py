@@ -26,11 +26,17 @@ GPIO.setup(22,GPIO.OUT) #RED LED place_id  n 2
 
 DIS_INT = 0
 
+place=[7,13,8,-1,-1,-1,-1,-1,-1,-1]
+#status=[0,0,0,0,0,0,0,0,0,0]
+
 station_id = 1 
-status   = [int(not(GPIO.input(7))), int(not(GPIO.input(13))), int(not(GPIO.input(12)))]
+status   = [int(not(GPIO.input(7))), int(not(GPIO.input(13))), int(not(GPIO.input(8)))]
+print status
 #station number 1
 GPIO.output(11,False)  
-GPIO.output(12,False)  
+GPIO.output(12,False)
+GPIO.output(15,False)  
+GPIO.output(16,False)  
                        
 def idPlaceZero_change(channel):
     check_and_lock(channel, 11, 12 , 0)
@@ -44,6 +50,25 @@ def idPlaceTwo_change(channel):
 #def idPlaceThree_change(channel):
 #     check_and_lock(channel, 19 , 3)
 
+
+def start_system():
+    objMyUser=MyUser()
+    tot_places=0
+    free_places=0
+    for i in range (0, 10):
+        channel=place[i]
+        if(channel!=-1):
+            objMyUser.update_dbServer(int(not(GPIO.input(channel))),i, station_id)
+            status[i]=int(not(GPIO.input(channel)))
+            print status[i]
+            tot_places=tot_places+1
+            if(status[i]==0):
+                free_places=free_places+1
+        else:
+            pass
+    print tot_places
+    print free_places    
+    objMyUser.update_stationSpec(station_id,free_places,tot_places)
 
 def start_alarm(pin_out):
     print "allarme acceso"
@@ -155,6 +180,7 @@ GPIO.add_event_detect(8, GPIO.BOTH, handlerInterrupts, bouncetime=1000)
 #GPIO.add_event_detect(15, GPIO.BOTH, handlerInterrupts, bouncetime=1000)
 
 try:
+    start_system()
     while 1:
         pass
     

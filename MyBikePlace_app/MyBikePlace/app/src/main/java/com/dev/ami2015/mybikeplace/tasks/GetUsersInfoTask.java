@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.dev.ami2015.mybikeplace.PersonalActivity;
 import com.dev.ami2015.mybikeplace.R;
+import com.google.android.gms.common.server.response.FastJsonResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,6 +42,8 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
     // Creating editor to write inside Preference File
     SharedPreferences.Editor userSettingsEditor = null;
 
+    //Polling flag
+    boolean endPolling = false;
 
     //constructor receives as parameter the parent activity that started the task
     public GetUsersInfoTask(PersonalActivity activity){
@@ -49,38 +52,56 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
         userSettings = this.parentActivity.getSharedPreferences(this.parentActivity.getString(R.string.USER_SETTINGS), Context.MODE_PRIVATE);
         //add RegId inside preference file
         userSettingsEditor = userSettings.edit();
+        //clear polling flag
+        endPolling = false;
 
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+
+        parentActivity.ManagePollingState();
     }
 
     @Override
     protected Void doInBackground(Void... params) {
 
-        // params comes from the execute() call: params[0] is the url.
+//        try {
+//
+//            JSONObject MyPUInfoReceivedJson = MakePostRequestToMyBPServer(MYBPSERVER_GET_INFO_URL);
+//
+//            //save obtained data
+//            myPUStationNumber = MyPUInfoReceivedJson.getString("station_id");
+//            myPUStationPlace = MyPUInfoReceivedJson.getString("place_id");
+//            switch(MyPUInfoReceivedJson.getString("status")){
+//                case "0":
+//                    myPUStatus = 0; //user with no yet bike locked
+//                    break;
+//                case "1":
+//                    myPUStatus = 1; //user with bike already locked
+//                    break;
+//                default:
+//                    myPUStatus = -1; //error -1
+//                    break;
+//            }
+//
+//
+//        } catch (IOException e) {
+//            return null;
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+
         try {
-
-            JSONObject MyPUInfoReceivedJson = MakePostRequestToMyBPServer(MYBPSERVER_GET_INFO_URL);
-
-            //save obtained data
-            myPUStationNumber = MyPUInfoReceivedJson.getString("station_id");
-            myPUStationPlace = MyPUInfoReceivedJson.getString("place_id");
-            switch(MyPUInfoReceivedJson.getString("status")){
-                case "0":
-                    myPUStatus = 0; //user with no yet bike locked
-                    break;
-                case "1":
-                    myPUStatus = 1; //user with bike already locked
-                    break;
-                default:
-                    myPUStatus = -1; //error -1
-                    break;
-            }
-
-
+            this.PollingRequest();
         } catch (IOException e) {
-            return null;
-        } catch (JSONException e) {
             e.printStackTrace();
         }
+        //reset polling flag
+        endPolling = false;
+
         return null;
     }
 
@@ -100,6 +121,7 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
 //        userSettingsEditor.putString(this.parentActivity.getString(R.string.USER_BIKE_STATION_ID), "2");
 //        userSettingsEditor.commit();
 //        //Debug code end
+
 
         //Invoke checkStatus Method from PersonalActivity
         parentActivity.checkMyPUStatus();
@@ -179,6 +201,61 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
         }
 
         return MyPUInfoReceivedJson;
+
+    }
+
+    public void ManageReceivedJson(JSONObject JsonResponse){
+
+        try {
+
+            JSONObject MyPUInfoReceivedJson = JsonResponse;
+
+            //debug code
+            MyPUInfoReceivedJson.put("data_valid", "0");
+
+            //Check data-valid from server
+            if(MyPUInfoReceivedJson.getString("data_valid").equals("1")){
+                //the received data are valid
+                //enable endPolling Flag
+                endPolling = true;
+
+                //save obtained data
+                myPUStationNumber = MyPUInfoReceivedJson.getString("station_id");
+                myPUStationPlace = MyPUInfoReceivedJson.getString("place_id");
+                switch(MyPUInfoReceivedJson.getString("status")){
+                    case "0":
+                        myPUStatus = 0; //user with no yet bike locked
+                        break;
+                    case "1":
+                        myPUStatus = 1; //user with bike already locked
+                        break;
+                    default:
+                        myPUStatus = -1; //error -1
+                        break;
+                }
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            endPolling = true; //error
+        }
+    }
+
+    public void PollingRequest() throws IOException {
+
+        while (endPolling == false){
+
+            try {
+
+                JSONObject JsonResponse = this.MakePostRequestToMyBPServer(MYBPSERVER_GET_INFO_URL);
+                this.ManageReceivedJson(JsonResponse);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+
 
     }
 }
