@@ -12,52 +12,43 @@ GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
 
 
-GPIO.setup(7 ,GPIO.IN, pull_up_down=GPIO.PUD_UP) #ingresso interruttore con pull up place_id n 0
-GPIO.setup(11,GPIO.OUT) #GREEN LED place_id n 0
-GPIO.setup(12,GPIO.OUT) #RED LED place_id  n 0
+def setup_pin(channel,green_led,red_led):
+    GPIO.setup(channel ,GPIO.IN, pull_up_down=GPIO.PUD_UP) #ingresso interruttore con pull up place_id 
+    GPIO.setup(green_led,GPIO.OUT) #GREEN LED place_id 
+    GPIO.setup(red_led,GPIO.OUT) #RED LED place_id  
+    GPIO.add_event_detect(channel, GPIO.BOTH, handlerInterrupts, bouncetime=1000)
 
-GPIO.setup(13 ,GPIO.IN, pull_up_down=GPIO.PUD_UP) #ingresso interruttore con pull up place_id n 1
-GPIO.setup(15,GPIO.OUT) #GREEN LED place_id n 1
-GPIO.setup(16,GPIO.OUT) #RED LED place_id  n 1
-
-GPIO.setup(8 ,GPIO.IN, pull_up_down=GPIO.PUD_UP) #ingresso interruttore con pull up place_id n 2
-GPIO.setup(18,GPIO.OUT) #GREEN LED place_id n 2
-GPIO.setup(22,GPIO.OUT) #RED LED place_id  n 2
 
 DIS_INT = 0
 
-place=[7,13,8,-1,-1,-1,-1,-1,-1,-1]
-#status=[0,0,0,0,0,0,0,0,0,0]
+tot_places=0
+place=[7,13,-1,-1,-1,-1,-1,-1,-1,-1]
+status=[0,0,0,0,0,0,0,0,0,0]
+green_led=[11,15,-1,-1,-1,-1,-1,-1,-1,-1]
+red_led=[12,16,-1,-1,-1,-1,-1,-1,-1,-1]
+system_on=36
+stop_system=40
 
 station_id = 1 
-status   = [int(not(GPIO.input(7))), int(not(GPIO.input(13))), int(not(GPIO.input(8)))]
 print status
-#station number 1
-GPIO.output(11,False)  
-GPIO.output(12,False)
-GPIO.output(15,False)  
-GPIO.output(16,False)  
-                       
-def idPlaceZero_change(channel):
-    check_and_lock(channel, 11, 12 , 0)
-
-def idPlaceOne_change(channel):
-    check_and_lock(channel, 15, 16, 1)
-
-def idPlaceTwo_change(channel):
-    check_and_lock(channel, 18, 22, 2)
-    
-#def idPlaceThree_change(channel):
-#     check_and_lock(channel, 19 , 3)
 
 
 def start_system():
+    global tot_places
     objMyUser=MyUser()
     tot_places=0
     free_places=0
+    GPIO.setup(stop_system,GPIO.IN, pull_up_down=GPIO.PUD_UP) #ingresso interruttore stop
+    GPIO.setup(system_on,GPIO.OUT) #working LED   
     for i in range (0, 10):
         channel=place[i]
         if(channel!=-1):
+            print channel
+            print green_led[i]
+            print red_led[i]
+            setup_pin(channel,green_led[i],red_led[i])
+            GPIO.output(green_led[i],False)  
+            GPIO.output(red_led[i],False)
             objMyUser.update_dbServer(int(not(GPIO.input(channel))),i, station_id)
             status[i]=int(not(GPIO.input(channel)))
             print status[i]
@@ -116,16 +107,10 @@ def handlerInterrupts(channel):
         timer(time.time(),2)       
         current_status = GPIO.input(channel)
         if(current_status == status):
-            if(channel == 7):
-                idPlaceZero_change(channel)
-            elif(channel == 13):
-                idPlaceOne_change(channel)
-            elif(channel == 8):
-                idPlaceTwo_change(channel)
-            else:
-                pass
-            #elif(channel == 15):
-            #    idPlaceThree_change(channel)
+            for i in range(0,tot_places):
+                if(channel==place[i]):
+                    check_and_lock(channel,green_led[i],red_led[i],i)
+                    break
     else:
         print "DISTRUGGO INTERRUPT"
         pass
@@ -174,15 +159,16 @@ def check_and_lock(pin_in, GREENLED, REDLED,  place_id):
             GPIO.output(REDLED, False)
             objMyUser.update_dbServer(0,place_id, station_id)   
 
-GPIO.add_event_detect(7, GPIO.BOTH, handlerInterrupts, bouncetime=1000)
-GPIO.add_event_detect(13, GPIO.BOTH, handlerInterrupts, bouncetime=1000)
-GPIO.add_event_detect(8, GPIO.BOTH, handlerInterrupts, bouncetime=1000)
-#GPIO.add_event_detect(15, GPIO.BOTH, handlerInterrupts, bouncetime=1000)
+
 
 try:
     start_system()
+    blinker(time.time(),1,system_on)
     while 1:
+        if(int(not(GPIO.input(stop_system)))==1):
+            break
         pass
     
 finally:
+    print "ciao"
     GPIO.cleanup()

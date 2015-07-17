@@ -51,7 +51,7 @@ class raspberry:
                 try:
                     cursor.execute(update_sql)
                     db.commit()
-                    print "UPDATING SUCCESFUL COMPLETED [rqstlckin_db()]"
+                    print "UPDATING SUCCESFULLY COMPLETED [rqstlckin_db()]"
                 except:
                     print "UPDATING ERROR [rqstlckin_db()]"
             else: #if the user has locked in
@@ -60,15 +60,53 @@ class raspberry:
                 try:
                     cursor.execute(update_sql)
                     db.commit()
-                    print "UPDATING SUCCESFUL COMPLETED [rqstlckin_db()]"
+                    print "UPDATING SUCCESFULLY COMPLETED [rqstlckin_db()]"
                 except:
-                    print "UPDATING ERROR [rqstlckin_db()]"               
+                    print "UPDATING ERROR [rqstlckin_db()]" 
+                    
+                try:
+                    update_lock_flag="UPDATE users SET lock_flag='1' WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"    
+                    cursor.execute(update_lock_flag)
+                    db.commit()
+                    print "UPDATING lock_flag SUCCESFULLY COMPLETED"
+                except:
+                    print "UPDATING lock_flag ERROR [rqstlckin_db()]"              
         except:
             print "ERROR FETCHING [rqstlckin_db()]"
                 
         # disconnect from server
         db.close()
+    
+    def set_ras_flag(self, station_id, place_id, ras_flag, rd_wr_n):
+        db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB")
+        user_data={}   
+        cursor = db.cursor()
         
+        flag = -1
+        
+        if(rd_wr_n == 0):
+            try:
+                update_lock_flag="UPDATE users SET ras_flag='"+str(ras_flag)+"' WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"    
+                cursor.execute(update_lock_flag)
+                db.commit()
+                print "UPDATING ras_flag SUCCESFULLY COMPLETED"
+            except:
+                print "UPDATING ras_flag ERROR [reset_ras_flag]"
+        else:
+            try:
+                search_ras_flag_sql = "SELECT ras_flag FROM users WHERE place_id='"+str(place_id)+"' and station_id = '"+str(station_id)+"';"
+                print search_ras_flag_sql
+                cursor.execute(search_ras_flag_sql)
+                print "UPDATE SUCCESSFULLY COMPLETED IN start_timer"
+                try:
+                    ras_flag=cursor.fetchone()
+                    flag= ras_flag[0]
+                except:
+                    print "start_time not found"
+            except:
+                print "ERROR SEARCH in ras_flag"
+        return flag
+    
     def stealing_controller(self, station_id, place_id):
         # Open database connection
         db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB")

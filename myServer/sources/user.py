@@ -3,7 +3,7 @@ Created on 04/mag/2015
 
 @author: MyBP
 '''
-import error
+import error, time
 import MySQLdb
 
 #####################################################################
@@ -43,6 +43,27 @@ class user:
         return user_data
     #connect_signin_db() is called whenever a request of sign in is received        
 
+    def set_lock_flag(self, station_id, place_id, all, lock_flag):
+        db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB")
+        user_data={}   
+        cursor = db.cursor()
+        if(all == 0):
+            try:
+                update_lock_flag="UPDATE users SET lock_flag='"+str(lock_flag)+"' WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"    
+                cursor.execute(update_lock_flag)
+                db.commit()
+                print "UPDATING lock_flag SUCCESFULLY COMPLETED"
+            except:
+                print "UPDATING lock_flag ERROR [reset_lock_flag]"
+        else:
+            try:
+                update_lock_flag="UPDATE users SET lock_flag='"+str(lock_flag)+"';"    
+                cursor.execute(update_lock_flag)
+                db.commit()
+                print "UPDATING lock_flag SUCCESFULLY COMPLETED"
+            except:
+                print "UPDATING lock_flag ERROR [reset_lock_flag]"
+        pass
     '''
     if any exceptions occur the station_id and place_id are forced to -1
     '''    
@@ -53,10 +74,13 @@ class user:
         # prepare a cursor object using cursor() method
         cursor = db.cursor()
     
-        sql="SELECT * FROM users where username_code="+"'"+self.username_code+"' and pwd_code='"+self.pwd_code+"';"
-        print sql
-        cursor.execute(sql)
-        
+        try:
+            sql="SELECT * FROM users where username_code='"+self.username_code+"' and pwd_code='"+self.pwd_code+"';"
+            print sql
+            cursor.execute(sql)
+        except:
+            print "ERROR IN SEARCH connect_signin_db()"
+            
         try:
             data = cursor.fetchone()
                 
@@ -68,16 +92,10 @@ class user:
                 user_data['status']=int(data[4])
                 user_data['registration_id']=data[5]
                 user_data['error_str']=data[6]
+                user_data['lock_flag']=data[7]
+                user_data['ras_flag'] = data[8]
+                user_data['starta_time']=data[9]
                 # Now print fetched result to debug
-                #print user_data 
-                print user_data['username_code']
-                print user_data['pwd_code']
-                print user_data['station_id']
-                print user_data['place_id']
-                print user_data['status']
-                print user_data['registration_id']
-                print user_data['error_str']
-                
                 try:
                     update_sql="UPDATE users SET station_id='"+str(user_data['station_id'])+"', place_id='"+str(user_data['place_id'])+"' WHERE username_code='"+str(user_data['username_code'])+"' AND pwd_code='"+str(user_data['pwd_code'])+"';"
                     print update_sql
@@ -122,7 +140,7 @@ class user:
         user_data['registration_id']=registration_id
         # prepare a cursor object using cursor() method
         cursor = db.cursor()
-        insert_sql="INSERT INTO users VALUES ("+"'"+str(user_data['username_code'])+"','"+str(user_data['pwd_code'])+"',"+str(user_data['station_id'])+","+str(user_data['place_id'])+",'"+str(user_data['status'])+"','"+str(user_data['registration_id'])+"','"+str(user_data['error_str'])+"');"
+        insert_sql="INSERT INTO users VALUES ("+"'"+str(user_data['username_code'])+"','"+str(user_data['pwd_code'])+"',"+str(user_data['station_id'])+","+str(user_data['place_id'])+",'"+str(user_data['status'])+"','"+str(user_data['registration_id'])+"','"+str(user_data['error_str'])+"', '0', '0', '0');"
         search_sql="SELECT username_code FROM users WHERE username_code='"+self.username_code+"'"
         print insert_sql
         cursor.execute(search_sql)
@@ -144,6 +162,119 @@ class user:
         db.close()
         return user_data
     
+    def set_start_time(self, user_code, pwd_code, set):
+        db = MySQLdb.connect("localhost", "root", "myBP", "myBP_DB")
+        cursor = db.cursor()
+        start_time = 0
+        print "set: "+ str(set)
+        if set == 1:
+            start_time = time.time()
+            try:
+                update_users_sql = "UPDATE users SET start_time='"+str(start_time)+"' WHERE username_code='"+user_code+"' and pwd_code='"+pwd_code+"';"
+                print update_users_sql
+                cursor.execute(update_users_sql)
+                db.commit()
+                print "UPDATE SUCCESSFULLY COMPLETED IN start_timer"
+            except:
+                print "UPDATE ERROR in set_start_timer()"
+        else:
+            try:
+                search_users_sql = "SELECT start_time FROM users WHERE username_code='"+user_code+"' and pwd_code = '"+pwd_code+"';"
+                print search_users_sql
+                cursor.execute(search_users_sql)
+                print "UPDATE SUCCESSFULLY COMPLETED IN start_timer"
+                try:
+                    start=cursor.fetchone()
+                    start_time = start[0]
+                except:
+                    print "start_time not found"
+            except:
+                print "UPDATE ERROR in start_timer()"
+                
+        return start_time
+    
+    def reset_DB(self, station_id, place_id, security_keyFromApp, registration_id):
+        db = MySQLdb.connect("localhost", "root", "myBP", "myBP_DB")
+        cursor = db.cursor()
+        parking_data={}
+        
+        search_sql="SELECT security_key, status FROM station WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
+        print search_sql
+        
+        try:
+            cursor.execute(search_sql)
+            print "SEARCHING SUCCESFUL COMPLETED [connection_stationDB()]"
+        except:
+            print "SEARCHING ERROR [connection_stationDB()]"
+        
+        try:
+            row=cursor.fetchone()
+            security_key=row[0]
+            status=int(row[1])
+            print security_key
+            if (security_key=="None" and status==0):  
+                parking_data['station_id'] = station_id
+                parking_data['place_id']   = place_id
+                update_station_sql="UPDATE station SET security_key='"+security_keyFromApp+"', status = '1', stop_alarm='0',  registration_id='"+registration_id+"' WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
+                update_users_sql = "UPDATE users SET status='1', , place_id = '"+str(station_id)+"', station_id = '"+str(place_id)+"' WHERE username_code='"+security_keyFromApp[0:25]+"' AND pwd_code='"+security_keyFromApp[25:50]+"';"
+                try:
+                    search_in_station_spec = "SELECT free_places FROM station_spec WHERE station_id ='"+str(station_id)+"';"
+                    cursor.execute(search_in_station_spec)
+                    print "SEARCH SUCCESSFULLY COMPLETED IN station_spec"
+                except:
+                    print "SEARCH ERROR in station_spec [connection_stationDB()]"
+                try:
+                    free_places = cursor.fetchone()
+                    int_free_places = int(free_places[0])-1
+                    update_station_spec = "UPDATE station_spec SET free_places = '"+str(int_free_places)+"' WHERE station_id='"+str(station_id)+"';"
+                    print update_station_spec;
+                    try:
+                        cursor.execute(update_station_spec)
+                        db.commit()
+                    except:
+                        "station_spec UPDATING ERROR in connection_statiodnDB()"
+                except:
+                    print "station_spec FETCH ERROR in connection_stationDB()"
+                    
+                try:
+                    cursor.execute(update_station_sql)
+                    cursor.execute(update_users_sql)
+                    db.commit()
+                except:
+                    print "station NOT updated [connection_stationDB()]"
+            elif (security_key == security_keyFromApp):
+                update_station_sql="UPDATE station SET security_key='None', status=0, stop_alarm=1, registration_id='None'  WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
+                update_users_sql = "UPDATE users SET status=0, , place_id = '-1', station_id = '-1' WHERE username_code='"+security_keyFromApp[0:25]+"' AND pwd_code='"+security_keyFromApp[25:50]+"';"
+                try:
+                    search_in_station_spec = "SELECT free_places FROM station_spec WHERE station_id ='"+str(station_id)+"';"
+                    cursor.execute(search_in_station_spec)
+                except:
+                    print "SEARCH ERROR in station_spec [connection_stationDB()]"
+                    
+                try:
+                    free_places = cursor.fetchone()
+                    int_free_places = int(free_places[0])+1
+                    update_station_spec = "UPDATE station_spec SET free_places = '"+str(int_free_places)+"' WHERE station_id='"+str(station_id)+"';"
+                    cursor.execute(update_station_spec)
+                    db.commit()
+                except:
+                    print "station_spec NOT UPDATED in connection_stationDB()"
+                
+                cursor.execute(update_station_sql)
+                cursor.execute(update_users_sql)
+                db.commit()
+                parking_data['station_id'] = station_id
+                parking_data['place_id']   = place_id
+            else:
+                parking_data['status'] = -1
+                parking_data['station_id'] = -1
+                parking_data['place_id']   = -1
+        except:
+            print "FETCH EXCEPTION"
+            parking_data['status'] = -1
+            parking_data['station_id'] = -1
+            parking_data['place_id']   = -1
+            
     def connection_stationDB(self, station_id, place_id, security_keyFromApp, registration_id):
         db = MySQLdb.connect("localhost", "root", "myBP", "myBP_DB")
         cursor = db.cursor()
@@ -167,7 +298,7 @@ class user:
                 parking_data['station_id'] = station_id
                 parking_data['place_id']   = place_id
                 update_station_sql="UPDATE station SET security_key='"+security_keyFromApp+"', status = '1', stop_alarm='0',  registration_id='"+registration_id+"' WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
-                update_users_sql = "UPDATE users SET status='1' WHERE username_code='"+security_keyFromApp[0:25]+"' AND pwd_code='"+security_keyFromApp[25:50]+"';"
+                update_users_sql = "UPDATE users SET status='1', place_id = '"+str(station_id)+"', station_id = '"+str(place_id)+"' WHERE username_code='"+security_keyFromApp[0:25]+"' AND pwd_code='"+security_keyFromApp[25:50]+"';"
                 print update_station_sql
                 print update_users_sql
                 try:
@@ -200,7 +331,7 @@ class user:
                 print "security[0:25]: "+security_keyFromApp[0:25]
                 print "security[25:0]: "+security_keyFromApp[25:50]+"FINE"
                 update_station_sql="UPDATE station SET security_key='None', status=0, stop_alarm=1, registration_id='None'  WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
-                update_users_sql = "UPDATE users SET status=0 WHERE username_code='"+security_keyFromApp[0:25]+"' AND pwd_code='"+security_keyFromApp[25:50]+"';"
+                update_users_sql = "UPDATE users SET status=0, , place_id = '0', station_id = '0' WHERE username_code='"+security_keyFromApp[0:25]+"' AND pwd_code='"+security_keyFromApp[25:50]+"';"
                 try:
                     search_in_station_spec = "SELECT free_places FROM station_spec WHERE station_id ='"+str(station_id)+"';"
                     cursor.execute(search_in_station_spec)
