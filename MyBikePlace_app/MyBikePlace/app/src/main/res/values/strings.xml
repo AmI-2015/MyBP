@@ -7,7 +7,7 @@
     <string name="title_activity_sign_in">MyPUSignIn</string>
     <string name="title_activity_personal">MyPUPage</string>
 
-    <string name="IP_SERVER">http://192.168.56.1:7000</string>
+    <string name="IP_SERVER">http://192.168.1.75:7000</string>
 
     <string name="from_server_notification_title_template">From server: %1$s</string>
 

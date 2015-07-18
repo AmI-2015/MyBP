@@ -26,7 +26,8 @@ import java.net.URL;
  */
 public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
 
-    public static final String MYBPSERVER_GET_INFO_URL ="http://192.168.56.1:7000/myBP_server/users/get_info";
+    public String MYBPSERVER_GET_INFO_URL = null;
+//    public static final String MYBPSERVER_GET_INFO_URL ="http://192.168.0.9:7000/myBP_server/users/get_info";
     public static final String DEBUG_TAG = "HttpExample";
 
     public PersonalActivity parentActivity;
@@ -48,6 +49,7 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
     //constructor receives as parameter the parent activity that started the task
     public GetUsersInfoTask(PersonalActivity activity){
         this.parentActivity = activity;
+        MYBPSERVER_GET_INFO_URL = parentActivity.getResources().getString(R.string.IP_SERVER)+"/myBP_server/users/get_info";
         //Creating shared preference file
         userSettings = this.parentActivity.getSharedPreferences(this.parentActivity.getString(R.string.USER_SETTINGS), Context.MODE_PRIVATE);
         //add RegId inside preference file

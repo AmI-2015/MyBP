@@ -24,7 +24,8 @@ import java.net.URL;
  */
 public class MakeLockOutRequest extends AsyncTask<Void, Void, Void> {
 
-    public static final String MYBPSERVER_LOCK_OUT_URL ="http://192.168.56.1:7000/myBP_server/users/lock_app";
+    public String MYBPSERVER_LOCK_OUT_URL = null;
+//    public static final String MYBPSERVER_LOCK_OUT_URL ="http://192.168.0.9:7000/myBP_server/users/lock_app";
     public static final String DEBUG_TAG = "HttpExample";
 
     public PersonalActivity parentActivity;
@@ -44,6 +45,7 @@ public class MakeLockOutRequest extends AsyncTask<Void, Void, Void> {
     //constructor receives as parameter the parent activity that started the task
     public MakeLockOutRequest(PersonalActivity activity, String stationId, String placeId){
         this.parentActivity = activity;
+        MYBPSERVER_LOCK_OUT_URL = parentActivity.getResources().getString(R.string.IP_SERVER)+"/myBP_server/users/lock_app";
         //Creating shared preference file
         userSettings = this.parentActivity.getSharedPreferences(this.parentActivity.getString(R.string.USER_SETTINGS), Context.MODE_PRIVATE);
 

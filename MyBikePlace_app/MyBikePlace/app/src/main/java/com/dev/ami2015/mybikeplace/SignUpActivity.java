@@ -30,7 +30,9 @@ public class SignUpActivity extends ActionBarActivity {
     public static String regid;
     public final static String EXTRA_USERNAME = "com.dev.ami2015.mybikeplace.USERNAME";
     public final static String EXTRA_PASSWORD = "com.dev.ami2015.mybikeplace.PASSWORD";
-    public static final String MYBPSERVER_URL ="http://192.168.56.1:7000/myBP_server/users/sign_up";
+//    public static final String MYBPSERVER_URL ="http://192.168.0.9:7000/myBP_server/users/sign_up";
+    public String MYBPSERVER_URL = null;
+
 
     // editText view elements
     EditText editUsername;
@@ -43,6 +45,9 @@ public class SignUpActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        MYBPSERVER_URL = getResources().getString(R.string.IP_SERVER)+"/myBP_server/users/sign_up";
+
         setContentView(R.layout.activity_sign_up);
 
         editUsername = (EditText) findViewById(R.id.usernameEditSignUpActivity);
