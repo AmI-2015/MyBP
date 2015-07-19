@@ -28,6 +28,7 @@ green_led=[11,15,-1,-1,-1,-1,-1,-1,-1,-1]
 red_led=[12,16,-1,-1,-1,-1,-1,-1,-1,-1]
 system_on=36
 stop_system=40
+restart_system=38
 
 station_id = 1 
 print status
@@ -39,6 +40,7 @@ def start_system():
     tot_places=0
     free_places=0
     GPIO.setup(stop_system,GPIO.IN, pull_up_down=GPIO.PUD_UP) #ingresso interruttore stop
+
     GPIO.setup(system_on,GPIO.OUT) #working LED   
     for i in range (0, 10):
         channel=place[i]
@@ -123,13 +125,13 @@ def check_and_lock(pin_in, GREENLED, REDLED,  place_id):
     print "status: "+str((GPIO.input(pin_in)))
     checker_securityKey = objMyUser.check_securityKey(place_id, station_id)
     print "security checker: "+str(checker_securityKey.json().get("security_checker"))
-    if int(checker_securityKey.json().get("security_checker"))==1 or int(checker_securityKey.json().get("security_checker"))==0:
+    if 0==0:
         if GPIO.input(pin_in)==False:   
             blinker(time.time(),1,GREENLED)
             status[place_id]=1
 	    return_procRqs = objMyUser.process_rqs(pin_in, GREENLED, REDLED, status[place_id], place_id, station_id, int(checker_securityKey.json().get("security_checker")))
             print 'sono rpR '+str(return_procRqs)
-           
+            
         elif GPIO.input(pin_in)==True and int(checker_securityKey.json().get("security_checker"))==1:
             GPIO.output(GREENLED, False)
             timer(time.time(),5)
@@ -144,7 +146,7 @@ def check_and_lock(pin_in, GREENLED, REDLED,  place_id):
                 while(stop != 1 and tim < 30):
 		    print "Polling"
                     DIS_INT = 1
-                    response=objMyUser.rqst_stop(status[place_id], place_id, station_id)
+		    response=objMyUser.rqst_stop(status[place_id], place_id, station_id)
                     stop=int(response.json().get('stop_alarm'))
                     print "stop dopo il polling e'"+str(stop)
 		    tim = tim + 1
@@ -154,12 +156,14 @@ def check_and_lock(pin_in, GREENLED, REDLED,  place_id):
                 objMyUser.update_dbServer(status[place_id],place_id, station_id)
                 DIS_INT = 0
         elif GPIO.input(pin_in)==True:
+            status[place_id] = 0
 	    GPIO.output(GREENLED, False)
             blinker(time.time(),2 ,REDLED)
             GPIO.output(REDLED, False)
+            objMyUser.process_rqs(pin_in, GREENLED, REDLED, status[place_id], place_id, station_id, int(checker_securityKey.json().get("security_checker")))
             objMyUser.update_dbServer(0,place_id, station_id)   
 
-
+	
 
 try:
     start_system()
@@ -172,3 +176,11 @@ try:
 finally:
     print "ciao"
     GPIO.cleanup()
+#    GPIO.setwarnings(False)
+#    GPIO.setmode(GPIO.BOARD)
+#    GPIO.setup(restart_system,GPIO.IN, pull_up_down=GPIO.PUD_UP) #ingresso interruttore restart
+#    while 1:
+#        if(int(not(GPIO.input(restart_system)))==1):
+#            os.system('sudo python /home/pi/Desktop/Raspberry/Raspberry.py')
+#        pass
+

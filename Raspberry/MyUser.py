@@ -16,52 +16,57 @@ class MyUser():
     def timer(self, START, elapsed):
    
         time_now=time.time()
-    
-    	while(time_now - START)< elapsed:
+    	print "prima del while in timer"
+    	while((time_now - START)< elapsed):
+		print "elapsed:"+str(elapsed)
+		print time_now
  		time_now=time.time()
 
     def blinkLed(self, START,elapsed,LED):
     	flag=1
     
-    	DELTA = 20000
+    	DELTA = 10
     	time_now=time.time()
-    
+        
     	while(time_now - START)< elapsed:
-            i=0
- 	    time_now=time.time()
+	    i=0
+	    time_now=time.time()
 	    GPIO.output(LED,flag)
             flag=flag^1
-            while(i)< DELTA:
+            while(i< DELTA):
                 i=i+1
         GPIO.output(LED,True)
 
     def process_rqs(self, pin_in, GREENLED, REDLED, status, place_id, station_id, security_checker):
         alarm = 0
-        wait  = 5          #wait time in second, in this time the user has to pass the smartphone on NFC, otherwise
+        wait  = 0.5          #wait time in second, in this time the user has to pass the smartphone on NFC, otherwise
                             #he is registered as an unregistered user
         if status==1: #falling edge
 	    print str(status)+' ho messo la bici'
             time_now = time.time()
             print time_now
             self.timer(time_now, wait)
-	    self.blinkLed(time.time(), 5, GREENLED)
+	    self.blinkLed(time.time(), 0, GREENLED)
+	    print GPIO.input(pin_in)
             if GPIO.input(pin_in) == False:
                 self.lock_rqst(status, place_id, station_id)
                 self.update_dbServer(status,place_id, station_id)
             else:
+                
                 pass
         else:
             print str(status)+ '   ho tolto la bici'
-            self.blinkLed(time.time(), 2, REDLED)
+            self.blinkLed(time.time(), 1, REDLED)
             GPIO.output(REDLED, False)
             response = self.steal_cntrl(status, place_id, station_id)
+            self.lock_rqst(status, place_id, station_id)
             if int(response.json().get("station_id")) == -1 or int(response.json().get("place_id")) == -1:
                 alarm = 1
 		print response.json().get("station_id")
             elif (security_checker == 1): 
                 alarm = 0
                 print 'station_id' +str(response.json().get("station_id"))
-                self.lock_rqst(status, place_id, station_id)
+                #self.lock_rqst(status, place_id, station_id)
                 self.update_dbServer(status, place_id, station_id)
 	    else:
                 self.update_dbServer(status, place_id, station_id)
