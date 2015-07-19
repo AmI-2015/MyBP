@@ -22,9 +22,10 @@ def sign_in(user_code, pwd_code, registration_id):
     
     return user_data
 
-def start_timer(user_code, pwd_code, set):
+def start_timer(user_code, pwd_code, set_):
+    print "sono in starta timer e set vale: "+str(set_)
     user_connected = user()
-    start_time = user_connected.set_start_time(user_code, pwd_code, set)
+    start_time = user_connected.set_start_time(user_code, pwd_code, set_)
     return start_time
 def sign_up(user_code, pwd_code, registration_id):
     user_data={}
@@ -40,29 +41,50 @@ def sign_up(user_code, pwd_code, registration_id):
         
     return user_data
 
-def lockin_ras(station_id, place_id, status):
-    raspberry_connected=raspberry()
-    raspberry_connected.rqstlckin_db(station_id, place_id, status)
-    pass
-
-def set_lock_flag(station_id, place_id, all, lock_flag):
+def set_place_station_id(station_id, place_id, security_key):
     user_connected = user()
-    user_connected.set_lock_flag(station_id, place_id, all, lock_flag)
+    parking_data = {}
+    parking_data = user_connected.set_place_station_id(station_id, place_id, security_key)
+    return parking_data
+
+def lockin_ras(station_id, place_id, status, lock_flag):
+    raspberry_connected=raspberry()
+    raspberry_connected.rqstlckin_db(station_id, place_id, status, lock_flag)
     pass
 
-def set_ras_flag(station_id, place_id, ras_flag, rd_wr_n):
-    ras_connected = raspberry()
-    ras_connected.set_ras_flag(station_id, place_id, ras_flag, rd_wr_n)
+def set_lock_flag(security_key, all, lock_flag):
+    user_connected = user()
+    user_connected.set_lock_flag(security_key, all, lock_flag)
     pass
+
+def controlPlace(place_id, station_id):
+    user_connected = user()
+    security_key = user_connected.controlPlace(place_id, station_id)
+    return security_key
+
+def set_ras_flag_from_raspberry(station_id, place_id, ras_flag):
+    ras_connected = raspberry()
+    lock_flag = ras_connected.set_ras_flag_from_raspberry(station_id, place_id, ras_flag)
+    return lock_flag
+
+def set_ras_flag(user_code, pwd_code, ras_flag, rd_wr_n):
+    ras_connected = raspberry()
+    flag = ras_connected.set_ras_flag(user_code, pwd_code, ras_flag, rd_wr_n)
+    return flag
 
 def reset_DB(station_id, place_id, security_keyFromApp, registration_id):
     user_connected = user()
     user_connected.reset_DB(station_id, place_id, security_keyFromApp, registration_id)
     pass
 
-def lock_app(station_id, place_id, security_key, registration_id):
+def set_security_key_in_user(station_id, place_id,reset):
+    user_connected = user()
+    user_connected.set_security_key_in_user(station_id, place_id, reset)
+    pass
+
+def lock_app(station_id, place_id, security_key, registration_id, toDo):
     app_connected = user()
-    parking_data  = app_connected.connection_stationDB(station_id, place_id, security_key, registration_id)
+    parking_data  = app_connected.connection_stationDB(station_id, place_id, security_key, registration_id, toDo)
     
     return parking_data
 

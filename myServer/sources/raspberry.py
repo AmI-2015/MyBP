@@ -13,7 +13,7 @@ class raspberry:
     Firstly, it searches for the row of the table with station_id and place_id, then if security_key is set to None the server sets it to UNCHANGEABLE.
     In this way when a request of lockin from an app occurs, if the security_key is UNCHANGEABLE, then the user doesn't lock in that place.
     '''
-    def rqstlckin_db(self, station_id, place_id, status): 
+    def rqstlckin_db(self, station_id, place_id, status, lock_flag): 
         # Open database connection
         db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB")
         # prepare a cursor object using cursor() method
@@ -31,13 +31,11 @@ class raspberry:
             security_key=cursor.fetchone()
             print "security_key:"+str(security_key)
             
-            start = time.time()
-            #this loop wait for 10 seconds, namely it gives time to the user to lock his bike
-            while(time.time()-start < 4):
-                pass
-            
             if (security_key[0]=="None"): #if the timeout is over
-                update_sql="UPDATE station SET security_key='UNCHANGEABLE' WHERE station_id="+str(station_id)+" AND place_id="+str(place_id)+";"
+                if(lock_flag == 1):
+                    update_sql="UPDATE station SET security_key='UNCHANGEABLE' WHERE station_id="+str(station_id)+" AND place_id="+str(place_id)+";"
+                else:
+                    pass
                 
                 try:
                     cursor.execute(update_sql)
@@ -76,8 +74,46 @@ class raspberry:
                 
         # disconnect from server
         db.close()
+        
+    def set_ras_flag_from_raspberry(self, station_id, place_id, ras_flag):
+        db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB")
+        user_data={}   
+        cursor = db.cursor()
+        
+        lock_flag = -1
+        
+        try:
+            update_ras_flag="UPDATE users SET ras_flag='"+str(ras_flag)+"' WHERE station_id ='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"    
+            print update_ras_flag
+            cursor.execute(update_ras_flag)
+            db.commit()
+            print "UPDATING ras_flag SUCCESFULLY COMPLETED"
+        except:
+            print "UPDATING ras_flag ERROR [reset_ras_flag]"
+        
+        try:
+            search_lock_flag="SELECT lock_flag FROM users WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"
+            cursor.execute(search_lock_flag)
+            print "SEARCH lock_flag after http://.../lock_ras"
+        except:
+            lock_flag = 1
+            print "SEARCH FAILED lock_flag after http://.../lock_ras()"
+            
+        try:
+            row=cursor.fetchone()
+            print row[0]
+            lock_flag = 0
+            print "FETCHED lock_flag after http://.../lock_ras"
+        except:
+            lock_flag = 1
+            print "FETCH FAILED lock_flag after http://../lock_ras"
+        
+        db.close()
+        
+        return lock_flag
     
-    def set_ras_flag(self, station_id, place_id, ras_flag, rd_wr_n):
+    
+    def set_ras_flag(self, user_code, pwd_code, ras_flag, rd_wr_n):
         db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB")
         user_data={}   
         cursor = db.cursor()
@@ -86,25 +122,36 @@ class raspberry:
         
         if(rd_wr_n == 0):
             try:
-                update_lock_flag="UPDATE users SET ras_flag='"+str(ras_flag)+"' WHERE station_id='"+str(station_id)+"' AND place_id='"+str(place_id)+"';"    
+                update_ras_flag="UPDATE users SET ras_flag='"+str(ras_flag)+"' WHERE username_code ='"+user_code+"' AND pwd_code='"+pwd_code+"';"    
+                print update_ras_flag
+                cursor.execute(update_ras_flag)
+                db.commit()
+                print "UPDATING ras_flag SUCCESFULLY COMPLETED"
+            except:
+                print "UPDATING ras_flag ERROR [reset_ras_flag]"
+        elif(rd_wr_n == 1):
+            try:
+                search_ras_flag_sql = "SELECT ras_flag FROM users WHERE username_code ='"+user_code+"' AND pwd_code='"+pwd_code+"';"
+                print search_ras_flag_sql
+                cursor.execute(search_ras_flag_sql)
+                print "SEARCH SUCCESSFULLY COMPLETED IN ras_flag"
+                try:
+                    ras_flag=cursor.fetchone()
+                    flag= ras_flag[0]
+                except:
+                    print "ras_flag not found"
+            except:
+                print "ERROR SEARCH in ras_flag"
+        elif(rd_wr_n == -1):
+            try:
+                update_lock_flag="UPDATE users SET ras_flag='"+str(ras_flag)+"';"    
                 cursor.execute(update_lock_flag)
                 db.commit()
                 print "UPDATING ras_flag SUCCESFULLY COMPLETED"
             except:
                 print "UPDATING ras_flag ERROR [reset_ras_flag]"
-        else:
-            try:
-                search_ras_flag_sql = "SELECT ras_flag FROM users WHERE place_id='"+str(place_id)+"' and station_id = '"+str(station_id)+"';"
-                print search_ras_flag_sql
-                cursor.execute(search_ras_flag_sql)
-                print "UPDATE SUCCESSFULLY COMPLETED IN start_timer"
-                try:
-                    ras_flag=cursor.fetchone()
-                    flag= ras_flag[0]
-                except:
-                    print "start_time not found"
-            except:
-                print "ERROR SEARCH in ras_flag"
+        
+        db.close()
         return flag
     
     def stealing_controller(self, station_id, place_id):
@@ -332,7 +379,7 @@ class raspberry:
             if int(status) == 1:
                 pass
             elif int(status) == 0:
-                update_station  = "UPDATE station SET security_key = 'None', registration_id = 'None' WHERE station_id='"+str(station_id)+"' and place_id='"+str(place_id)+"';" 
+                update_station  = "UPDATE station SET security_key = 'None', registration_id = 'None', stop_alarm = '0' WHERE station_id='"+str(station_id)+"' and place_id='"+str(place_id)+"';" 
                 try:
                     cursor.execute(update_station)
                     db.commit()

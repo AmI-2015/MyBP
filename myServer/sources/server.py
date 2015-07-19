@@ -12,8 +12,8 @@ from gcm import *
 
 app= Flask(__name__)
 
-request_processor.set_lock_flag(-1, -1, 1, 1)
-
+request_processor.set_lock_flag(-1, 1, 1)
+request_processor.set_ras_flag(-1, -1, 0, -1)
 #the following method is to sign in 
 '''
 header json 
@@ -32,9 +32,7 @@ def sign_in():
     user_code=secret_packet.get('user_code')
     pwd_code=secret_packet.get('pwd_code')
     registration_id=secret_packet.get('registration_id')
-    #pwd_code and user_code has to be at fixed length
-    print len(user_code)
-    print pwd_code
+    
     user_data=request_processor.sign_in(user_code, pwd_code, registration_id)
     
     print "user_data in sign_in: "+str(user_data)
@@ -70,8 +68,8 @@ def  get_info():
     print(secret_packet)
     user_data={}
     
-    pwd_code=secret_packet.get('pwd_code')
-    user_code=secret_packet.get('user_code')
+    pwd_code=secret_packet.get('pwd_code').replace(" ", "")
+    user_code=secret_packet.get('user_code').replace(" ", "")
     registration_id = secret_packet.get('registration_id')
     
     user_data=request_processor.sign_in(user_code, pwd_code, registration_id)
@@ -80,25 +78,80 @@ def  get_info():
     start_time = request_processor.start_timer(user_code, pwd_code, 0)
     print start_time
     elapsed = time.time() - start_time
-    print elapsed
+    print "elapsed:"+str(elapsed)
+    
+    #leggo il valore di ras_flag
+    ras_flag = request_processor.set_ras_flag(user_code, pwd_code, -1, 1) 
+    
     #TIMER ON THE SERVER
-    if(elapsed > 10):
+    TIME_OUT = 20
+    print "user_data: "+str(user_data)
+    if(elapsed > TIME_OUT):
+        print "elapse lock_flag: "+str(user_data['lock_flag'])
+        
+        try:
+            return_data= request_processor.lock_app(user_data['station_id'], user_data['place_id'], security_key, registration_id, 0)
+            print return_data
+        
+            if(return_data['lock']==0):
+                #request_processor.set_security_key_in_user(user_data['station_id'], user_data['place_id'], 1)
+                print "station_id: "+ str(user_data['station_id'])
+                print "HO RILEVATO LOCK OUT"
+            else:
+                request_processor.set_security_key_in_user(user_data['station_id'], user_data['place_id'], 1)
+                user_data['station_id']= -1
+                user_data['place_id'] = -1
+                print "HO RILEVATO LOCK IN"
+        except:
+            print "CANNOT DETECT A LOCK IN OR LOCK OUT"
         user_data['lock_flag'] = 1
-        
-    if(user_data['error_str']=="NO_ERROR"):
-        diz_to_jsonify = {'station_id': user_data['station_id'], 'place_id': user_data['place_id'], 'status': user_data['status'], 'data_valid': str(user_data['lock_flag'])}
-    else:
-        diz_to_jsonify = {'station_id': -1, 'place_id': -1, 'status': -1, 'data_valid': str(user_data['lock_flag'])}
-    
-    print int(user_data['lock_flag'])
-    
+
+    parking_data={}
+    print "lock_flag: "+str(user_data['lock_flag'])
+    print "ras_flag: "+str(ras_flag)
     if(int(user_data['lock_flag'])==1):
-        if(request_processor.set_ras_flag(user_data['station_id'], user_data['place_id'], -1, 1) ==0):
-            request_processor.reset_DB(user_data['station_id'], user_data['place_id'], security_key, registration_id)
-        request_processor.set_lock_flag(user_data['station_id'], user_data['place_id'], 0, 1)
-    else:
-        request_processor.set_lock_flag(user_data['station_id'], user_data['place_id'], 0, 0)
-        
+        #if(elapsed >= TIME_OUT):
+            #request_processor.set_security_key_in_user(user_data['station_id'], user_data['place_id'], 1)
+        if(int(ras_flag) ==1):
+            if(elapsed < TIME_OUT):
+                parking_data = request_processor.lock_app(user_data['station_id'], user_data['place_id'], security_key, registration_id,1)
+                if(parking_data['lock']==0):
+                    request_processor.set_place_station_id(-1, -1, security_key)
+            else:
+                parking_data = request_processor.lock_app(-1, -1, security_key, registration_id,1)
+            request_processor.set_lock_flag(security_key, 0, 1)
+            print "parking_data: "+str(parking_data)
+            print "user_data: "+str(user_data)
+            if(user_data['error_str']=="NO_ERROR"):
+                diz_to_jsonify = {'station_id': user_data['station_id'], 'place_id': user_data['place_id'], 'status': parking_data['status'], 'data_valid': str(user_data['lock_flag'])}
+                #request_processor.set_security_key_in_user(user_data['station_id'], user_data['place_id'], 0)
+            else:
+                diz_to_jsonify = {'station_id': -1, 'place_id': -1, 'status': -1, 'data_valid': str(user_data['lock_flag'])}
+            request_processor.set_ras_flag(user_code, pwd_code, 0, 0)
+        else:
+            request_processor.set_place_station_id(user_data['station_id'], user_data['place_id'], security_key)
+            request_processor.set_security_key_in_user(user_data['station_id'], user_data['place_id'], 0)
+            if(elapsed >= TIME_OUT):
+                parking_data = request_processor.lock_app(user_data['station_id'], user_data['place_id'], security_key, registration_id,0)
+            else:
+                parking_data = request_processor.lock_app(-1, -1, security_key, registration_id,0)
+            print "parking_data: "+str(parking_data)
+            print "user_data: "+str(user_data)
+            if(user_data['error_str']=="NO_ERROR"):
+                diz_to_jsonify = {'station_id': parking_data['station_id'], 'place_id': parking_data['place_id'], 'status': user_data['status'], 'data_valid': str(user_data['lock_flag'])}
+            else:
+                diz_to_jsonify = {'station_id': -1, 'place_id': -1, 'status': -1, 'data_valid': str(user_data['lock_flag'])}      
+    elif(int(user_data['lock_flag'])==0):
+        if(int(ras_flag) == 1):
+            request_processor.set_lock_flag(security_key, 0, 1)
+            request_processor.set_ras_flag(user_code, pwd_code, 0, 1) #$$
+        diz_to_jsonify = {'station_id': -1, 'place_id': -1, 'status': -1, 'data_valid': str(user_data['lock_flag'])}
+    elif(user_data['lock_flag'] == -1):
+        parking_data = request_processor.lock_app(user_data['station_id'], user_data['place_id'], security_key, registration_id,0)
+        if(parking_data['lock']==1):
+            diz_to_jsonify = {'station_id': -1, 'place_id': -1, 'status': -1, 'data_valid': str(user_data['lock_flag'])}
+        request_processor.set_ras_flag(user_code, pwd_code, 0, 0)
+        request_processor.set_lock_flag(security_key, 0, 1)
     print "diz_to_jsonify: "+ str(diz_to_jsonify)
     
     return jsonify(diz_to_jsonify)
@@ -121,9 +174,10 @@ def lock_raspberry():
     station_id=request_packet.get("station_id")
     place_id=request_packet.get("place_id")
     status=request_packet.get("status")
-    request_processor.lockin_ras(station_id, place_id, status)
-    request_processor.set_lock_flag(station_id, place_id, 0, 1)
-    request_processor.set_ras_flag(station_id, place_id, 1, 0)
+    
+    lock_flag = request_processor.set_ras_flag_from_raspberry(station_id, place_id, 1)
+    print "lock_raspberry... lock_flag: "+str(lock_flag)
+    request_processor.lockin_ras(station_id, place_id, status, lock_flag)
     return jsonify({"error_str": "OK"})
 
 #the following method is to log in "LOCK IN" by the app
@@ -157,13 +211,30 @@ def lock_app():
     print(request_packet)
     station_id      = request_packet.get("station_id")
     place_id        = request_packet.get("place_id")
-    security_key    = request_packet.get("security_key")
+    security_key    = request_packet.get("security_key").replace(" ", "")
     registration_id = request_packet.get("registration_id")
+    print "entro in start_timer"
     request_processor.start_timer(security_key[0:25], security_key[25:50], 1)
-    parking_data=request_processor.lock_app(station_id, place_id, security_key, registration_id)
-    request_processor.set_lock_flag(station_id, place_id, 0, 0)
-    
-    return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id'], "security_key": security_key, "registration_id": registration_id})
+    parking_data=request_processor.lock_app(station_id, place_id, security_key, registration_id, 0)
+    security_found = request_processor.controlPlace(place_id, station_id)
+    print "security_found:" + security_found
+    print "lock: "+str(parking_data['lock'])
+    if(parking_data['lock'] == 1):
+        request_processor.set_place_station_id(station_id, place_id, security_key)
+        request_processor.set_security_key_in_user(station_id, place_id, 0)
+    elif(parking_data['lock'] == 0):
+        request_processor.set_security_key_in_user(station_id, place_id, 2)
+    else:
+        request_processor.set_security_key_in_user(station_id, place_id, 2)
+        
+    if(security_found != 'None' and parking_data['lock']==1):
+        request_processor.set_lock_flag(security_key, 0, -1)
+    else:
+        print "sto per entrare in set_lock_flag"
+        request_processor.set_lock_flag(security_key, 0, 0)
+        
+    #return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id'], "security_key": security_key, "registration_id": registration_id})
+    return jsonify({"station_id":station_id, "place_id": place_id, "security_key": security_key, "registration_id": registration_id})
 
 '''
 #the following method checks that a steal doesn't occur
