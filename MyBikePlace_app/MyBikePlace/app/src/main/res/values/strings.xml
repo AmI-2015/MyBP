@@ -1,11 +1,12 @@
 <resources>
     <string name="app_name">MyBikePlace</string>
+    <!--<string name="app_name">MyBP</string>-->
 
     <string name="action_settings">Settings</string>
     <string name="title_activity_map">MyBPMaps</string>
-    <string name="title_activity_sign_up">MyPUSignUp</string>
-    <string name="title_activity_sign_in">MyPUSignIn</string>
-    <string name="title_activity_personal">MyPUPage</string>
+    <string name="title_activity_sign_up">MySignUp</string>
+    <string name="title_activity_sign_in">MySignIn</string>
+    <string name="title_activity_personal">MyPage</string>
 
     <string name="IP_SERVER">http://192.168.1.75:7000</string>
 
