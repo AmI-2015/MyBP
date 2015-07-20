@@ -274,22 +274,24 @@ def stealing_controller():
         if(parking_data['registration_id'] != 'None'):
             gcm.plaintext_request(registration_id=reg_id, data=data)
 
-        return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
         #return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
     elif parking_data['action']=="OK":
         #USE GOOGLE CLOUD MESSAGING API
         gcm = GCM(autorization_key)
-        data = {'the_message': 'ALARM'}
+        data = {'the_message': 'OK'}
         dataj = json.dumps(data)
         
-        # plaintext request
+        gcm.plaintext_request
         reg_id = parking_data['registration_id']
         print reg_id        
-        gcm.plaintext_request(registration_id=reg_id, data=data)
-        
-        return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
+        try:
+            gcm.plaintext_request(registration_id=reg_id, data=data)
+        except:
+            pass
+        pass
     else:
-        return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
+        pass
+    return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
 
 '''
 The raspberry sends a json packet through POST http
@@ -393,5 +395,16 @@ def update_station_spec():
     
     return jsonify({"station_id":stn_updSpc['station_id'], "free_places": stn_updSpc['free_places'], "tot_places": stn_updSpc['tot_places']})
 
+@app.route('/myBP_server/users/reset_after_alarm', methods = ['POST'])
+def reset_after_alarm():
+    request_packet = request.json
+    station_id = request_packet.get("station_id")
+    place_id   = request_packet.get("place_id")
+    status = request_packet.get("status")
+    stop = request_packet.get("stop")
+    
+    request_processor.reset_users_after_alarm(station_id, place_id, status)
+    
+    return jsonify({"station_id": station_id, "place_id": place_id}) 
 if __name__ == '__main__':
     app.run(host = '0.0.0.0', debug=True, port=7000)

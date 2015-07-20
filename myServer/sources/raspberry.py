@@ -411,5 +411,22 @@ class raspberry:
               
         db.close()
 
+    def reset_users_after_alarm(self, station_id, place_id, status):
+        # Open database connection
+        db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB")
+        # prepare a cursor object using cursor() method
+        cursor  = db.cursor()
+
+        update_users = "UPDATE users SET station_id = '-1', place_id = '-1', status = '0', ras_flag = '0' WHERE station_id='"+str(station_id)+"' and place_id = '"+str(place_id)+"';"
+        print update_users
+        try:
+            cursor.execute(update_users)
+            db.commit()
+            print "users updated in reset_users_after_alarm()"
+        except:
+            print "users updated FAILED in reset_users_after_alarm()"
+        
+        db.close()    
+    
     def __init__(self):
         pass

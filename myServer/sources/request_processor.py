@@ -67,6 +67,12 @@ def set_ras_flag_from_raspberry(station_id, place_id, ras_flag):
     lock_flag = ras_connected.set_ras_flag_from_raspberry(station_id, place_id, ras_flag)
     return lock_flag
 
+def reset_users_after_alarm(station_id, place_id, status):
+    raspberry_connected = raspberry()
+    raspberry_connected.reset_users_after_alarm(station_id, place_id, status)
+    
+    pass
+
 def set_ras_flag(user_code, pwd_code, ras_flag, rd_wr_n):
     ras_connected = raspberry()
     flag = ras_connected.set_ras_flag(user_code, pwd_code, ras_flag, rd_wr_n)

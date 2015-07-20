@@ -567,22 +567,25 @@ class user:
         
         try:
             cursor.execute(search_sql)
-            print "SEARCH SUCCESFUL COMPLETED [check_alarm_fromApp()]"
+            print "SEARCH SUCCESFUL COMPLETED [stop_alarm_fromApp()]"
         except:
             stop_alarm = -1
-            print "SEARCH ERROR [check_alarm_fromApp()]"
+            print "SEARCH ERROR [stop_alarm_fromApp()]"
         
         try:
             stop_alarm = cursor.fetchone()
             print "stop_alarm (after fetching):"+str(stop_alarm)
         except:
             stop_alarm = -1
-            print "FETCH ERROR [check_alarm_fromApp()]"
+            print "FETCH ERROR [stop_alarm_fromApp()]"
         
+        print station_id
         try:
-            update_sql = "UPDATE station SET stop_alarm = 1 WHERE station_id="+str(station_id)+" and place_id ="+str(place_id)+";" 
+            update_sql = "UPDATE station SET stop_alarm = '1' WHERE station_id='"+str(station_id)+"' and place_id ='"+str(place_id)+"';" 
+            update_users = "UPDATE users SET status = '0' WHERE station_id='"+str(station_id)+"' and place_id = '"+str(place_id)+"';"
             print update_sql
             cursor.execute(update_sql)
+            cursor.execute(update_users)
             db.commit()
         except:
             print "UPDATE in station FAILED  [check_alarm_fromApp()]"   

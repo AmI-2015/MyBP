@@ -52,7 +52,7 @@ public class PersonalActivity extends ActionBarActivity {
     public EditText myBPStationNumber;
     public EditText myBPStationPlace;
     public String MYBPSERVER_ALARM_URL = null;
-//    public static final String MYBPSERVER_ALARM_URL ="http://192.168.0.9:7000/myBP_server/users/stop_alarm_fromApp";
+//   public static final String MYBPSERVER_ALARM_URL ="http://192.168.0.9:7000/myBP_server/users/stop_alarm_fromApp";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
