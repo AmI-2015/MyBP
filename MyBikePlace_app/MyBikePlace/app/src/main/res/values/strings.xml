@@ -26,5 +26,8 @@
     <string name="USER_STATUS">user_status</string>
     <string name="USER_BIKE_STATION_ID">user_station</string>
     <string name="USER_BIKE_PLACE_ID">user_place</string>
+    <string name="USER_NFC_ACTIVATION">user_nfc</string>
+    <string name="USER_NFC_STATION_ID">user_nfc_station_id</string>
+    <string name="USER_NFC_PLACE_ID">user_nfc_place_id</string>
 
 </resources>

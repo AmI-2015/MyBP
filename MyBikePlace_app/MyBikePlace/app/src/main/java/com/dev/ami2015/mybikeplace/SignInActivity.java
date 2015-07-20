@@ -412,21 +412,41 @@ public class SignInActivity extends ActionBarActivity {
         }
     }
 
-//    //Handle Intent method to manage NFC intent
-//    public void handleIntent(Intent intent) {
-//
-//        String action = intent.getAction();
-//        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
-//
-//            //check if the "remember me" checkbox is ticked, only in this case try nfc lock-in or lock-app
-//            if(userSettings.getBoolean(getString(R.string.USER_REMEMBER_ME), false)){
-//
-//                Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-//                new NdefReaderTask().execute(tag);
-//
-//            }
-//
-//        }
-//    }
+    //Handle Intent method to manage NFC intent
+    public void handleIntent(Intent intent) {
+
+        String action = intent.getAction();
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) { //NFC detected
+
+            //retrieve information from NFC detected
+            Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            new NdefReaderTask(this).execute(tag);
+
+            //check if the "remember me" checkbox is ticked, only in this case try nfc lock-in or lock-app
+            if(userSettings.getBoolean(getString(R.string.USER_REMEMBER_ME), false)){
+
+                //set Username and password to do auto sign-in
+                String username = userSettings.getString(getString(R.string.USER_USERNAME), null);
+                String password = userSettings.getString(getString(R.string.USER_PASSWORD), null);
+
+                editUsername.setText(username);
+                editPassword.setText(password);
+
+                //save NFC activation detected
+
+                userSettingsEditor = userSettings.edit();
+                userSettingsEditor.putBoolean(getString(R.string.USER_NFC_ACTIVATION), true);
+                userSettingsEditor.commit();
+
+                //do sign-in
+
+                //go to personal activity
+                Button continueButton = (Button) findViewById(R.id.continueButton);
+                continueButton.performClick();
+
+            }
+
+        }
+    }
 }
 
