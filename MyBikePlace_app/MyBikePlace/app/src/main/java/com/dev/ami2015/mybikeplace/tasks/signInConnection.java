@@ -44,12 +44,17 @@ public class signInConnection extends AsyncTask<String , Void , JSONObject>  {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        //new GetMyBPStationMarkersTask(this.parentActivity).execute();
+
+
+//        //debug code
+//        parentActivity.goToPersonalActivity(0);
 
     }
+
     @Override
     protected JSONObject doInBackground(String... params) {
         JSONObject serverResponse= null;
+
 
         // params comes from the execute() call: params[0] is the url.
         try {

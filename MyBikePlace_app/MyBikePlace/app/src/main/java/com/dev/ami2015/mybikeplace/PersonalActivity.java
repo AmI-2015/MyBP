@@ -300,24 +300,30 @@ public class PersonalActivity extends ActionBarActivity {
                 myPUBikeStatus.setText("ERROR");
                 myPUBikeStatus.setTextColor(getResources().getColor(R.color.red));
                 myBPStationNumber.setText("error");
+                myBPStationNumber.setTextColor(getResources().getColor(R.color.black));
                 myBPStationNumber.setEnabled(true);
                 myBPStationPlace.setText("error");
+                myBPStationPlace.setTextColor(getResources().getColor(R.color.black));
                 myBPStationPlace.setEnabled(true);
                 break;
             case 0: //MyPU not locked-in
                 myPUBikeStatus.setText("Not Locked-in");
                 myPUBikeStatus.setTextColor(getResources().getColor(R.color.orange));
                 myBPStationNumber.setText("null");
+                myBPStationNumber.setTextColor(getResources().getColor(R.color.black));
                 myBPStationNumber.setEnabled(true);
                 myBPStationPlace.setText("null");
+                myBPStationPlace.setTextColor(getResources().getColor(R.color.black));
                 myBPStationPlace.setEnabled(true);
                 break;
             case 1: //MyPU locked-in, in this condition user cannot modify value of Station id and Place id
                 myPUBikeStatus.setText("Locked-in");
                 myPUBikeStatus.setTextColor(getResources().getColor(R.color.green));
                 myBPStationNumber.setText(MyPUStationID);
+                myBPStationNumber.setTextColor(getResources().getColor(R.color.black));
                 myBPStationNumber.setEnabled(false);
                 myBPStationPlace.setText(MyPUPlaceID);
+                myBPStationPlace.setTextColor(getResources().getColor(R.color.black));
                 myBPStationPlace.setEnabled(false);
         }
 
