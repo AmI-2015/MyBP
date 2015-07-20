@@ -298,8 +298,21 @@ class raspberry:
         # prepare a cursor object using cursor() method
         cursor  = db.cursor()
         search_stnSpc_sql = "SELECT free_places, tot_places FROM station_spec WHERE station_id='"+str(station_id)+"';"
-        
+        search_security_key = "SELECT security_key FROM station WHERE station_id = '"+str(station_id)+"' and place_id = '"+str(place_id)+"';"
+
         response_data = {}
+        try:
+            cursor.execute(search_security_key)
+            print "SEARCH SUCCESFUL COMPLETED [upd_stnSpcTbl()]"
+        except:
+            stop_alarm = -1
+            print "SEARCH ERROR [upd_stnSpcTbl()]]"
+        
+        try:
+            row=cursor.fetchone()
+            security_key = row[0]
+        except:    
+            print "FETCH FAILED security_key"
         
         try:
             cursor.execute(search_stnSpc_sql)
@@ -313,7 +326,10 @@ class raspberry:
             free_places=int(row[0])
             tot_places = int(row[1])
             
-            if int(status) == 1:
+            if int(status) == 1 and security_key != 'UNCHANGEABLE' and security_key != 'None' :
+                if(free_places > 0):
+                    free_places = free_places - 0.5
+            if int(status) == 1 and security_key == 'UNCHANGEABLE':
                 if(free_places > 0):
                     free_places = free_places - 1
                 else:
@@ -325,7 +341,12 @@ class raspberry:
                     print "UPDATING SUCCESFUL COMPLETED [upd_stnSpcTbl()]"
                 except:
                     print "UPDATING ERROR [upd_stnSpcTbl()]"
-            elif int(status) == 0:
+            elif int(status) == 0  and security_key != 'UNCHANGEABLE' and security_key != 'None':
+                if(free_places < tot_places ):
+                    free_places = free_places + 0.5
+                else:
+                    free_places = tot_places            
+            elif int(status) == 0 and security_key == 'None':
                 if(free_places < tot_places ):
                     free_places = free_places + 1
                 else:
@@ -428,5 +449,22 @@ class raspberry:
         
         db.close()    
     
+    def reset_station(self, station_id, place_id):
+        # Open database connection
+        db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB")
+        # prepare a cursor object using cursor() method
+        cursor  = db.cursor()
+        
+        update_users = "UPDATE station SET  security_key = 'None', registration_id = 'None' WHERE station_id='"+str(station_id)+"' and place_id = '"+str(place_id)+"';"
+        print update_users
+        try:
+            cursor.execute(update_users)
+            db.commit()
+            print "users updated in reset_users_after_alarm()"
+        except:
+            print "users updated FAILED in reset_users_after_alarm()"
+            
+        db.close()
+
     def __init__(self):
         pass

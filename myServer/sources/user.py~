@@ -580,14 +580,12 @@ class user:
             print "FETCH ERROR [check_alarm_fromApp()]"
         
         try:
-            update_sql = "UPDATE station SET stop_alarm = '1' WHERE station_id='"+str(station_id)+"' and place_id ='"+str(place_id)+"';" 
-            update_users = "UPDATE users SET status = '0' WHERE station_id='"+str(station_id)+"' and place_id = '"+str(place_id)+"';"
+            update_sql = "UPDATE station SET stop_alarm = 1 WHERE station_id="+str(station_id)+" and place_id ="+str(place_id)+";" 
             print update_sql
             cursor.execute(update_sql)
-            cursor.execute(update_users)
             db.commit()
         except:
-            print "UPDATE in station FAILED  [check_alarm_fromApp()]"    
+            print "UPDATE in station FAILED  [check_alarm_fromApp()]"   
         
         db.close()  
         

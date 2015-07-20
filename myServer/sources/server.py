@@ -274,6 +274,7 @@ def stealing_controller():
         if(parking_data['registration_id'] != 'None'):
             gcm.plaintext_request(registration_id=reg_id, data=data)
 
+        return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
         #return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
     elif parking_data['action']=="OK":
         #USE GOOGLE CLOUD MESSAGING API
@@ -281,17 +282,14 @@ def stealing_controller():
         data = {'the_message': 'OK'}
         dataj = json.dumps(data)
         
-        gcm.plaintext_request
+        # plaintext request
         reg_id = parking_data['registration_id']
         print reg_id        
-        try:
-            gcm.plaintext_request(registration_id=reg_id, data=data)
-        except:
-            pass
-        pass
+        gcm.plaintext_request(registration_id=reg_id, data=data)
+        
+        return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
     else:
-        pass
-    return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
+        return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
 
 '''
 The raspberry sends a json packet through POST http
@@ -395,16 +393,44 @@ def update_station_spec():
     
     return jsonify({"station_id":stn_updSpc['station_id'], "free_places": stn_updSpc['free_places'], "tot_places": stn_updSpc['tot_places']})
 
+
+'''
+json request
+
+{
+    "station_id" : "STATION_ID",
+    "place_id"   : "PLACE_ID",
+    "status"     : "STATUS"
+}
+'''
 @app.route('/myBP_server/users/reset_after_alarm', methods = ['POST'])
 def reset_after_alarm():
     request_packet = request.json
     station_id = request_packet.get("station_id")
     place_id   = request_packet.get("place_id")
     status = request_packet.get("status")
-    stop = request_packet.get("stop")
     
     request_processor.reset_users_after_alarm(station_id, place_id, status)
     
     return jsonify({"station_id": station_id, "place_id": place_id}) 
+
+'''
+json request
+
+{
+    "station_id" : "STATION_ID",
+    "place_id"   : "PLACE_ID"
+}
+'''
+@app.route('/myBP_server/users/reset_station', methods = ['POST'])
+def reset_station():
+    request_packet = request.json
+    station_id = request_packet.get("station_id")
+    place_id   = request_packet.get("place_id")
+    
+    request_processor.reset_station(station_id, place_id)
+    
+    return jsonify({"station_id": station_id, "place_id": place_id}) 
+
 if __name__ == '__main__':
     app.run(host = '0.0.0.0', debug=True, port=7000)

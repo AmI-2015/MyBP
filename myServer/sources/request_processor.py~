@@ -27,7 +27,6 @@ def start_timer(user_code, pwd_code, set_):
     user_connected = user()
     start_time = user_connected.set_start_time(user_code, pwd_code, set_)
     return start_time
-
 def sign_up(user_code, pwd_code, registration_id):
     user_data={}
     user_connected=user()
@@ -67,12 +66,6 @@ def set_ras_flag_from_raspberry(station_id, place_id, ras_flag):
     ras_connected = raspberry()
     lock_flag = ras_connected.set_ras_flag_from_raspberry(station_id, place_id, ras_flag)
     return lock_flag
-
-def reset_users_after_alarm(station_id, place_id, status):
-    raspberry_connected = raspberry()
-    raspberry_connected.reset_users_after_alarm(station_id, place_id, status)
-    
-    pass
 
 def set_ras_flag(user_code, pwd_code, ras_flag, rd_wr_n):
     ras_connected = raspberry()
@@ -129,11 +122,6 @@ def stn_updStnSpc(station_id, free_places, tot_places):
     
     stn_updSpc = raspberry_connected.updStnSpcStart(station_id, free_places, tot_places)
     return stn_updSpc
-
-def reset_station(station_id, place_id):
-    raspberry_connected = raspberry()
-    raspberry_connected.reset_station(station_id, place_id)
-    pass
 
 def stn_updDbProcess(station_id,place_id,status):
     raspberry_connected = raspberry()
