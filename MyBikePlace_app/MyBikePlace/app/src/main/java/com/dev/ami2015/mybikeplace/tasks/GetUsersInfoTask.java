@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Button;
 
 import com.dev.ami2015.mybikeplace.PersonalActivity;
 import com.dev.ami2015.mybikeplace.R;
@@ -119,14 +120,31 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
 
 //        //Debug code begin
 //        userSettingsEditor = userSettings.edit();
-//        userSettingsEditor.putInt(this.parentActivity.getString(R.string.USER_STATUS), 1);
-//        userSettingsEditor.putString(this.parentActivity.getString(R.string.USER_BIKE_STATION_ID), "2");
+//        userSettingsEditor.putInt(this.parentActivity.getString(R.string.USER_STATUS), 0);
+////        userSettingsEditor.putString(this.parentActivity.getString(R.string.USER_BIKE_STATION_ID), "2");
 //        userSettingsEditor.commit();
 //        //Debug code end
 
 
         //Invoke checkStatus Method from PersonalActivity
         parentActivity.checkMyPUStatus();
+
+//        //manage NFC action
+//        if(userSettings.getBoolean(parentActivity.getString(R.string.USER_NFC_ACTIVATION), false)){
+//            //if nfc is detected check user status and decide to perform sign in or lock in
+//            if(userSettings.getInt(parentActivity.getString(R.string.USER_STATUS), 0) == 1) {
+//                //user locked-in => perform lock-out
+//                Button lockOut = (Button) parentActivity.findViewById(R.id.buttonLockOut);
+//                lockOut.performClick();
+//            } else if (userSettings.getInt(parentActivity.getString(R.string.USER_STATUS), 0) == 0){
+//                //user locked-out => perform lock-in
+//                parentActivity.myBPStationNumber.setText(userSettings.getString(parentActivity.getString(R.string.USER_NFC_STATION_ID), null));
+//                parentActivity.myBPStationPlace.setText(userSettings.getString(parentActivity.getString(R.string.USER_NFC_PLACE_ID), null));
+//                //user locked-in => perform lock-out
+//                Button lockIn= (Button) parentActivity.findViewById(R.id.buttonLockIn);
+//                lockIn.performClick();
+//            }
+//        }
 
     }
 

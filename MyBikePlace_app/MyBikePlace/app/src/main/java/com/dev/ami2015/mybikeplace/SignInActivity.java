@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.nfc.NfcAdapter;
+import android.nfc.Tag;
+import android.nfc.tech.Ndef;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -19,6 +21,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+//import com.dev.ami2015.mybikeplace.tasks.NdefReaderTask;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import com.dev.ami2015.mybikeplace.tasks.signInConnection;
@@ -66,11 +69,6 @@ public class SignInActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // get the extra containing credentials from the SignUp Intent
-        Intent intent = getIntent();
-        String username = intent.getStringExtra(SignInActivity.EXTRA_USERNAME);
-
-        MYBPSERVER_URL = getResources().getString(R.string.IP_SERVER)+"/myBP_server/users/sign_in";
 
         setContentView(R.layout.activity_sign_in);
 
@@ -80,10 +78,7 @@ public class SignInActivity extends ActionBarActivity {
         checkRememberMe = (CheckBox) findViewById(R.id.rememberMeCheckBox);
         checkSkip = (CheckBox) findViewById(R.id.skipCheckBox);
 
-        if(username != null) {
-            // modify text view content
-            editUsername.setText(username);
-        }
+        MYBPSERVER_URL = getResources().getString(R.string.IP_SERVER)+"/myBP_server/users/sign_in";
 
         getRegId();
 
@@ -92,6 +87,43 @@ public class SignInActivity extends ActionBarActivity {
 
         // Check shared preference file
         SetUsernamePasswordByPreferenceFile();
+
+        // get the extra containing credentials from the SignUp Intent
+        Intent intent = getIntent();
+
+//        // define app behavior depending on the intent cause
+//        handleIntent(intent);
+
+        String username = intent.getStringExtra(SignInActivity.EXTRA_USERNAME);
+
+        if(username != null) {
+            // modify text view content
+            editUsername.setText(username);
+        }
+
+
+//        MYBPSERVER_URL = getResources().getString(R.string.IP_SERVER)+"/myBP_server/users/sign_in";
+//
+//        setContentView(R.layout.activity_sign_in);
+//
+//        // Acquiring view elements from activty
+//        editUsername = (EditText) findViewById(R.id.usernameText);
+//        editPassword = (EditText) findViewById(R.id.passwordText);
+//        checkRememberMe = (CheckBox) findViewById(R.id.rememberMeCheckBox);
+//        checkSkip = (CheckBox) findViewById(R.id.skipCheckBox);
+//
+//        if(username != null) {
+//            // modify text view content
+//            editUsername.setText(username);
+//        }
+//
+//        getRegId();
+//
+//        // Creating shared preference file
+//        userSettings = this.getSharedPreferences(getString(R.string.USER_SETTINGS), Context.MODE_PRIVATE);
+//
+//        // Check shared preference file
+//        SetUsernamePasswordByPreferenceFile();
 
     }
 
@@ -274,6 +306,9 @@ public class SignInActivity extends ActionBarActivity {
     {
         Intent i = new Intent(this, PersonalActivity.class);
 
+//        //debug code
+//        error = 0;
+
         if(error == 1) {
             editUsername.setText("USER_ID or PWD ERRATE");
             editPassword.setText("");
@@ -379,5 +414,41 @@ public class SignInActivity extends ActionBarActivity {
             }
         }
     }
+
+//    //Handle Intent method to manage NFC intent
+//    public void handleIntent(Intent intent) {
+//
+//        String action = intent.getAction();
+//        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) { //NFC detected
+//
+//            //retrieve information from NFC detected
+//            Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+//            new NdefReaderTask(this).execute(tag);
+//
+//            //check if the "remember me" checkbox is ticked, only in this case try nfc lock-in or lock-app
+//            if(userSettings.getBoolean(getString(R.string.USER_REMEMBER_ME), false)){
+//
+//                //set Username and password to do auto sign-in
+//                String username = userSettings.getString(getString(R.string.USER_USERNAME), null);
+//                String password = userSettings.getString(getString(R.string.USER_PASSWORD), null);
+//
+//                editUsername.setText(username);
+//                editPassword.setText(password);
+//
+//                //save NFC activation detected
+//
+//                userSettingsEditor = userSettings.edit();
+//                userSettingsEditor.putBoolean(getString(R.string.USER_NFC_ACTIVATION), true);
+//                userSettingsEditor.commit();
+//
+//                //do sign-in
+//                //go to personal activity
+//                Button continueButton = (Button) findViewById(R.id.continueButton);
+//                continueButton.performClick();
+//
+//            }
+//
+//        }
+//    }
 }
 

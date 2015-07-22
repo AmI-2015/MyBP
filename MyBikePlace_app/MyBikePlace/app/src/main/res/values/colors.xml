@@ -6,5 +6,7 @@
     <color name="blue">#990000ff</color>
     <color name="orange">#99ff6100</color>
     <color name="yellow">#99ffe43a</color>
+    <color name="black">#ff000000</color>
+
 
 </resources>
