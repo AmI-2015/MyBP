@@ -22,6 +22,7 @@ LOCK_IN = 1
 LOCK_OUT = -1
 DEFAULT = 0
 RESET = 1
+TIME_OUT = 20
 
 app= Flask(__name__)
 
@@ -85,107 +86,39 @@ def  get_info():
     user_code=secret_packet.get('user_code').replace(" ", "")
     registration_id = secret_packet.get('registration_id')
     
-    user_data=request_processor.sign_in(user_code, pwd_code, registration_id)
     security_key = pwd_code+user_code
-    diz_to_jsonify={}
+    
+    #CONTROLLO DA FINIRE NEL CASO DI SIGN IN SBAGLIATO
+    user_data=request_processor.sign_in(user_code, pwd_code, registration_id)
+    
     start_time = request_processor.start_timer(user_code, pwd_code, 0)
-    print start_time
     elapsed = time.time() - start_time
-    print "elapsed:"+str(elapsed)
     
-    lock_flag = request_processor.set_lock_flag(security_key, 0, -1, 1)
-    #leggo il valore di ras_flag
-    ras_flag = request_processor.set_ras_flag(user_code, pwd_code, -1, 1) 
-    
-    #TIMER ON THE SERVER
-    TIME_OUT = 20
-    print "lock_flag: "+str(lock_flag)
-    print "ras_flag: "+str(ras_flag)
-    fetched_data = request_processor.lock_app(user_data['station_id'], user_data['place_id'], security_key, registration_id, lock_flag)
-        
-    if(lock_flag == 1): #CASO DI LOCK IN 
-        if(ras_flag == 1): #LOCK IN COMPLETO
-            update_users   = "UPDATE users SET lock_flag = '0', status = '1', ras_flag = '0' WHERE username_code='"+security_key[0:25]+"' AND pwd_code='"+security_key[25:50]+"';"
-            update_station = "UPDATE station SET status = '1' WHERE station_id='"+str(fetched_data['station_id'])+"' AND place_id='"+str(fetched_data['place_id'])+"';"
-            diz_to_jsonify = {'station_id': fetched_data['station_id'], 'place_id': fetched_data['place_id'], 'status': '1', 'data_valid': '1' }
-        
-        if(ras_flag == 0): #WAIT 
-            if(elapsed > TIME_OUT): #LOCK IN MANCATO
-                update_station = "UPDATE station SET security_key='None', status = '0', stop_alarm='0',  registration_id='None' WHERE station_id='"+str(fetched_data['station_id'])+"' AND place_id='"+str(fetched_data['place_id'])+"';"
-                update_users   = "UPDATE users SET status='0', place_id = '-1', station_id = '-1', lock_flag = '0', ras_flag = '0' WHERE username_code='"+security_key[0:25]+"' AND pwd_code='"+security_key[25:50]+"';"
-                diz_to_jsonify = {'station_id': fetched_data['station_id'], 'place_id': fetched_data['place_id'], 'status': fetched_data['status'], 'data_valid': '1' }
-            else: #CONTINUA POLLING
-                diz_to_jsonify = {'station_id': fetched_data['station_id'], 'place_id': fetched_data['place_id'], 'status': fetched_data['status'], 'data_valid': '0' }
-    elif(lock_flag == -1):
-        if(ras_flag == 1):#LOCK OUT COMPLETO
-            update_users   = "UPDATE users SET station_id = '-1', place_id = '-1', status = '0', lock_flag = '0', ras_flag = '0' WHERE username_code='"+security_key[0:25]+"' AND pwd_code='"+security_key[25:50]+"';"
-            update_station = "UPDATE station SET status = '0', registration_id = 'None', security_key = 'None' WHERE station_id='"+str(fetched_data['station_id'])+"' AND place_id='"+str(fetched_data['place_id'])+"';"
-            diz_to_jsonify = {'station_id': '-1', 'place_id': '-1', 'status': '0', 'data_valid': '1' }
-        
-        else:
-            if(elapsed > TIME_OUT): #LOCK OUT MANCATO
-                update_users   = "UPDATE users SET lock_flag = '0', status = '1' WHERE username_code='"+security_key[0:25]+"' AND pwd_code='"+security_key[25:50]+"';"
-                update_station = "UPDATE station SET status = '1' WHERE security_key='"+security_key+"';"
-                diz_to_jsonify = {'station_id': fetched_data['station_id'], 'place_id': fetched_data['place_id'], 'status': '1', 'data_valid': '1' }
-            else: #CONTINUA POLLING
-                diz_to_jsonify = {'station_id': fetched_data['station_id'], 'place_id': fetched_data['place_id'], 'status': '1', 'data_valid': '0' }
-    else:
-        diz_to_jsonify = {'station_id': fetched_data['station_id'], 'place_id': fetched_data['place_id'], 'status': '1', 'data_valid': '0' }
-
-    db = MySQLdb.connect("localhost", "root", "myBP", "myBP_DB")
-    cursor = db.cursor()
-    try:
-        print update_station
-        print update_users
-    except:
+    data_valid = request_processor.get_data_valid_in_usersDB(security_key)
+    if(data_valid == 1):
         pass
+    else:
+        if(elapsed> TIME_OUT):
+            #LOCK IN MANCATO
+            if(user_data['lock_flag']==LOCK_IN):
+                #Settaggio lock flag default in DB users
+                request_processor.set_lock_flag(security_key, SINGLE, DEFAULT, WRITE)
+                #Settaggio place_id station_id utente non lockato in DB users
+                request_processor.set_user_place_station_id(security_key, -1, -1)
+                #Dati validi
+                request_processor.set_data_valid(security_key, VALID)
+            elif(user_data['lock_flag']== LOCK_OUT):
+                #Settaggio lock flag default in DB users
+                request_processor.set_lock_flag(security_key, SINGLE, DEFAULT, WRITE)
+                #Dati validi
+                request_processor.set_data_valid(security_key, VALID)
+        else:
+            pass
     
-    try:
-        cursor.execute(update_station)
-        print "DONE:" + update_station
-        db.commit()
-    except:
-        print "FAILED in get_info"
-        
-    try:
-        cursor.execute(update_users)
-        print "DONE:" +update_users
-        db.commit()
-    except:
-        print "FAILED in get_info"
+    user_data=request_processor.get_data_from_user(security_key)
     
-    db.close()
-    
-    if(elapsed > TIME_OUT and lock_flag == 0):
-        print "elapse lock_flag: "+str(user_data['lock_flag'])
-        return_data= request_processor.lock_app(user_data['station_id'], user_data['place_id'], security_key, registration_id, lock_flag)
-        print "return_data: "+str(return_data)
-        try:
-        
-            if(return_data['lock']==0):
-                #request_processor.set_security_key_in_user(user_data['station_id'], user_data['place_id'], 1)
-                print "station_id: "+ str(user_data['station_id'])
-                print "HO RILEVATO LOCK OUT"
-                diz_to_jsonify['data_valid'] = 1
-                diz_to_jsonify['status'] = 0
-            elif(return_data['lock']==1):
-                request_processor.set_security_key_in_user(user_data['station_id'], user_data['place_id'], 1)
-                user_data['station_id']= return_data['station_id']
-                user_data['place_id'] = return_data['place_id']
-                diz_to_jsonify['data_valid'] = 1
-                print "HO RILEVATO LOCK IN"
-            else:
-                print "HO RILEVATO SIGN IN"
-                diz_to_jsonify['data_valid'] = 1
-                diz_to_jsonify['status'] = return_data['status']
-        except:
-            print "HO RILEVATO EXCEPTION"
-            diz_to_jsonify['data_valid'] = 1
-            diz_to_jsonify['status'] = return_data['status']
-        user_data['lock_flag'] = 1
-        
-    print "diz_to_jsonify: "+ str(diz_to_jsonify)
-    return jsonify(diz_to_jsonify)
+    json_app = {"station_id": user_data['station_id'], "place_id": user_data['place_id'], "status": user_data['status'], "data_valid": user_data['data_valid']}
+    return jsonify(json_app)
     
 #the following method is to log in "LOCK IN" from raspberry
 '''
@@ -219,10 +152,12 @@ def lock_raspberry():
         #OPERAZIONE IN CORSO
         if(lock_flag == LOCK_IN):
             #LOCK IN
-            request_processor.set_security_key_reg_id_in_stationDB(station_id, place_id, not(RESET))
+            request_processor.set_security_key_reg_id_in_stationDB(station_id, place_id, int(not(RESET)))
+            request_processor.set_status_in_stationDB(station_id, place_id, 1)
         elif(lock_flag == LOCK_OUT):
             #LOCK OUT
             request_processor.set_security_key_reg_id_in_stationDB(station_id, place_id, RESET)
+            request_processor.set_status_in_stationDB(station_id, place_id, 0)
         
         request_processor.set_status_in_stationDB(status, station_id, place_id)
         request_processor.set_data_valid(security_key, VALID)
@@ -231,11 +166,11 @@ def lock_raspberry():
     else:
         #No operazione in corso
         if(request_processor.get_security_key_in_stationDB(station_id,place_id)== 'UNCHANGEABLE'):
-            #LOCK IN UTENTE NON REGISTRATO
+            #LOCK OUT UTENTE NON REGISTRATO
             request_processor.set_status_in_stationDB(status, station_id, place_id)
             request_processor.set_security_key_reg_id_in_stationDB(station_id, place_id, RESET)
         elif(request_processor.get_security_key_in_stationDB(station_id,place_id)== 'None'):
-            #LOCK OUT UTENTE NON REGISTRATO
+            #LOCK IN UTENTE NON REGISTRATO
             request_processor.set_status_in_stationDB(status, station_id, place_id)
             request_processor.set_unchangeable_in_stationDB(station_id, place_id)
             
@@ -274,6 +209,7 @@ def lock_app():
     request_packet=request.json
     print "PACKET RECEIVED in lock_app:"
     print(request_packet)
+    
     station_id      = request_packet.get("station_id")
     place_id        = request_packet.get("place_id")
     security_key    = request_packet.get("security_key").replace(" ", "")
@@ -307,20 +243,26 @@ def lock_app():
             
             start_time = request_processor.start_timer(security_key[0:25], security_key[25:50], 0)
             elapsed = time.time() - start_time
-            #DA VALUTARE IN GET_INFO
-            if(elapsed> TIME_OUT):
-                if( request_processor.get_data_valid(security_key)==0):
-                    #Settaggio campi dell'utente in DB users
-                    request_processor.set_user_place_station_id(security_key, ERROR_PLACE, ERROR_STATION)
-                    #Dati non validi
-                    request_processor.set_data_valid(VALID)
+        else:
+            __ERROR__ = 1        
+    elif (lock_flag == LOCK_OUT):
+        #LOCK OUT
+        if(status_found == 1):
+            #Settaggio lock flag in DB users
+            request_processor.set_lock_flag(security_key, SINGLE, LOCK_OUT, WRITE)
+            #Dati non validi
+            request_processor.set_data_valid(security_key, NOT_VALID)
+            #Salva istante iniziale in db users
+            request_processor.start_timer(security_key[0:25], security_key[25:50], 1)
+            
+            start_time = request_processor.start_timer(security_key[0:25], security_key[25:50], 0)
+            elapsed = time.time() - start_time
         else:
             __ERROR__ = 1
-        
-    else:
-        lock = 0   
+    
             
-    return jsonify({"end": 1})
+    
+    return jsonify({"end": int(not(__ERROR__))})
 
 '''
 #the following method checks that a steal doesn't occur

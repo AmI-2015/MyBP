@@ -109,14 +109,14 @@ class user:
             if(data != None):
                 user_data['username_code']=data[0]
                 user_data['pwd_code']=data[1]
-                user_data['station_id']= int(data[2])
-                user_data['place_id']=int(data[3])
-                user_data['status']=int(data[4])
-                user_data['registration_id']=data[5]
-                user_data['error_str']=data[6]
-                user_data['lock_flag']=data[7]
-                user_data['ras_flag'] = data[8]
-                user_data['start_time']=data[9]
+                user_data['registration_id']=data[2]
+                user_data['status']=int(data[3])
+                user_data['station_id']= int(data[4])
+                user_data['place_id']=int(data[5])
+                user_data['lock_flag']=data[6]
+                user_data['start_time']=data[7]
+                user_data['error_str']=data[8]
+                user_data['data_valid'] = data[9]
                 # Now print fetched result to debug
                 try:
                     update_sql="UPDATE users SET station_id='"+str(user_data['station_id'])+"', place_id='"+str(user_data['place_id'])+"' WHERE username_code='"+str(user_data['username_code'])+"' AND pwd_code='"+str(user_data['pwd_code'])+"';"
