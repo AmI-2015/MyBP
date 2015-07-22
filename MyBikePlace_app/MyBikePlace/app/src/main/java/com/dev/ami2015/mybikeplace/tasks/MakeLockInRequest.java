@@ -121,6 +121,7 @@ public class MakeLockInRequest extends AsyncTask<Void, Void, Void>  {
             lockInRequestJson.put("security_key", userSettings.getString(this.parentActivity.getString(R.string.USER_USER_CODE), null /*default value*/) +
                     userSettings.getString(this.parentActivity.getString(R.string.USER_PWD_CODE), null /*default value*/));
             lockInRequestJson.put("registration_id", userSettings.getString(this.parentActivity.getString(R.string.USER_REGID), null /*default value*/));
+            lockInRequestJson.put("lock", "1");
 
 
             // Set request nature and parameters

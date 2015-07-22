@@ -433,11 +433,11 @@ class user:
             row=cursor.fetchone()
             security_key=row[0]
             status=int(row[1])
-            print security_key
-            print security_keyFromApp
-            print status
-            print ras_flag
-            if ((security_key==security_keyFromApp and status==1 and ras_flag == 1)  or (security_key == 'None' and status == 0)):  
+            print "security_key: " +security_key
+            print "security_keyFromApp: "+security_keyFromApp
+            print "status: "+str(status)
+            print "ras_flag: "+str(ras_flag)
+            if ((security_key==security_keyFromApp and status==1 and ras_flag == 1))  or (security_key == 'None' and status == 0):  
                 print "STO FACENDO IL LOCK IN"
                 parking_data['station_id'] = station_id
                 parking_data['place_id']   = place_id

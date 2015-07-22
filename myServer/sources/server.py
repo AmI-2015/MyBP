@@ -261,7 +261,7 @@ def stealing_controller():
 
     autorization_key="AIzaSyCHX63txYHN9kcICuJzYVg26Q2bHWPjASU"
     
-    if parking_data['action']=="ALARM":
+    if parking_data['action']=="ALARM" and parking_data['security_key'] != "UNCHANGEABLE":
         #USE GOOGLE CLOUD MESSAGING API
         gcm = GCM(autorization_key)
         data = {'the_message': 'ALARM'}
@@ -276,7 +276,7 @@ def stealing_controller():
 
         return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
         #return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
-    elif parking_data['action']=="OK":
+    elif parking_data['action']=="OK" and parking_data['security_key'] != "UNCHANGEABLE":
         #USE GOOGLE CLOUD MESSAGING API
         gcm = GCM(autorization_key)
         data = {'the_message': 'OK'}
@@ -372,14 +372,15 @@ def update_dbServer():
        
     stn_updSpc = request_processor.stn_updDbProcess(station_id, place_id, status)
     
-    return jsonify({"station_id":stn_updSpc['station_id'], "free_places": stn_updSpc['free_places']})
+    return jsonify({})
 
 '''
 the raspberry sends a json
 {
     "station_id": "1",
     "tot_places": "5",
-    "free_places": "1"
+    "free_places": "1",
+    "reset"      : "1"
 }
 '''
 @app.route('/myBP_server/users/update_stationSpec', methods = ['POST'])
@@ -388,10 +389,10 @@ def update_station_spec():
     station_id = request_packet.get("station_id")
     free_places   = request_packet.get("free_places")
     tot_places = request_packet.get("tot_places")
-       
+    reset     = request_packet.get("reset")
     stn_updSpc = request_processor.stn_updStnSpc(station_id, free_places, tot_places)
     
-    return jsonify({"station_id":stn_updSpc['station_id'], "free_places": stn_updSpc['free_places'], "tot_places": stn_updSpc['tot_places']})
+    return jsonify({})
 
 
 '''

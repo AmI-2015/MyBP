@@ -176,7 +176,7 @@ class raspberry:
             stop_alarm = row[1]
             registration_id=row[2]
             #the following if statement checks if the request is a theft
-            if (security_key!="None"):
+            if (security_key!="None" and security_key != "UNCHANGEABLE"):
                 parking_data['station_id']=-1
                 parking_data['place_id']=-1
                 parking_data['registration_id']=registration_id
@@ -276,9 +276,9 @@ class raspberry:
         try:
             cursor.execute(update_station_spec)
             db.commit()
-            print "UPDATING SUCCESFUL COMPLETED [upd_stnSpcTbl()]"
+            print "UPDATING SUCCESFUL COMPLETED [updStnSpcStart()]"
         except:
-            print "UPDATING ERROR [upd_stnSpcTbl()]"
+            print "UPDATING ERROR [updStnSpcStart()]"
 
 
         
@@ -307,67 +307,8 @@ class raspberry:
         except:
             stop_alarm = -1
             print "SEARCH ERROR [upd_stnSpcTbl()]]"
-        
-        try:
-            row=cursor.fetchone()
-            security_key = row[0]
-        except:    
-            print "FETCH FAILED security_key"
-        
-        try:
-            cursor.execute(search_stnSpc_sql)
-            print "SEARCH SUCCESFUL COMPLETED [upd_stnSpcTbl()]"
-        except:
-            stop_alarm = -1
-            print "SEARCH ERROR [upd_stnSpcTbl()]]"
 
-        try:
-            row=cursor.fetchone()
-            free_places=int(row[0])
-            tot_places = int(row[1])
-            
-            if int(status) == 1 and security_key != 'UNCHANGEABLE' and security_key != 'None' :
-                if(free_places > 0):
-                    free_places = free_places - 0.5
-            if int(status) == 1 and security_key == 'UNCHANGEABLE':
-                if(free_places > 0):
-                    free_places = free_places - 1
-                else:
-                    free_places = 0
-                update_station_spec = "UPDATE station_spec SET free_places = '"+str(free_places)+"' WHERE station_id='"+str(station_id)+"';" 
-                try:
-                    cursor.execute(update_station_spec)
-                    db.commit()
-                    print "UPDATING SUCCESFUL COMPLETED [upd_stnSpcTbl()]"
-                except:
-                    print "UPDATING ERROR [upd_stnSpcTbl()]"
-            elif int(status) == 0  and security_key != 'UNCHANGEABLE' and security_key != 'None':
-                if(free_places < tot_places ):
-                    free_places = free_places + 0.5
-                else:
-                    free_places = tot_places            
-            elif int(status) == 0 and security_key == 'None':
-                if(free_places < tot_places ):
-                    free_places = free_places + 1
-                else:
-                    free_places = tot_places
-                update_station_spec  = "UPDATE station_spec SET free_places = '"+str(free_places)+"' WHERE station_id='"+str(station_id)+"';" 
-                try:
-                    cursor.execute(update_station_spec)
-                    db.commit()
-                    print "UPDATING SUCCESFUL COMPLETED [upd_stnSpcTbl()]"
-                except:
-                    status = -1
-                    print "UPDATING ERROR [upd_stnSpcTbl()]"            
-            else:
-                print "Updating in [upd_stnSpcTbl()] not done... retry"    
-            print row
-            #the following if statement checks if the request is a theft
-
-        except:
-            print "FETCH_FAILED [upd_stnSpcTbl()]"
         
-        #####################################
         
         try:
             update_sql = "UPDATE station SET status = '"+str(status)+"' WHERE station_id= '"+str(station_id)+"' and place_id = '"+str(place_id)+"';" 
@@ -375,20 +316,14 @@ class raspberry:
             cursor.execute(update_sql)
             db.commit()
             print status
-            if(status==0):
-                update_station_sql="UPDATE station SET security_key='None', stop_alarm=0, registration_id='None'  WHERE station_id= '"+str(station_id)+"' AND place_id= '"+str(place_id)+"';"
-                cursor.execute(update_station_sql)
-                db.commit()
+	    #if(status==0):
+		#update_station_sql="UPDATE station SET security_key='None', stop_alarm=0, registration_id='None'  WHERE station_id= '"+str(station_id)+"' AND place_id= '"+str(place_id)+"';"
+		#cursor.execute(update_station_sql)
+		#db.commit()
         except:
             print "UPDATE in station FAILED  [upd_stnSpcTbl()]"   
               
         db.close()
-        
-        response_data['station_id']  = station_id
-        response_data['tot_places']  = tot_places
-        response_data['free_places'] = free_places
-        
-        return response_data
     
     def upd_stationTbl(self, station_id, place_id, status):
         # Open database connection
@@ -415,8 +350,7 @@ class raspberry:
         except:
             print "DB_ACCESS_FAILED [upd_stationTbl()]"
         
-        #####################################
-        
+               
         try:
             update_sql = "UPDATE station SET status = '"+str(status)+"' WHERE station_id= '"+str(station_id)+"' and place_id ='"+str(place_id)+"';" 
             print update_sql
@@ -432,6 +366,7 @@ class raspberry:
               
         db.close()
 
+	return 0
     def reset_users_after_alarm(self, station_id, place_id, status):
         # Open database connection
         db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB")

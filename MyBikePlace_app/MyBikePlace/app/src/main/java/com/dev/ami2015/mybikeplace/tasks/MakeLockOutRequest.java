@@ -126,7 +126,7 @@ public class MakeLockOutRequest extends AsyncTask<Void, Void, Void> {
             lockOutRequestJson.put("security_key", userSettings.getString(this.parentActivity.getString(R.string.USER_USER_CODE), null /*default value*/) +
                     userSettings.getString(this.parentActivity.getString(R.string.USER_PWD_CODE), null /*default value*/));
             lockOutRequestJson.put("registration_id", userSettings.getString(this.parentActivity.getString(R.string.USER_REGID), null /*default value*/));
-
+            lockOutRequestJson.put("lock", "-1");
 
             // Set request nature and parameters
             conn.setRequestMethod("POST");
