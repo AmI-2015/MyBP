@@ -70,33 +70,6 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... params) {
 
-//        try {
-//
-//            JSONObject MyPUInfoReceivedJson = MakePostRequestToMyBPServer(MYBPSERVER_GET_INFO_URL);
-//
-//            //save obtained data
-//            myPUStationNumber = MyPUInfoReceivedJson.getString("station_id");
-//            myPUStationPlace = MyPUInfoReceivedJson.getString("place_id");
-//            switch(MyPUInfoReceivedJson.getString("status")){
-//                case "0":
-//                    myPUStatus = 0; //user with no yet bike locked
-//                    break;
-//                case "1":
-//                    myPUStatus = 1; //user with bike already locked
-//                    break;
-//                default:
-//                    myPUStatus = -1; //error -1
-//                    break;
-//            }
-//
-//
-//        } catch (IOException e) {
-//            return null;
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-
         try {
             this.PollingRequest();
         } catch (IOException e) {
@@ -112,7 +85,7 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
     protected void onPostExecute(Void v) {
         super.onPostExecute(v);
 
-        //set preference file
+        //set preference file with the valid data
         userSettingsEditor.putString(this.parentActivity.getString(R.string.USER_BIKE_STATION_ID), myPUStationNumber);
         userSettingsEditor.putString(this.parentActivity.getString(R.string.USER_BIKE_PLACE_ID), myPUStationPlace);
         userSettingsEditor.putInt(this.parentActivity.getString(R.string.USER_STATUS), myPUStatus);
@@ -244,7 +217,7 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
                 myPUStationPlace = MyPUInfoReceivedJson.getString("place_id");
                 switch(MyPUInfoReceivedJson.getString("status")){
                     case "0":
-                        myPUStatus = 0; //user with no yet bike locked
+                        myPUStatus = 0; //user with bike no yet locked
                         break;
                     case "1":
                         myPUStatus = 1; //user with bike already locked

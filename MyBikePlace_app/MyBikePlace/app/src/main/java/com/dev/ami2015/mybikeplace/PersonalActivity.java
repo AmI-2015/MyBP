@@ -230,8 +230,8 @@ public class PersonalActivity extends ActionBarActivity {
         //Intent i = new Intent(this, PersonalActivity.class);
         if(alarm == 1)
         {
-            myBPStationNumber.setText("BIKE ALARM");
-            myBPStationNumber.setTextColor(Color.RED);
+            myPUBikeStatus.setText("BIKE ALARM");
+            myPUBikeStatus.setTextColor(Color.RED);
             myBPStationNumber.setEnabled(false);
             myBPStationPlace.setEnabled(false);
         }
@@ -239,10 +239,6 @@ public class PersonalActivity extends ActionBarActivity {
 
             new GetUsersInfoTask(this).execute();
 
-//            myBPStationNumber.setText("BIKE DISLOCKED");
-//            myBPStationNumber.setTextColor(Color.GREEN);
-//            myBPStationNumber.setKeyListener(null);
-//            myBPStationPlace.setKeyListener(null);
         }
     }
 
