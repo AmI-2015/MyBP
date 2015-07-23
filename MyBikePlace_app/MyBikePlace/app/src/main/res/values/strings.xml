@@ -8,11 +8,7 @@
     <string name="title_activity_sign_in">MySignIn</string>
     <string name="title_activity_personal">MyPage</string>
 
-<<<<<<< HEAD
-    <string name="IP_SERVER">http://172.20.11.62:7000</string>
-=======
-    <string name="IP_SERVER">http://192.168.0.2:7000</string>
->>>>>>> 4f62348b0cf26bcc748900f4413522bc4a23f0cc
+    <string name="IP_SERVER">http://192.168.0.132:7000</string>
 
     <string name="from_server_notification_title_template">From server: %1$s</string>
 
