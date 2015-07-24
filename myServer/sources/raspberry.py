@@ -160,7 +160,7 @@ class raspberry:
         # prepare a cursor object using cursor() method
         cursor = db.cursor()
         search_sql="SELECT security_key, stop_alarm, registration_id FROM station WHERE station_id="+str(station_id)+" AND place_id="+str(place_id)+";"
-
+        
         parking_data={}
         
         try:
@@ -176,22 +176,44 @@ class raspberry:
             stop_alarm = row[1]
             registration_id=row[2]
             #the following if statement checks if the request is a theft
-            if (security_key!="None" and security_key != "UNCHANGEABLE"):
-                parking_data['station_id']=-1
-                parking_data['place_id']=-1
-                parking_data['registration_id']=registration_id
-                parking_data['security_key']=security_key
-                parking_data['stop_alarm']=stop_alarm
-                parking_data['action']="ALARM"
-                print parking_data['action']
-            else:
+            if (security_key == "UNCHANGEABLE"):
                 parking_data['station_id']=station_id
                 parking_data['place_id']=place_id
                 parking_data['registration_id']=registration_id
                 parking_data['security_key']=security_key
-                parking_data['stop_alarm'] = stop_alarm
+                parking_data['stop_alarm']=stop_alarm
                 parking_data['action']="OK"
-                print parking_data['action']
+            else:
+                search_in_users = "SELECT lock_flag FROM users WHERE username_code = '"+security_key[0:25]+"' and pwd_code = '"+security_key[25:50]+"';"
+                
+                parking_data={}
+                
+                try:
+                    cursor.execute(search_in_users)
+                    print "SEARCH lock_flag SUCCESFULLY COMPLETED [stealing_controller()]"
+                except:
+                    parking_data['error']="SEARCH_ERROR"
+                    print "SEARCH lock_flag ERROR [stealing_controller()]"
+                
+                try:
+                    row=cursor.fetchone()
+                    lock_flag=row[0]   
+                except:
+                    print "FETCH lock_flag FAILED in [stealing_controller()]"
+                if(lock_flag ==0):                     
+                    parking_data['station_id']=station_id
+                    parking_data['place_id']=place_id
+                    parking_data['registration_id']=registration_id
+                    parking_data['security_key']=security_key
+                    parking_data['stop_alarm'] = stop_alarm
+                    parking_data['action']="ALARM"
+                else: 
+                    parking_data['station_id']=station_id
+                    parking_data['place_id']=place_id
+                    parking_data['registration_id']=registration_id
+                    parking_data['security_key']=security_key
+                    parking_data['stop_alarm'] = stop_alarm
+                    parking_data['action']="OK"
         except:
             parking_data['error']="FETCH_FAILED [stealing_controller()]"
     
@@ -366,14 +388,15 @@ class raspberry:
               
         db.close()
 
-	return 0
+        return 0
+    
     def reset_users_after_alarm(self, station_id, place_id, status):
         # Open database connection
         db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB")
         # prepare a cursor object using cursor() method
         cursor  = db.cursor()
 
-        update_users = "UPDATE users SET station_id = '-1', place_id = '-1', status = '0', ras_flag = '0' WHERE station_id='"+str(station_id)+"' and place_id = '"+str(place_id)+"';"
+        update_users = "UPDATE users SET station_id = '-1', place_id = '-1', status = '0', lock_flag = '0' WHERE station_id='"+str(station_id)+"' and place_id = '"+str(place_id)+"';"
         print update_users
         try:
             cursor.execute(update_users)
@@ -382,6 +405,15 @@ class raspberry:
         except:
             print "users updated FAILED in reset_users_after_alarm()"
         
+        update_station = "UPDATE station SET status = '0', security_key = 'None', registration_id = 'None' WHERE station_id='"+str(station_id)+"' and place_id = '"+str(place_id)+"';"
+        print update_station
+        try:
+            cursor.execute(update_station)
+            db.commit()
+            print "station updated in reset_users_after_alarm()"
+        except:
+            print "station updated FAILED in reset_users_after_alarm()"
+            
         db.close()    
     
     def reset_station(self, station_id, place_id):

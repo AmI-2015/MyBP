@@ -95,6 +95,7 @@ def  get_info():
     elapsed = time.time() - start_time
     
     data_valid = request_processor.get_data_valid_in_usersDB(security_key)
+
     if(data_valid == 1):
         pass
     else:
@@ -116,7 +117,7 @@ def  get_info():
             pass
     
     user_data=request_processor.get_data_from_user(security_key)
-    
+    print user_data
     json_app = {"station_id": user_data['station_id'], "place_id": user_data['place_id'], "status": user_data['status'], "data_valid": user_data['data_valid']}
     return jsonify(json_app)
     
@@ -139,7 +140,7 @@ def lock_raspberry():
     station_id = request_packet.get("station_id")
     place_id   = request_packet.get("place_id")
     status     = request_packet.get("status")
-
+    print "status in lock_ras:"+str(status)
     security_found = request_processor.controlPlace(place_id, station_id)
     #Riceve security_key
     security_key = request_processor.get_security_key_in_usersDB(station_id, place_id)
@@ -147,17 +148,21 @@ def lock_raspberry():
     data_valid = request_processor.get_data_valid_from_station_place_id_in_usersDB(station_id, place_id)
     #Riceve lock_flag con station:id e place_id in users DB
     lock_flag = request_processor.get_lock_flag_from_station_place_id_in_usersDB(station_id, place_id)
-    
+    print "data_valid:" +str(data_valid)
+    print "lock_flag:" +str(lock_flag)
     if(data_valid ==0):
         #OPERAZIONE IN CORSO
         if(lock_flag == LOCK_IN):
             #LOCK IN
             request_processor.set_security_key_reg_id_in_stationDB(station_id, place_id, int(not(RESET)))
             request_processor.set_status_in_stationDB(station_id, place_id, 1)
+            request_processor.set_status_in_usersDB(security_key, 1)
         elif(lock_flag == LOCK_OUT):
             #LOCK OUT
             request_processor.set_security_key_reg_id_in_stationDB(station_id, place_id, RESET)
             request_processor.set_status_in_stationDB(station_id, place_id, 0)
+            request_processor.set_status_in_usersDB(security_key, 0)
+            request_processor.set_user_place_station_id(security_key, -1, -1)
         
         request_processor.set_status_in_stationDB(status, station_id, place_id)
         request_processor.set_data_valid(security_key, VALID)
@@ -167,11 +172,11 @@ def lock_raspberry():
         #No operazione in corso
         if(request_processor.get_security_key_in_stationDB(station_id,place_id)== 'UNCHANGEABLE'):
             #LOCK OUT UTENTE NON REGISTRATO
-            request_processor.set_status_in_stationDB(status, station_id, place_id)
+            request_processor.set_status_in_stationDB(station_id, place_id, status)
             request_processor.set_security_key_reg_id_in_stationDB(station_id, place_id, RESET)
         elif(request_processor.get_security_key_in_stationDB(station_id,place_id)== 'None'):
             #LOCK IN UTENTE NON REGISTRATO
-            request_processor.set_status_in_stationDB(status, station_id, place_id)
+            request_processor.set_status_in_stationDB(station_id, place_id, status)
             request_processor.set_unchangeable_in_stationDB(station_id, place_id)
             
     return jsonify({"error_str": "OK"})
@@ -214,10 +219,10 @@ def lock_app():
     place_id        = request_packet.get("place_id")
     security_key    = request_packet.get("security_key").replace(" ", "")
     registration_id = request_packet.get("registration_id")
-    lock_flag       = request_packet.get("lock")
+    lock_flag       = request_packet.get("lock_flag")
     
     #Controllo condizioni posto
-    status_found = request_processor.controlStatus(place_id, station_id)
+    status_found = request_processor.get_status_from_stationDB(place_id, station_id)
     
     if(status_found == 0):
         print "RILEVO POSTO LIBERO"
@@ -229,6 +234,7 @@ def lock_app():
         #CONDIZIONI DI ALLARME se status_found != 0/1
         pass
     
+    print "lock_flag: "+str(lock_flag)
     if(int(lock_flag) == 1):
         #LOCK IN
         if(status_found == 0):
@@ -242,10 +248,9 @@ def lock_app():
             request_processor.start_timer(security_key[0:25], security_key[25:50], 1)
             
             start_time = request_processor.start_timer(security_key[0:25], security_key[25:50], 0)
-            elapsed = time.time() - start_time
         else:
             __ERROR__ = 1        
-    elif (lock_flag == LOCK_OUT):
+    elif (int(lock_flag) == LOCK_OUT):
         #LOCK OUT
         if(status_found == 1):
             #Settaggio lock flag in DB users
@@ -256,7 +261,6 @@ def lock_app():
             request_processor.start_timer(security_key[0:25], security_key[25:50], 1)
             
             start_time = request_processor.start_timer(security_key[0:25], security_key[25:50], 0)
-            elapsed = time.time() - start_time
         else:
             __ERROR__ = 1
     
@@ -302,7 +306,7 @@ def stealing_controller():
         if(parking_data['registration_id'] != 'None'):
             gcm.plaintext_request(registration_id=reg_id, data=data)
 
-        return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
+        json_rasp = parking_data['action']
         #return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
     elif parking_data['action']=="OK" and parking_data['security_key'] != "UNCHANGEABLE":
         #USE GOOGLE CLOUD MESSAGING API
@@ -315,9 +319,11 @@ def stealing_controller():
         print reg_id        
         gcm.plaintext_request(registration_id=reg_id, data=data)
         
-        return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
+        json_rasp = parking_data['action']
     else:
-        return jsonify({"station_id":parking_data['station_id'], "place_id": parking_data['place_id']})
+        json_rasp = parking_data['action']
+        
+    return jsonify({"alarm": json_rasp})
 
 '''
 The raspberry sends a json packet through POST http
@@ -460,6 +466,17 @@ def reset_station():
     request_processor.reset_station(station_id, place_id)
     
     return jsonify({"station_id": station_id, "place_id": place_id}) 
+
+@app.route('/myBP_server/users/get_status_from_raspberry', methods = ['POST'])
+def get_status_from_raspberry():
+    request_packet = request.json
+    print request_packet
+    station_id = request_packet.get("station_id")
+    place_id = request_packet.get("place_id")
+    
+    status = request_processor.get_status_from_stationDB(place_id, station_id)
+    print "status: " +str(status)
+    return jsonify({"status": status})
 
 if __name__ == '__main__':
     app.run(host = '0.0.0.0', debug=True, port=7000)

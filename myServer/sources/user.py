@@ -20,7 +20,7 @@ class user:
     def set_userandpwd(self, user_code, pwd_code):
         self.username_code=user_code
         self.pwd_code=pwd_code
-             
+                 
     def getdata(self):
         user_data={}
         
@@ -43,6 +43,172 @@ class user:
         return user_data
     #connect_signin_db() is called whenever a request of sign in is received        
 
+    def get_data_from_user(self, security_key):
+        db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB") 
+        cursor = db.cursor()
+        user_data={}
+        try:
+            select_all="SELECT * FROM users WHERE username_code='"+security_key[0:25]+"' and pwd_code = '"+security_key[25:50]+"';"    
+            print select_all
+            cursor.execute(select_all)
+            print "READING all data SUCCESFULLY COMPLETED"
+        except:
+            print "READING all data ERROR [get_data_from_usersDB()]"
+            
+        try:
+            data=cursor.fetchone()
+            user_data['username_code']=data[0]
+            user_data['pwd_code']=data[1]
+            user_data['registration_id']=data[2]
+            user_data['status']=int(data[3])
+            user_data['station_id']= int(data[4])
+            user_data['place_id']=int(data[5])
+            user_data['lock_flag']=data[6]
+            user_data['start_time']=data[7]
+            user_data['error_str']=data[8]
+            user_data['data_valid'] = data[9]
+            print "FETCH in reading DONE in get_data_from_user"
+        except:
+            print "FETCH in reading FAILED in get_data_from_user" 
+        return user_data
+    
+    def get_data_valid_in_usersDB(self, security_key):
+        db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB") 
+        cursor = db.cursor()
+        
+        data_valid = -1
+        
+        try:
+            select_data_valid="SELECT data_valid FROM users WHERE username_code='"+security_key[0:25]+"' and pwd_code = '"+security_key[25:50]+"';"     
+            print select_data_valid
+            cursor.execute(select_data_valid)
+            print "READING data_valid SUCCESFULLY COMPLETED"
+        except:
+            print "READING data_valid ERROR [get_data_valid_in_usersDB()]"
+            
+        try:
+            row=cursor.fetchone()
+            print row
+            data_valid =row[0]
+            print "FETCH in reading DONE"
+        except:
+            print "FETCH in reading FAILED"
+        
+        db.close()
+        return data_valid 
+    
+    def get_security_key_in_usersDB(self, station_id, place_id):
+        db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB") 
+        cursor = db.cursor()
+        
+        security_key = 'None'
+        
+        try:
+            select_security_key="SELECT username_code, pwd_code FROM users WHERE station_id='"+str(station_id)+"' and place_id='"+str(place_id)+"';"    
+            print select_security_key
+            cursor.execute(select_security_key)
+            print "READING security_key SUCCESFULLY COMPLETED"
+        except:
+            print "READING security_key ERROR [get_security_key_in_usersDB()]"
+            
+        try:
+            row=cursor.fetchone()
+            print row
+            security_key =row[0]+row[1]
+            print "FETCH in reading DONE"
+        except:
+            print "FETCH in reading FAILED"
+            
+        db.close()
+        return security_key 
+    
+    def get_lock_flag_from_station_place_id_in_usersDB(self, station_id, place_id):
+        db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB") 
+        cursor = db.cursor()
+        
+        try:
+            lock_flag="SELECT lock_flag FROM users WHERE station_id='"+str(station_id)+"' and place_id='"+str(place_id)+"';"    
+            cursor.execute(lock_flag)
+            print "READING lock_flag SUCCESFULLY COMPLETED"
+        except:
+            print "READING lock_flag ERROR [get_lock_flag_from_station_place_id_in_usersDB()]"
+            
+        try:
+            row=cursor.fetchone()
+            print row
+            lock_flag =row[0]
+            print "FETCH in reading DONE"
+        except:
+            print "FETCH in reading FAILED"
+            
+        db.close()
+        return lock_flag
+    
+    def get_data_vaid(self, security_key):
+        db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB") 
+        cursor = db.cursor()
+        
+        try:
+            search_sql="SELECT data_valid FROM station WHERE station_id='"+security_key+"';"    
+            cursor.execute(search_sql)
+            print "READING security_key SUCCESFULLY COMPLETED"
+        except:
+            print "READING security_key ERROR [get_security_key_in_stationDB()]"
+            
+        try:
+            row=cursor.fetchone()
+            print row
+            data_valid =row[0]
+            print "FETCH in reading DONE"
+        except:
+            print "FETCH in reading FAILED"
+        
+        db.close()
+        return data_valid
+    
+    def get_security_key_in_stationDB(self,station_id,place_id):
+        db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB") 
+        cursor = db.cursor()
+        
+        try:
+            search_sql="SELECT security_key FROM station WHERE station_id='"+str(station_id)+"' and place_id='"+str(place_id)+"';"    
+            cursor.execute(search_sql)
+            print "READING security_key SUCCESFULLY COMPLETED"
+        except:
+            print "READING security_key ERROR [get_security_key_in_stationDB()]"
+            
+        try:
+            row=cursor.fetchone()
+            print row
+            security_key =row[0]
+            print "FETCH in reading DONE"
+        except:
+            print "FETCH in reading FAILED"
+        
+        db.close()
+        return security_key
+    
+    def get_data_valid_from_station_place_id_in_usersDB(self, station_id, place_id):
+        db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB") 
+        cursor = db.cursor()
+        
+        try:
+            data_valid="SELECT data_valid FROM users WHERE station_id='"+str(station_id)+"' and place_id='"+str(place_id)+"';"    
+            cursor.execute(data_valid)
+            print "READING data_valid SUCCESFULLY COMPLETED"
+        except:
+            print "READING data_valid ERROR [get_data_valid_from_station_place_id_in_usersDB()]"
+            
+        try:
+            row=cursor.fetchone()
+            print row
+            data_valid =row[0]
+            print "FETCH in reading DONE"
+        except:
+            print "FETCH in reading FAILED"
+        db.close()
+        return data_valid
+    
     def set_lock_flag(self, security_key, all, lock_flag, read):
         db = MySQLdb.connect("localhost","root", "myBP", "myBP_DB")
         user_data={}   
@@ -60,9 +226,9 @@ class user:
                     print "UPDATING lock_flag ERROR [set_lock_flag]"
             else:
                 try:
-                    update_lock_flag="SELECT lock_flag FROM users WHERE username_code='"+security_key[0:25]+"' and pwd_code='"+security_key[25:50]+"';"    
-                    print update_lock_flag
-                    cursor.execute(update_lock_flag)
+                    select_lock_flag="SELECT lock_flag FROM users WHERE username_code='"+security_key[0:25]+"' and pwd_code='"+security_key[25:50]+"';"    
+                    print select_lock_flag
+                    cursor.execute(select_lock_flag)
                     print "READING lock_flag SUCCESFULLY COMPLETED"
                 except:
                     print "READING lock_flag ERROR [set_lock_flag]"
@@ -162,11 +328,13 @@ class user:
         user_data['registration_id']=registration_id
         # prepare a cursor object using cursor() method
         cursor = db.cursor()
-        insert_sql="INSERT INTO users VALUES ("+"'"+str(user_data['username_code'])+"','"+str(user_data['pwd_code'])+"',"+str(user_data['station_id'])+","+str(user_data['place_id'])+",'"+str(user_data['status'])+"','"+str(user_data['registration_id'])+"','"+str(user_data['error_str'])+"', '0', '0', '0');"
+        insert_sql="INSERT INTO users VALUES ('"+str(user_data['username_code'])+"','"+str(user_data['pwd_code'])+"','"+str(user_data['registration_id'])+"','"+str(user_data['status'])+"','"+str(user_data['station_id'])+"','"+str(user_data['place_id'])+"','0','0','"+str(user_data['error_str'])+"','1');"
         search_sql="SELECT username_code FROM users WHERE username_code='"+self.username_code+"'"
         print insert_sql
-        cursor.execute(search_sql)
-        
+        try:
+            cursor.execute(search_sql)
+        except:
+            print " PROBLEMA IN SEARCH SIGN UP"
         try:
             data=cursor.fetchone()
             print data
@@ -197,9 +365,9 @@ class user:
             
         try:
             security_key=cursor.fetchone()
-            print security_key
+            print "security_key fetched in controlPlace()"
         except:
-            print "unable to fetch data [controlPlace()]"
+            print "unable to fetch security_key [controlPlace()]"
             
         db.close()
         return security_key[0]
@@ -322,18 +490,32 @@ class user:
     
         db.close()
      
-    def search_place_id_station_id(self, station_id, place_id, security_key):
+    def get_status_from_stationDB(self, place_id, station_id):
         db = MySQLdb.connect("localhost", "root", "myBP", "myBP_DB")
         cursor = db.cursor()
         
+        status = -1
+        
         try:
-            update_sql = "SELECT place_id, station_id FROM users WHERE username_code='"+str(username_code)+"', pwd_code = '"+str(station_id)+"' WHERE username_code='"+security_key[0:25]+"' and pwd_code='"+security_key[25:50]+"';"
-            print update_sql
-            cursor.execute(update_sql)
-            db.commit()
-            print "UPDATE SET DONE IN set_place_station_id()"
+            search_status= "SELECT status FROM station WHERE place_id='"+str(place_id)+"' and station_id = '"+str(station_id)+"';"
+            print search_status
+            cursor.execute(search_status)
+            print "SELECT DONE in get_status_from_stationDB\n"
         except:
-            print "UPDATE SET FAILED IN set_place_station_id()"
+            print "SELECT FAILED in get_status_from_stationDB\n"
+        
+        try:
+            row=cursor.fetchone()
+            status = row[0]
+            print "FETCH DONE in get_status_from_stationDB\n"
+        except:
+            print "FETCH FAILED IN get_status_from_stationDB()\n"
+        db.close()
+        return status
+         
+    def search_place_id_station_id(self, station_id, place_id, security_key):
+        db = MySQLdb.connect("localhost", "root", "myBP", "myBP_DB")
+        cursor = db.cursor()
          
         try:
             search_sql="SELECT place_id, station_id FROM users WHERE username_code='"+security_key[0:25]+"' AND pwd_code='"+security_key[25:50]+"';"
@@ -352,7 +534,114 @@ class user:
         db.close()
         print parking_data
         return parking_data
+    
+    def set_user_place_station_id(self, security_key, place_id, station_id):
+        db = MySQLdb.connect("localhost", "root", "myBP", "myBP_DB")
+        cursor = db.cursor()
+        
+        try:
+            update_place_station_id = "UPDATE users SET place_id = '"+str(place_id)+"', station_id = '"+str(station_id)+"' WHERE username_code = '"+security_key[0:25]+"' and pwd_code = '"+security_key[25:50]+"';"
+            cursor.execute(update_place_station_id)
+            db.commit()
+            print "UPDATE place_id, station_id in set_user_place_station_id DONE"
+        except:
+            print "UPDATE place_id, station_id in set_user_place_station_id FAILED"
      
+        db.close()
+    
+    def set_data_valid(self, security_key, data_valid):
+        db = MySQLdb.connect("localhost", "root", "myBP", "myBP_DB")
+        cursor = db.cursor()
+        
+        print security_key
+        print data_valid
+        
+        update_data_valid = "UPDATE users SET data_valid = '"+str(data_valid)+"' WHERE username_code = '"+security_key[0:25]+"' and pwd_code = '"+security_key[25:50]+"';"
+        print update_data_valid
+            
+        try:
+            cursor.execute(update_data_valid)
+            db.commit()
+            print "UPDATE data_valid in set_data_valid() DONE"
+        except:
+            print "UPDATE data_valid in set_data_valid() FAILED"
+     
+        db.close()
+        
+    def set_status_in_usersDB(self, security_key, status):
+        db = MySQLdb.connect("localhost", "root", "myBP", "myBP_DB")
+        cursor = db.cursor()
+        
+        try:
+            update_sql = "UPDATE users SET status='"+str(status)+"' WHERE username_code ='"+security_key[0:25]+"' and pwd_code= '"+security_key[25:50]+"';"
+            cursor.execute(update_sql)
+            db.commit()
+        except:
+            print "UPDATE station in set_status_in_usersDB() FAILED"
+    
+        db.close()
+                
+    def set_status_in_stationDB(self, station_id, place_id, status):
+        db = MySQLdb.connect("localhost", "root", "myBP", "myBP_DB")
+        cursor = db.cursor()
+        
+        try:
+            update_sql = "UPDATE station SET status='"+str(status)+"' WHERE place_id ='"+str(place_id)+"' and station_id = '"+str(station_id)+"';"
+            print update_sql
+            cursor.execute(update_sql)
+            db.commit()
+        except:
+            print "UPDATE station in set_status_in_stationDB() FAILED"
+    
+        db.close()
+        
+    def set_unchangeable_in_stationDB(self, station_id, place_id):
+        db = MySQLdb.connect("localhost", "root", "myBP", "myBP_DB")
+        cursor = db.cursor()
+        
+        try:
+            update_sql = "UPDATE station SET security_key='UNCHANGEABLE', registration_id = 'UNCHANGEABLE' WHERE place_id ='"+str(place_id)+"' and station_id = '"+str(station_id)+"';"
+            cursor.execute(update_sql)
+            db.commit()
+        except:
+            print "UPDATE station in set_status_in_stationDB() FAILED"
+    
+        db.close()  
+        
+    def set_security_key_reg_id_in_stationDB(self, station_id, place_id, reset):
+        db = MySQLdb.connect("localhost", "root", "myBP", "myBP_DB")
+        cursor = db.cursor()
+        
+        if(reset==1):
+            try:
+                update_sql = "UPDATE station SET security_key = 'None', registration_id = 'None' WHERE place_id ='"+str(place_id)+"' and station_id = '"+str(station_id)+"';"
+                cursor.execute(update_sql)
+                db.commit()
+            except:
+                print "UPDATE station in set_security_key_reg_id_in_stationDB() FAILED"
+        else: 
+            try:
+                search_sql = "SELECT username_code, pwd_code, registration_id FROM users WHERE place_id ='"+str(place_id)+"' and station_id = '"+str(station_id)+"';"
+                cursor.execute(search_sql)
+            except:
+                print "SEARCH FAILED in set_security_key_reg_id_in_stationDB()"
+            
+            try:
+                row=cursor.fetchone()
+                security_key = row[0]+row[1]
+                registration_id = row[2]
+            except:
+                print "FETCH FAILED IN set_security_key_reg_id_in_stationDB()"
+                
+            try:
+                update_sql = "UPDATE station SET security_key = '"+security_key+"', registration_id = '"+registration_id+"' where place_id ='"+str(place_id)+"' and station_id = '"+str(station_id)+"';"
+                cursor.execute(update_sql)
+                db.commit()
+            except:
+                print "UPDATE station in set_security_key_reg_id_in_stationDB() FAILED"
+                
+        db.close()
+        
     def set_security_key_in_user(self, station_id, place_id, reset):
         db = MySQLdb.connect("localhost", "root", "myBP", "myBP_DB")
         cursor = db.cursor()
@@ -375,7 +664,7 @@ class user:
             pass
         elif(reset ==1):
             try:
-                update_sql = "UPDATE users SET place_id='"+str(place_id)+"', station_id = '"+str(station_id)+"', status= '0' WHERE security_key='"+security_key+"';"
+                update_sql = "UPDATE users SET place_id='"+str(place_id)+"', station_id = '"+str(station_id)+"', status= '0' WHERE username_code = '"+security_key[0:25]+"' and pwd_code = '"+security_key[25:50]+"';"
                 print update_sql
                 cursor.execute(update_sql)
                 db.commit()
@@ -385,7 +674,7 @@ class user:
             security_key = 'None'
         else:
             try:
-                update_sql = "UPDATE users SET place_id='-1', station_id = '-1', status= '0' WHERE security_key='"+security_key+"';"
+                update_sql = "UPDATE users SET place_id='-1', station_id = '-1', status= '0' WHERE username_code = '"+security_key[0:25]+"' and pwd_code = '"+security_key[25:50]+"';"
                 print update_sql
                 cursor.execute(update_sql)
                 db.commit()
