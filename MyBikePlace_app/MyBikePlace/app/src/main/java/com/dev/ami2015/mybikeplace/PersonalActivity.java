@@ -178,6 +178,7 @@ public class PersonalActivity extends ActionBarActivity {
                 userSettingsEditor.putString(getString(R.string.USER_REGID), null);
                 userSettingsEditor.putString(getString(R.string.USER_BIKE_STATION_ID), "-1");
                 userSettingsEditor.putString(getString(R.string.USER_BIKE_PLACE_ID), "-1");
+                //need to add NFC field
                 userSettingsEditor.commit();
                 Intent comeBackIntent = new Intent(this, SignInActivity.class);
                 startActivity(comeBackIntent);
@@ -202,11 +203,6 @@ public class PersonalActivity extends ActionBarActivity {
                 personalIntent.putExtra(SignInActivity.EXTRA_CALL_FROM, "noBikeOnMap");
                 startActivity(personalIntent);
                 return true;
-//            case R.id.action_clear_skip_checkbox:
-//                userSettingsEditor = userSettings.edit();
-//                userSettingsEditor.putBoolean(getString(R.string.USER_SKIP), false);
-//                userSettingsEditor.commit();
-//                return true;
             default:
                 return super.onOptionsItemSelected(item);
 
