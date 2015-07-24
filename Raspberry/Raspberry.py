@@ -7,6 +7,7 @@ import os
 import RPi.GPIO as GPIO
 import time, requests
 from MyUser import MyUser
+from Timing import Timing
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
@@ -16,14 +17,13 @@ def setup_pin(channel,green_led,red_led):
     GPIO.setup(channel ,GPIO.IN, pull_up_down=GPIO.PUD_UP) #ingresso interruttore con pull up place_id 
     GPIO.setup(green_led,GPIO.OUT) #GREEN LED place_id 
     GPIO.setup(red_led,GPIO.OUT) #RED LED place_id  
-    GPIO.add_event_detect(channel, GPIO.BOTH, handlerInterrupts, bouncetime=1000)
+    GPIO.add_event_detect(channel, GPIO.BOTH, handlerInterrupts, bouncetime=500)
 
 
 DIS_INT = 0
 
 tot_places=0
 place=[7,13,-1,-1,-1,-1,-1,-1,-1,-1]
-status=[0,0,0,0,0,0,0,0,0,0]
 green_led=[11,15,-1,-1,-1,-1,-1,-1,-1,-1]
 red_led=[12,16,-1,-1,-1,-1,-1,-1,-1,-1]
 system_on=36
@@ -31,11 +31,11 @@ stop_system=40
 restart_system=38
 
 station_id = 1 
-print status
 
 
 def start_system():
     global tot_places
+    global station_id
     objMyUser=MyUser()
     tot_places=0
     free_places=0
@@ -52,21 +52,42 @@ def start_system():
             GPIO.output(green_led[i],False)  
             GPIO.output(red_led[i],False)
             objMyUser.update_dbServer(int(not(GPIO.input(channel))),i, station_id)
-            status[i]=int(not(GPIO.input(channel)))
-            print status[i]
+            status=int(not(GPIO.input(channel)))
+            print status
             tot_places=tot_places+1
-            if(status[i]==0):
+            if(status==0):
                 free_places=free_places+1
+                objMyUser.reset_station(i, station_id)
         else:
             pass
     print tot_places
     print free_places    
     objMyUser.update_stationSpec(station_id,free_places,tot_places)
 
+def update_stationSpc():
+    global tot_places
+    global station_id
+    objMyUser=MyUser()
+    tot_places=0
+    free_places=0
+  
+    for i in range (0, 10):
+        channel=place[i]
+	print "Aggiornamento station_id: "+str(station_id)+ "--- place_id: "+str(i)
+        if(channel!=-1):
+            status=int(not(GPIO.input(channel)))
+            tot_places=tot_places+1
+            if(status==0):
+                free_places=free_places+1
+        else:
+            pass
+    objMyUser.update_stationSpec(station_id,free_places,tot_places)
+     
+
 def start_alarm(pin_out):
     print "allarme acceso"
     os.system('omxplayer -o local /home/pi/Desktop/allarmi/Alert.mp3 &')
-    GPIO.output(pin_out,True)
+    Timing.blinkLed(time.time(), 3, pinout)
     pass
 
 def stop_alarm(REDLED):
@@ -76,15 +97,12 @@ def stop_alarm(REDLED):
     pass
 
 def timer(START,elapsed):
-    global DIS_INT
-   
     time_now=time.time()
     
     while(time_now - START)< elapsed:
  	time_now=time.time()
-	DIS_INT = 1
 
-    DIS_INT = 0 
+    
 
 def blinker(START,elapsed,LED):
     flag=1
@@ -101,86 +119,99 @@ def blinker(START,elapsed,LED):
             i=i+1
     GPIO.output(LED,True)
 
-def handlerInterrupts(channel):
-    global DIS_INT
-    status = GPIO.input(channel)
-    print "DIS_INT"+ str(DIS_INT)
-    if (DIS_INT == 0): 
-        timer(time.time(),2)       
-        current_status = GPIO.input(channel)
-        if(current_status == status):
-            for i in range(0,tot_places):
-                if(channel==place[i]):
-                    check_and_lock(channel,green_led[i],red_led[i],i)
-                    break
-    else:
-        print "DISTRUGGO INTERRUPT"
-        pass
-    DIS_INT = 0
-
-
+def handlerInterrupts(channel):  
+    global station_id
+    objMyUser = MyUser()
+    
+    for i in range(0,tot_places):
+        if(channel==place[i]):
+            status_from_server = objMyUser.get_status(i, station_id)
+            print "status_from_server: "+str(int(status_from_server.json().get("status")))
+            print "status board: "+str(int(not(GPIO.input(channel))))
+            timer(time.time(), 4)
+            if(int(not(GPIO.input(channel)))!= status_from_server.json().get("status")):
+            	check_and_lock(channel,green_led[i],red_led[i],i)
+	    	break
+   
 def check_and_lock(pin_in, GREENLED, REDLED,  place_id):
     objMyUser=MyUser()
-    print 'checkLock'
-    print "status: "+str((GPIO.input(pin_in)))
+    print "checkLock"
+    print "status: "+str(not(GPIO.input(pin_in)))
     checker_securityKey = objMyUser.check_securityKey(place_id, station_id)
     print "security checker: "+str(checker_securityKey.json().get("security_checker"))
-    if 0==0:
-        if GPIO.input(pin_in)==False:   
-            blinker(time.time(),1,GREENLED)
-            status[place_id]=1
-	    return_procRqs = objMyUser.process_rqs(pin_in, GREENLED, REDLED, status[place_id], place_id, station_id, int(checker_securityKey.json().get("security_checker")))
-            print 'sono rpR '+str(return_procRqs)
+    
+    
+    if GPIO.input(pin_in)==False: 
+        print "Ho messo la bici"  
+        return_procRqs = objMyUser.process_rqs(pin_in, GREENLED, REDLED, int(not(GPIO.input(pin_in))), place_id, station_id, int(checker_securityKey.json().get("security_checker")))
+        #print 'sono rpR '+str(return_procRqs)
             
-        elif GPIO.input(pin_in)==True and int(checker_securityKey.json().get("security_checker"))==1:
-            GPIO.output(GREENLED, False)
-            timer(time.time(),5)
-            print " devo startare"
-            status[place_id] = 0
-            global DIS_INT
-   	    if objMyUser.process_rqs(pin_in, GREENLED, REDLED, status[place_id], place_id, station_id,int(checker_securityKey.json().get("security_checker")))==1:
-                start_alarm(REDLED)
-                #polling the server to know if the alarm can be stopped
-                stop=0
-                tim=0
-                while(stop != 1 and tim < 30):
-		    print "Polling"
-                    DIS_INT = 1
-		    response=objMyUser.rqst_stop(status[place_id], place_id, station_id)
-                    stop=int(response.json().get('stop_alarm'))
-                    print "stop dopo il polling e'"+str(stop)
-		    tim = tim + 1
-                    time.sleep(0.1)     #in this way it can be compute a time interval
+    elif GPIO.input(pin_in)==True and int(checker_securityKey.json().get("security_checker"))==1:
+        GPIO.output(GREENLED, False)
+        print " devo startare"
+        if objMyUser.process_rqs(pin_in, GREENLED, REDLED, int(not(GPIO.input(pin_in))), place_id, station_id,int(checker_securityKey.json().get("security_checker")))==1:
+            start_alarm(REDLED)
+            #polling the server to know if the alarm can be stopped
+            stop=0
+            tim=0
+            while(stop != 1 and tim < 30):
+   	        print "Polling"
+                
+    	        response=objMyUser.rqst_stop(int(not(GPIO.input(pin_in))), place_id, station_id)
+                stop=int(response.json().get('stop_alarm'))
+                print "stop dopo il polling e'"+str(stop)
+  	        tim = tim + 1
+                time.sleep(0.1)     #in this way it can be compute a time interval
             
-                stop_alarm(REDLED)
-                objMyUser.update_dbServer(status[place_id],place_id, station_id)
-                DIS_INT = 0
-        elif GPIO.input(pin_in)==True:
-            status[place_id] = 0
-	    GPIO.output(GREENLED, False)
-            blinker(time.time(),2 ,REDLED)
-            GPIO.output(REDLED, False)
-            objMyUser.process_rqs(pin_in, GREENLED, REDLED, status[place_id], place_id, station_id, int(checker_securityKey.json().get("security_checker")))
-            objMyUser.update_dbServer(0,place_id, station_id)   
-
+            stop_alarm(REDLED)
+            objMyUser.reset_after_alarm(int(not(GPIO.input(pin_in))),place_id, station_id)
+        else:
+            print "allarme non partito, bici tolta da utente"
+                
+    elif GPIO.input(pin_in)==True:
+        print "Ho tolto la bici non deve partire allarm"
+        GPIO.output(GREENLED, False)
+        GPIO.output(REDLED, False)
+        objMyUser.process_rqs(pin_in, GREENLED, REDLED, int(not(GPIO.input(pin_in))), place_id, station_id, int(checker_securityKey.json().get("security_checker")))
+        
 	
 
 try:
     start_system()
-    blinker(time.time(),1,system_on)
+    GPIO.output(system_on, True)
+    start_update=time.time()
     while 1:
         if(int(not(GPIO.input(stop_system)))==1):
             break
+        if((time.time()-start_update)>10):
+            update_stationSpc()
+            start_update=time.time()
         pass
-    
+
+
+except :
+    pass
+    print "hola"
+    GPIO.cleanup()
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(restart_system,GPIO.IN, pull_up_down=GPIO.PUD_UP) #ingresso interruttore restart
+    while 1:
+        if(int(not(GPIO.input(restart_system)))==1):
+            os.system('sudo python /home/pi/Desktop/Raspberry/Raspberry.py')
+            GPIO.output(system_on,flag)
+	    flag=flag^1
+
+
 finally:
     print "ciao"
     GPIO.cleanup()
-#    GPIO.setwarnings(False)
-#    GPIO.setmode(GPIO.BOARD)
-#    GPIO.setup(restart_system,GPIO.IN, pull_up_down=GPIO.PUD_UP) #ingresso interruttore restart
-#    while 1:
-#        if(int(not(GPIO.input(restart_system)))==1):
-#            os.system('sudo python /home/pi/Desktop/Raspberry/Raspberry.py')
-#        pass
-
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(restart_system,GPIO.IN, pull_up_down=GPIO.PUD_UP) #ingresso interruttore restart
+    while 1:
+        if(int(not(GPIO.input(restart_system)))==1):
+            os.system('sudo python /home/pi/Desktop/Raspberry/Raspberry.py')
+            GPIO.output(system_on,flag)
+	    flag=flag^1
+        pass

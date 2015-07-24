@@ -6,6 +6,7 @@ Created on 30/mag/2015
 '''
 import requests, json, time
 import RPi.GPIO as GPIO
+from Timing import Timing
 
 class MyUser():
 
@@ -16,26 +17,12 @@ class MyUser():
     def timer(self, START, elapsed):
    
         time_now=time.time()
-    	print "prima del while in timer"
+    	
     	while((time_now - START)< elapsed):
-		print "elapsed:"+str(elapsed)
-		print time_now
+		
  		time_now=time.time()
 
-    def blinkLed(self, START,elapsed,LED):
-    	flag=1
-    
-    	DELTA = 10
-    	time_now=time.time()
-        
-    	while(time_now - START)< elapsed:
-	    i=0
-	    time_now=time.time()
-	    GPIO.output(LED,flag)
-            flag=flag^1
-            while(i< DELTA):
-                i=i+1
-        GPIO.output(LED,True)
+    #QUI C E BLINKER
 
     def process_rqs(self, pin_in, GREENLED, REDLED, status, place_id, station_id, security_checker):
         alarm = 0
@@ -46,31 +33,24 @@ class MyUser():
             time_now = time.time()
             print time_now
             self.timer(time_now, wait)
-	    self.blinkLed(time.time(), 0, GREENLED)
+	    Timing.blinkLed(time.time(), 3, GREENLED)
 	    print GPIO.input(pin_in)
             if GPIO.input(pin_in) == False:
                 self.lock_rqst(status, place_id, station_id)
-                self.update_dbServer(status,place_id, station_id)
-            else:
-                
+            else: 
                 pass
         else:
             print str(status)+ '   ho tolto la bici'
-            self.blinkLed(time.time(), 1, REDLED)
+            Timing.blinkLed(time.time(), 3, REDLED)
             GPIO.output(REDLED, False)
-            response = self.steal_cntrl(status, place_id, station_id)
+            response = self.steal_cntrl(status, place_id, station_id).json().get("alarm")
+            if(response.lower()=="alarm"):
+                alarm=1
+            else:
+                alarm=0
+
             self.lock_rqst(status, place_id, station_id)
-            if int(response.json().get("station_id")) == -1 or int(response.json().get("place_id")) == -1:
-                alarm = 1
-		print response.json().get("station_id")
-            elif (security_checker == 1): 
-                alarm = 0
-                print 'station_id' +str(response.json().get("station_id"))
-                #self.lock_rqst(status, place_id, station_id)
-                self.update_dbServer(status, place_id, station_id)
-	    else:
-                self.update_dbServer(status, place_id, station_id)
-        print "alarm "+str(alarm)        
+                  
         return alarm
     
     def lock_rqst(self, status, place_id, station_id):
@@ -110,8 +90,33 @@ class MyUser():
 
     def update_stationSpec(self, station_id,free_places,tot_places):
         url     = "http://10.42.0.1:7000/myBP_server/users/update_stationSpec"  
-        payload = { 'station_id': str(station_id), 'free_places': str(free_places), 'tot_places': str(tot_places) }
+        payload = { 'station_id': str(station_id), 'free_places': str(free_places), 'tot_places': str(tot_places)}
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         print payload
 	response = requests.post(url, data=json.dumps(payload), headers = headers) 
-        return response              
+        return response   
+    
+    def reset_after_alarm(self, status,place_id, station_id):
+        url     = "http://10.42.0.1:7000/myBP_server/users/reset_after_alarm"  
+        payload = { 'station_id': str(station_id), 'place_id': str(place_id), 'status': str(status) }
+        headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+        print payload
+	response = requests.post(url, data=json.dumps(payload), headers = headers) 
+        return response
+ 
+    def reset_station(self,place_id, station_id):
+        url     = "http://10.42.0.1:7000/myBP_server/users/reset_station"  
+        payload = { 'station_id': str(station_id), 'place_id': str(place_id) }
+        headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+        print payload
+	response = requests.post(url, data=json.dumps(payload), headers = headers) 
+        return response
+
+    def get_status(self,place_id, station_id):
+        url     = "http://10.42.0.1:7000/myBP_server/users/get_status_from_raspberry"  
+        payload = { 'station_id': str(station_id), 'place_id': str(place_id) }
+        headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+        print payload
+	response = requests.post(url, data=json.dumps(payload), headers = headers) 
+        return response          
+    
