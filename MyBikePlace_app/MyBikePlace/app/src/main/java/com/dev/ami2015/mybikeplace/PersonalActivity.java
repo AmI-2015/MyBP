@@ -301,12 +301,14 @@ public class PersonalActivity extends ActionBarActivity {
             case 0: //MyPU not locked-in
                 myPUBikeStatus.setText("Not Locked-in");
                 myPUBikeStatus.setTextColor(getResources().getColor(R.color.orange));
-                myBPStationNumber.setText("null");
+                myBPStationNumber.setText("");
                 myBPStationNumber.setTextColor(getResources().getColor(R.color.black));
                 myBPStationNumber.setEnabled(true);
-                myBPStationPlace.setText("null");
+                myBPStationNumber.setHint("null");
+                myBPStationPlace.setText("");
                 myBPStationPlace.setTextColor(getResources().getColor(R.color.black));
                 myBPStationPlace.setEnabled(true);
+                myBPStationPlace.setHint("null");
                 break;
             case 1: //MyPU locked-in, in this condition user cannot modify value of Station id and Place id
                 myPUBikeStatus.setText("Locked-in");
