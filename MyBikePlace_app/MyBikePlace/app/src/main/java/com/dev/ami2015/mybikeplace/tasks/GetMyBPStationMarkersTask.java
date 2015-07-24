@@ -65,8 +65,8 @@ public class GetMyBPStationMarkersTask extends AsyncTask</*params*/ Void, /*prog
     protected void onPostExecute(ArrayList<MyBPStationMarker> myBPStationMarkers) {
         super.onPostExecute(myBPStationMarkers);
 
-        parentActivity.setAllMyBPStationMarkerInMap(parentActivity.getMap(), myBPStationMarkers);
         parentActivity.myBPStationMarkers = myBPStationMarkers;
+        parentActivity.setAllMyBPStationMarkerInMap(parentActivity.getMap(), myBPStationMarkers);
 
         if(parentActivity.showMyStation) {
             parentActivity.ShowMyStation(parentActivity.stationId);
