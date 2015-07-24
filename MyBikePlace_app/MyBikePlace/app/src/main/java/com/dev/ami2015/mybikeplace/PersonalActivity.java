@@ -228,7 +228,9 @@ public class PersonalActivity extends ActionBarActivity {
         {
             myPUBikeStatus.setText("BIKE ALARM");
             myPUBikeStatus.setTextColor(Color.RED);
+            myBPStationNumber.setTextColor(Color.RED);
             myBPStationNumber.setEnabled(false);
+            myBPStationPlace.setTextColor(Color.RED);
             myBPStationPlace.setEnabled(false);
         }
         else {

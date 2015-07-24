@@ -3,6 +3,7 @@ package com.dev.ami2015.mybikeplace.tasks;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.widget.Button;
 
@@ -63,7 +64,7 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-
+        //set field in personal activity with wait status
         parentActivity.ManagePollingState();
     }
 
@@ -136,7 +137,7 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
         try {
 
             URL url = new URL(myurl);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
 
             //create Json object to send inside POST request
@@ -161,10 +162,6 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
             wr.write(MyPUInfoSendedJson.toString());
 
             wr.flush();
-
-
-//            // Starts the query
-//            conn.connect();
 
             // Get the HTTP response
             int responseCode = conn.getResponseCode();
@@ -208,9 +205,6 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
 
             JSONObject MyPUInfoReceivedJson = JsonResponse;
 
-//            //debug code
-//            MyPUInfoReceivedJson.put("data_valid", "0");
-
             //Check data-valid from server
             if(MyPUInfoReceivedJson.getString("data_valid").equals("1")){
                 //the received data are valid
@@ -241,19 +235,22 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
 
     public void PollingRequest() throws IOException {
 
-        while (endPolling == false){
+        while (endPolling == false) {
 
             try {
 
+                //Wait for 1 sec
+                Thread.sleep(1000);
+
+                //Make Request to server
                 JSONObject JsonResponse = this.MakePostRequestToMyBPServer(MYBPSERVER_GET_INFO_URL);
                 this.ManageReceivedJson(JsonResponse);
 
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-
         }
-
-
     }
 }
