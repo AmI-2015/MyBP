@@ -62,11 +62,16 @@ public class MakeLockInRequest extends AsyncTask<Void, Void, Void>  {
         // params comes from the execute() call: params[0] is the url.
         try {
 
-            MakePostRequestToMyBPServer(MYBPSERVER_LOCK_IN_URL);
+            JSONObject LockInResultJson = MakePostRequestToMyBPServer(MYBPSERVER_LOCK_IN_URL);
+            String LockInResult = LockInResultJson.getString("end");
 
-//            JSONObject LockInResultJson = MakePostRequestToMyBPServer(MYBPSERVER_LOCK_IN_URL);
-//
-//            //theoretically useless, the LockIn request just has to start lock-in procedure, GetUsersInfoTask determinate the real status
+
+//            if (LockInResult.equals("1"))
+//                //no error;
+//            else
+//                //error;
+
+            //the rest is theoretically useless, the LockIn request just has to start lock-in procedure, GetUsersInfoTask determinate the real status
 //
 //            //save obtained data from MYBPSERVER
 //            lockInStationIDResult = LockInResultJson.getString("station_id");
@@ -90,6 +95,8 @@ public class MakeLockInRequest extends AsyncTask<Void, Void, Void>  {
 //
         } catch (IOException e) {
             return null;
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
         return null;
     }
@@ -103,9 +110,11 @@ public class MakeLockInRequest extends AsyncTask<Void, Void, Void>  {
 
     }
 
-    public void MakePostRequestToMyBPServer(String myurl) throws IOException {
+    public JSONObject MakePostRequestToMyBPServer(String myurl) throws IOException {
 
+        InputStream is = null;
         JSONObject lockInRequestJson = null;
+        JSONObject lockInResultJson = null;
 
         try {
 
@@ -114,15 +123,14 @@ public class MakeLockInRequest extends AsyncTask<Void, Void, Void>  {
 
 
             //create Json object to send inside POST request
-            lockInRequestJson = new JSONObject();
+            lockInRequestJson  = new JSONObject();
 
             lockInRequestJson.put("station_id", lockInStationID);
             lockInRequestJson.put("place_id", lockInPlaceID);
             lockInRequestJson.put("security_key", userSettings.getString(this.parentActivity.getString(R.string.USER_USER_CODE), null /*default value*/) +
                     userSettings.getString(this.parentActivity.getString(R.string.USER_PWD_CODE), null /*default value*/));
             lockInRequestJson.put("registration_id", userSettings.getString(this.parentActivity.getString(R.string.USER_REGID), null /*default value*/));
-            lockInRequestJson.put("lock", "1");
-
+            lockInRequestJson.put("lock_flag", "1"); //indico operazione di lockin
 
             // Set request nature and parameters
             conn.setRequestMethod("POST");
@@ -139,88 +147,40 @@ public class MakeLockInRequest extends AsyncTask<Void, Void, Void>  {
 
             wr.flush();
 
-            //Get the HTTP response
+
+            // Get the HTTP response
             int responseCode = conn.getResponseCode();
             Log.d(DEBUG_TAG, "The response is: " + responseCode);
+            is = conn.getInputStream();
 
+            // Convert the HTTP response (InputStream) into a string
+            BufferedReader in = new BufferedReader(new InputStreamReader(is));
 
-        } catch (IOException | JSONException e) {
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+
+            //close the stream
+            is.close();
+            in.close();
+
+            // Convert the string response into a JSONObject
+
+            lockInResultJson = new JSONObject(response.toString());
+
+        } catch (IOException | JSONException e){
             e.printStackTrace();
+            return null;
+        } finally {
+            if (is != null) {
+                is.close();
+            }
         }
+
+        return lockInResultJson;
+
     }
-
-
-//    public JSONObject MakePostRequestToMyBPServer(String myurl) throws IOException {
-//
-//        InputStream is = null;
-//        JSONObject lockInRequestJson = null;
-//        JSONObject lockInResultJson = null;
-//
-//        try {
-//
-//            URL url = new URL(myurl);
-//            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-//
-//
-//            //create Json object to send inside POST request
-//            lockInRequestJson  = new JSONObject();
-//
-//            lockInRequestJson.put("station_id", lockInStationID);
-//            lockInRequestJson.put("place_id", lockInPlaceID);
-//            lockInRequestJson.put("security_key", userSettings.getString(this.parentActivity.getString(R.string.USER_USER_CODE), null /*default value*/) +
-//                    userSettings.getString(this.parentActivity.getString(R.string.USER_PWD_CODE), null /*default value*/));
-//            lockInRequestJson.put("registration_id", userSettings.getString(this.parentActivity.getString(R.string.USER_REGID), null /*default value*/));
-//
-//
-//            // Set request nature and parameters
-//            conn.setRequestMethod("POST");
-//            conn.setDoOutput(true);
-//            conn.setDoInput(true);
-//            conn.setInstanceFollowRedirects(false);
-//            conn.setUseCaches(false);
-//            conn.setRequestProperty("Content-Type", "application/json");
-//            conn.setRequestProperty("Accept", "application/json");
-//
-//            //write json inside request
-//            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-//            wr.write(lockInRequestJson.toString());
-//
-//            wr.flush();
-//
-//
-//            // Get the HTTP response
-//            int responseCode = conn.getResponseCode();
-//            Log.d(DEBUG_TAG, "The response is: " + responseCode);
-//            is = conn.getInputStream();
-//
-//            // Convert the HTTP response (InputStream) into a string
-//            BufferedReader in = new BufferedReader(new InputStreamReader(is));
-//
-//            String inputLine;
-//            StringBuffer response = new StringBuffer();
-//
-//            while ((inputLine = in.readLine()) != null) {
-//                response.append(inputLine);
-//            }
-//
-//            //close the stream
-//            is.close();
-//            in.close();
-//
-//            // Convert the string response into a JSONObject
-//
-//            lockInResultJson = new JSONObject(response.toString());
-//
-//        } catch (IOException | JSONException e){
-//            e.printStackTrace();
-//            return null;
-//        } finally {
-//            if (is != null) {
-//                is.close();
-//            }
-//        }
-//
-//        return lockInResultJson;
-//
-//    }
 }

@@ -73,6 +73,7 @@
                 android:id="@+id/bikeStatusStationNumber"
                 android:layout_weight="1"
                 android:textColor="#000000"
+                android:numeric="integer"
                 android:gravity="center_horizontal"/>
 
         </TableRow>
@@ -94,6 +95,7 @@
                 android:id="@+id/bikeStatusPlaceNumber"
                 android:layout_weight="1"
                 android:textColor="#000000"
+                android:numeric="integer"
                 android:gravity="center_horizontal"/>
 
         </TableRow>

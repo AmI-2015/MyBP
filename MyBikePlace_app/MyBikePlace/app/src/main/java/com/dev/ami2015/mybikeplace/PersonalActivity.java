@@ -178,6 +178,7 @@ public class PersonalActivity extends ActionBarActivity {
                 userSettingsEditor.putString(getString(R.string.USER_REGID), null);
                 userSettingsEditor.putString(getString(R.string.USER_BIKE_STATION_ID), "-1");
                 userSettingsEditor.putString(getString(R.string.USER_BIKE_PLACE_ID), "-1");
+                //need to add NFC field
                 userSettingsEditor.commit();
                 Intent comeBackIntent = new Intent(this, SignInActivity.class);
                 startActivity(comeBackIntent);
@@ -202,11 +203,6 @@ public class PersonalActivity extends ActionBarActivity {
                 personalIntent.putExtra(SignInActivity.EXTRA_CALL_FROM, "noBikeOnMap");
                 startActivity(personalIntent);
                 return true;
-//            case R.id.action_clear_skip_checkbox:
-//                userSettingsEditor = userSettings.edit();
-//                userSettingsEditor.putBoolean(getString(R.string.USER_SKIP), false);
-//                userSettingsEditor.commit();
-//                return true;
             default:
                 return super.onOptionsItemSelected(item);
 
@@ -230,19 +226,17 @@ public class PersonalActivity extends ActionBarActivity {
         //Intent i = new Intent(this, PersonalActivity.class);
         if(alarm == 1)
         {
-            myBPStationNumber.setText("BIKE ALARM");
+            myPUBikeStatus.setText("BIKE ALARM");
+            myPUBikeStatus.setTextColor(Color.RED);
             myBPStationNumber.setTextColor(Color.RED);
             myBPStationNumber.setEnabled(false);
+            myBPStationPlace.setTextColor(Color.RED);
             myBPStationPlace.setEnabled(false);
         }
         else {
 
             new GetUsersInfoTask(this).execute();
 
-//            myBPStationNumber.setText("BIKE DISLOCKED");
-//            myBPStationNumber.setTextColor(Color.GREEN);
-//            myBPStationNumber.setKeyListener(null);
-//            myBPStationPlace.setKeyListener(null);
         }
     }
 
@@ -309,12 +303,16 @@ public class PersonalActivity extends ActionBarActivity {
             case 0: //MyPU not locked-in
                 myPUBikeStatus.setText("Not Locked-in");
                 myPUBikeStatus.setTextColor(getResources().getColor(R.color.orange));
-                myBPStationNumber.setText("null");
+                myBPStationNumber.setText("");
                 myBPStationNumber.setTextColor(getResources().getColor(R.color.black));
                 myBPStationNumber.setEnabled(true);
-                myBPStationPlace.setText("null");
+                myBPStationNumber.setHint("null");
+                myBPStationNumber.setHintTextColor(getResources().getColor(R.color.hint_foreground_material_light));
+                myBPStationPlace.setText("");
                 myBPStationPlace.setTextColor(getResources().getColor(R.color.black));
                 myBPStationPlace.setEnabled(true);
+                myBPStationPlace.setHint("null");
+                myBPStationPlace.setHintTextColor(getResources().getColor(R.color.hint_foreground_material_light));
                 break;
             case 1: //MyPU locked-in, in this condition user cannot modify value of Station id and Place id
                 myPUBikeStatus.setText("Locked-in");
@@ -338,9 +336,24 @@ public class PersonalActivity extends ActionBarActivity {
             String stationId = myBPStationNumber.getText().toString();
             String placeId = myBPStationPlace.getText().toString();
 
-            //Make a Lock-In request to MYBPSERVER
-            new MakeLockInRequest(this, stationId, placeId).execute();
+            if(stationId.equals("") || placeId.equals("")){
+                //NO bike parking inserted
+                Toast.makeText(PersonalActivity.this, "Insert Parking Data!", Toast.LENGTH_LONG).show();
+                // allert user
+                myBPStationNumber.setHint("null");
+                myBPStationNumber.setHintTextColor(getResources().getColor(R.color.red));
+                myBPStationPlace.setHint("null");
+                myBPStationPlace.setHintTextColor(getResources().getColor(R.color.red));
+            } else {
 
+                //Make a Lock-In request to MYBPSERVER
+                new MakeLockInRequest(this, stationId, placeId).execute();
+
+            }
+
+        } else {
+            //bike already locked
+            Toast.makeText(PersonalActivity.this, "Bike already Locked", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -357,6 +370,9 @@ public class PersonalActivity extends ActionBarActivity {
             //Make a Lock-Out request to MYBPSERVER
             new MakeLockOutRequest(this, stationId, placeId).execute();
 
+        } else {
+            //no bike locked
+            Toast.makeText(PersonalActivity.this, "No Bike Locked", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -373,6 +389,10 @@ public class PersonalActivity extends ActionBarActivity {
             intent.putExtra(EXTRA_STATION_ID, stationId);
             intent.putExtra(SignInActivity.EXTRA_CALL_FROM, "PersonalActivity");
             startActivity(intent);
+
+        } else {
+            //no bike locked
+            Toast.makeText(PersonalActivity.this, "No Bike Locked", Toast.LENGTH_LONG).show();
 
         }
 

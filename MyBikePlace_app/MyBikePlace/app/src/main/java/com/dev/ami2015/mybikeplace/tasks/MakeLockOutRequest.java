@@ -60,35 +60,16 @@ public class MakeLockOutRequest extends AsyncTask<Void, Void, Void> {
         // params comes from the execute() call: params[0] is the url.
         try {
 
-            MakePostRequestToMyBPServer(MYBPSERVER_LOCK_OUT_URL);
+            JSONObject LockOutResultJson = MakePostRequestToMyBPServer(MYBPSERVER_LOCK_OUT_URL);
 
-//            JSONObject LockOutResultJson = MakePostRequestToMyBPServer(MYBPSERVER_LOCK_OUT_URL);
-
-//            //save obtained data from MYBPSERVER
-//            lockOutStationIDResult = LockOutResultJson.getString("station_id");
-//            lockOutPlaceIDResult = LockOutResultJson.getString("place_id");
-//
-//            if (!lockOutStationIDResult.equals("-1") || !lockOutPlaceIDResult.equals("-1")){
-//                //error from server, MyPU not unlocked
-//                userSettingsEditor = userSettings.edit();
-//                userSettingsEditor.putInt(parentActivity.getString(R.string.USER_STATUS), -1);
-//                userSettingsEditor.commit();
-//            } else if (lockOutStationIDResult.equals("-1") && lockOutPlaceIDResult.equals("-1")){
-//                //lock-out procedure successful
-//                userSettingsEditor = userSettings.edit();
-//                userSettingsEditor.putInt(parentActivity.getString(R.string.USER_STATUS), 0);
-//                userSettingsEditor.putString(parentActivity.getString(R.string.USER_BIKE_STATION_ID), "-1");
-//                userSettingsEditor.putString(parentActivity.getString(R.string.USER_BIKE_PLACE_ID), "-1");
-//                userSettingsEditor.commit();
-//            }
-//
+            String LockOutResult = LockOutResultJson.getString("end");
 
         } catch (IOException e) {
             return null;
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
+
         return null;
     }
 
@@ -108,9 +89,11 @@ public class MakeLockOutRequest extends AsyncTask<Void, Void, Void> {
     }
 
 
-    public void MakePostRequestToMyBPServer(String myurl) throws IOException {
+    public JSONObject MakePostRequestToMyBPServer(String myurl) throws IOException {
 
+        InputStream is = null;
         JSONObject lockOutRequestJson = null;
+        JSONObject lockOutResultJson = null;
 
         try {
 
@@ -126,7 +109,7 @@ public class MakeLockOutRequest extends AsyncTask<Void, Void, Void> {
             lockOutRequestJson.put("security_key", userSettings.getString(this.parentActivity.getString(R.string.USER_USER_CODE), null /*default value*/) +
                     userSettings.getString(this.parentActivity.getString(R.string.USER_PWD_CODE), null /*default value*/));
             lockOutRequestJson.put("registration_id", userSettings.getString(this.parentActivity.getString(R.string.USER_REGID), null /*default value*/));
-            lockOutRequestJson.put("lock", "-1");
+            lockOutRequestJson.put("lock_flag", "-1");
 
             // Set request nature and parameters
             conn.setRequestMethod("POST");
@@ -143,88 +126,41 @@ public class MakeLockOutRequest extends AsyncTask<Void, Void, Void> {
 
             wr.flush();
 
-            //Get the HTTP response
+
+            // Get the HTTP response
             int responseCode = conn.getResponseCode();
             Log.d(DEBUG_TAG, "The response is: " + responseCode);
+            is = conn.getInputStream();
 
+            // Convert the HTTP response (InputStream) into a string
+            BufferedReader in = new BufferedReader(new InputStreamReader(is));
+
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+
+            //close the stream
+            is.close();
+            in.close();
+
+            // Convert the string response into a JSONObject
+
+            lockOutResultJson = new JSONObject(response.toString());
 
         } catch (IOException | JSONException e){
             e.printStackTrace();
+            return null;
+        } finally {
+            if (is != null) {
+                is.close();
+            }
         }
-    }
 
-//    public JSONObject MakePostRequestToMyBPServer(String myurl) throws IOException {
-//
-//        InputStream is = null;
-//        JSONObject lockOutRequestJson = null;
-//        JSONObject lockOutResultJson = null;
-//
-//        try {
-//
-//            URL url = new URL(myurl);
-//            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-//
-//
-//            //create Json object to send inside POST request
-//            lockOutRequestJson  = new JSONObject();
-//
-//            lockOutRequestJson.put("station_id", lockOutStationID);
-//            lockOutRequestJson.put("place_id", lockOutPlaceID);
-//            lockOutRequestJson.put("security_key", userSettings.getString(this.parentActivity.getString(R.string.USER_USER_CODE), null /*default value*/) +
-//                    userSettings.getString(this.parentActivity.getString(R.string.USER_PWD_CODE), null /*default value*/));
-//            lockOutRequestJson.put("registration_id", userSettings.getString(this.parentActivity.getString(R.string.USER_REGID), null /*default value*/));
-//
-//
-//            // Set request nature and parameters
-//            conn.setRequestMethod("POST");
-//            conn.setDoOutput(true);
-//            conn.setDoInput(true);
-//            conn.setInstanceFollowRedirects(false);
-//            conn.setUseCaches(false);
-//            conn.setRequestProperty("Content-Type", "application/json");
-//            conn.setRequestProperty("Accept", "application/json");
-//
-//            //write json inside request
-//            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-//            wr.write(lockOutRequestJson.toString());
-//
-//            wr.flush();
-//
-//
-//            // Get the HTTP response
-//            int responseCode = conn.getResponseCode();
-//            Log.d(DEBUG_TAG, "The response is: " + responseCode);
-//            is = conn.getInputStream();
-//
-//            // Convert the HTTP response (InputStream) into a string
-//            BufferedReader in = new BufferedReader(new InputStreamReader(is));
-//
-//            String inputLine;
-//            StringBuffer response = new StringBuffer();
-//
-//            while ((inputLine = in.readLine()) != null) {
-//                response.append(inputLine);
-//            }
-//
-//            //close the stream
-//            is.close();
-//            in.close();
-//
-//            // Convert the string response into a JSONObject
-//
-//            lockOutResultJson = new JSONObject(response.toString());
-//
-//        } catch (IOException | JSONException e){
-//            e.printStackTrace();
-//            return null;
-//        } finally {
-//            if (is != null) {
-//                is.close();
-//            }
-//        }
-//
-//        return lockOutResultJson;
-//
-//    }
+        return lockOutResultJson;
+
+    }
 }
 

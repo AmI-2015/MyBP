@@ -77,8 +77,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
-        //load all the room markers with an asyncTask
-        new GetRoomMarkersTask(this).execute();
+        //still not used cause we don't have calendar task
+//        //load all the room markers with an asyncTask
+//        new GetRoomMarkersTask(this).execute();
 
         //load all the MyBP Stations markers with an asyncTask
         new GetMyBPStationMarkersTask(this).execute();
@@ -101,7 +102,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         switch(id){
 
-            case R.id.action_settings:
+            case R.id.action_update_map:
+                this.updateMyBPStationOnMap();
                 return true;
             case R.id.action_mybp_station_next_to_me:
                 ShowNearestMyBPStationToMe();
@@ -347,5 +349,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         return googleMap;
     }
 
+    //invoked to update MyBPStation status on map
+    public void updateMyBPStationOnMap(){
+
+        //load all the MyBP Stations markers with an asyncTask
+        new GetMyBPStationMarkersTask(this).execute();
+
+    }
 
 }

@@ -3,6 +3,7 @@ package com.dev.ami2015.mybikeplace.tasks;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.widget.Button;
 
@@ -63,39 +64,12 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-
+        //set field in personal activity with wait status
         parentActivity.ManagePollingState();
     }
 
     @Override
     protected Void doInBackground(Void... params) {
-
-//        try {
-//
-//            JSONObject MyPUInfoReceivedJson = MakePostRequestToMyBPServer(MYBPSERVER_GET_INFO_URL);
-//
-//            //save obtained data
-//            myPUStationNumber = MyPUInfoReceivedJson.getString("station_id");
-//            myPUStationPlace = MyPUInfoReceivedJson.getString("place_id");
-//            switch(MyPUInfoReceivedJson.getString("status")){
-//                case "0":
-//                    myPUStatus = 0; //user with no yet bike locked
-//                    break;
-//                case "1":
-//                    myPUStatus = 1; //user with bike already locked
-//                    break;
-//                default:
-//                    myPUStatus = -1; //error -1
-//                    break;
-//            }
-//
-//
-//        } catch (IOException e) {
-//            return null;
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
 
         try {
             this.PollingRequest();
@@ -112,7 +86,7 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
     protected void onPostExecute(Void v) {
         super.onPostExecute(v);
 
-        //set preference file
+        //set preference file with the valid data
         userSettingsEditor.putString(this.parentActivity.getString(R.string.USER_BIKE_STATION_ID), myPUStationNumber);
         userSettingsEditor.putString(this.parentActivity.getString(R.string.USER_BIKE_PLACE_ID), myPUStationPlace);
         userSettingsEditor.putInt(this.parentActivity.getString(R.string.USER_STATUS), myPUStatus);
@@ -129,22 +103,27 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
         //Invoke checkStatus Method from PersonalActivity
         parentActivity.checkMyPUStatus();
 
-//        //manage NFC action
-//        if(userSettings.getBoolean(parentActivity.getString(R.string.USER_NFC_ACTIVATION), false)){
-//            //if nfc is detected check user status and decide to perform sign in or lock in
-//            if(userSettings.getInt(parentActivity.getString(R.string.USER_STATUS), 0) == 1) {
-//                //user locked-in => perform lock-out
-//                Button lockOut = (Button) parentActivity.findViewById(R.id.buttonLockOut);
-//                lockOut.performClick();
-//            } else if (userSettings.getInt(parentActivity.getString(R.string.USER_STATUS), 0) == 0){
-//                //user locked-out => perform lock-in
-//                parentActivity.myBPStationNumber.setText(userSettings.getString(parentActivity.getString(R.string.USER_NFC_STATION_ID), null));
-//                parentActivity.myBPStationPlace.setText(userSettings.getString(parentActivity.getString(R.string.USER_NFC_PLACE_ID), null));
-//                //user locked-in => perform lock-out
-//                Button lockIn= (Button) parentActivity.findViewById(R.id.buttonLockIn);
-//                lockIn.performClick();
-//            }
-//        }
+        //manage NFC action when data are valid
+        if(userSettings.getBoolean(parentActivity.getString(R.string.USER_NFC_ACTIVATION), false)){
+            // Disable NFC activation flag
+            userSettingsEditor = userSettings.edit();
+            userSettingsEditor.putBoolean(parentActivity.getString(R.string.USER_NFC_ACTIVATION), false);
+            userSettingsEditor.commit();
+
+            // if nfc is detected first check user status and decide to perform sign in or lock in
+            if(userSettings.getInt(parentActivity.getString(R.string.USER_STATUS), 0) == 1) {
+                //user locked-in => perform lock-out
+                Button lockOut = (Button) parentActivity.findViewById(R.id.buttonLockOut);
+                lockOut.performClick();
+            } else if (userSettings.getInt(parentActivity.getString(R.string.USER_STATUS), 0) == 0){
+                //user locked-out => perform lock-in
+                parentActivity.myBPStationNumber.setText(userSettings.getString(parentActivity.getString(R.string.USER_NFC_STATION_ID), null));
+                parentActivity.myBPStationPlace.setText(userSettings.getString(parentActivity.getString(R.string.USER_NFC_PLACE_ID), null));
+
+                Button lockIn= (Button) parentActivity.findViewById(R.id.buttonLockIn);
+                lockIn.performClick();
+            }
+        }
 
     }
 
@@ -158,7 +137,7 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
         try {
 
             URL url = new URL(myurl);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
 
             //create Json object to send inside POST request
@@ -183,10 +162,6 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
             wr.write(MyPUInfoSendedJson.toString());
 
             wr.flush();
-
-
-//            // Starts the query
-//            conn.connect();
 
             // Get the HTTP response
             int responseCode = conn.getResponseCode();
@@ -230,9 +205,6 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
 
             JSONObject MyPUInfoReceivedJson = JsonResponse;
 
-//            //debug code
-//            MyPUInfoReceivedJson.put("data_valid", "0");
-
             //Check data-valid from server
             if(MyPUInfoReceivedJson.getString("data_valid").equals("1")){
                 //the received data are valid
@@ -244,7 +216,7 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
                 myPUStationPlace = MyPUInfoReceivedJson.getString("place_id");
                 switch(MyPUInfoReceivedJson.getString("status")){
                     case "0":
-                        myPUStatus = 0; //user with no yet bike locked
+                        myPUStatus = 0; //user with bike no yet locked
                         break;
                     case "1":
                         myPUStatus = 1; //user with bike already locked
@@ -263,19 +235,22 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
 
     public void PollingRequest() throws IOException {
 
-        while (endPolling == false){
+        while (endPolling == false) {
 
             try {
 
+                //Wait for 1 sec
+                Thread.sleep(1000);
+
+                //Make Request to server
                 JSONObject JsonResponse = this.MakePostRequestToMyBPServer(MYBPSERVER_GET_INFO_URL);
                 this.ManageReceivedJson(JsonResponse);
 
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-
         }
-
-
     }
 }
