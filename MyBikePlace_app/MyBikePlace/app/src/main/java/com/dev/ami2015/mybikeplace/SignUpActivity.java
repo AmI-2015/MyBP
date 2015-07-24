@@ -43,6 +43,8 @@ public class SignUpActivity extends ActionBarActivity {
     public String username = null;
     public String password = null;
 
+    MyTransformation transf = new MyTransformation();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +55,7 @@ public class SignUpActivity extends ActionBarActivity {
 
         editUsername = (EditText) findViewById(R.id.usernameEditSignUpActivity);
         editPassword = (EditText) findViewById(R.id.passwordEditSignUpActivity);
+        editPassword.setTransformationMethod(transf);
 
     }
 

@@ -67,6 +67,8 @@ public class SignInActivity extends ActionBarActivity {
     String prefUsername = null;
     String prefPassword = null;
 
+    MyTransformation transf = new MyTransformation();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +78,7 @@ public class SignInActivity extends ActionBarActivity {
         // Acquiring view elements from activty
         editUsername = (EditText) findViewById(R.id.usernameText);
         editPassword = (EditText) findViewById(R.id.passwordText);
+        editPassword.setTransformationMethod(transf);
         checkRememberMe = (CheckBox) findViewById(R.id.rememberMeCheckBox);
         checkSkip = (CheckBox) findViewById(R.id.skipCheckBox);
 

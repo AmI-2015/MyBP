@@ -2,6 +2,7 @@
 <resources>
 
     <!-- ############### ACTION NAMES ################# -->
+    <string name="action_update_map">Update MyBPStations</string>
     <string name="action_mybp_station_next_to_me">Station next to me</string>
     <string name="action_sign_in">Back to sign in</string>
 
