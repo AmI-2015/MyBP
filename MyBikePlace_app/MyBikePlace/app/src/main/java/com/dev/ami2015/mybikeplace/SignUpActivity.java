@@ -46,6 +46,9 @@ public class SignUpActivity extends ActionBarActivity {
 
     MyTransformation transf = new MyTransformation();
 
+    // Shared Preference file
+    SharedPreferences userSettings = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +60,9 @@ public class SignUpActivity extends ActionBarActivity {
         editUsername = (EditText) findViewById(R.id.usernameEditSignUpActivity);
         editPassword = (EditText) findViewById(R.id.passwordEditSignUpActivity);
         editPassword.setTransformationMethod(transf);
+
+        // Creating shared preference file
+        userSettings = this.getSharedPreferences(getString(R.string.USER_SETTINGS), Context.MODE_PRIVATE);
 
     }
 
@@ -181,7 +187,15 @@ public class SignUpActivity extends ActionBarActivity {
                 // sign up completed successfully
                 errorSIGNUP = 0;
             }
-            goToSignInActivity(username,errorSIGNUP);
+
+            //Clear old check-box value value
+            SharedPreferences.Editor userSettingsEditor = userSettings.edit();
+            userSettingsEditor.putBoolean(getString(R.string.USER_SKIP), false);
+            userSettingsEditor.putBoolean(getString(R.string.USER_REMEMBER_ME), false);
+            userSettingsEditor.commit();
+
+            //start SignInActivity
+            goToSignInActivity(username, errorSIGNUP);
         }
     }
 
