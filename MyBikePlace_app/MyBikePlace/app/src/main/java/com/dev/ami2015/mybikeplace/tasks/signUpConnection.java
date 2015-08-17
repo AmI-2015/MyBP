@@ -79,7 +79,7 @@ public class signUpConnection extends AsyncTask<String , Void , JSONObject>  {
             conn.setUseCaches(false);
             conn.setRequestProperty("Content-Type", "application/json");//charset=utf-8");
             conn.setRequestProperty("Accept", "application/json");
-            //conn.setRequestProperty("Host", "http://192.168.56.1:7000");
+            conn.setConnectTimeout(2000);
 
             data = new JSONObject(headerRqst);
 

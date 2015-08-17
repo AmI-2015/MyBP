@@ -47,19 +47,25 @@ public class GetMyBPStationMarkersTask extends AsyncTask</*params*/ Void, /*prog
         try {
 
             JSONObject jsonObjectMyBPStations = MakePostRequestToMyBPServer(MYBPSERVER_STATION_SPEC_URL);
-            JSONArray jsonArrayMyBPStations = GetJsonMyBPStationList(jsonObjectMyBPStations);
 
-            myBPStationMarkers = GetMyBPStationMapMarkers(jsonArrayMyBPStations);
+            if (jsonObjectMyBPStations == null) {
+                //MyBPStation Download error
+                return null;
+            } else {
+                //No download error
+                JSONArray jsonArrayMyBPStations = GetJsonMyBPStationList(jsonObjectMyBPStations);
+                myBPStationMarkers = GetMyBPStationMapMarkers(jsonArrayMyBPStations);
+                return myBPStationMarkers;
+            }
 
-            return myBPStationMarkers;
-
-        } catch (IOException e) {
+        }catch(IOException e){
             return null;
-        } catch (JSONException e) {
+        }catch(JSONException e){
             e.printStackTrace();
             return myBPStationMarkers;
         }
     }
+
 
     @Override
     protected void onPostExecute(ArrayList<MyBPStationMarker> myBPStationMarkers) {
@@ -159,6 +165,7 @@ public class GetMyBPStationMarkersTask extends AsyncTask</*params*/ Void, /*prog
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setDoInput(true);
+            conn.setConnectTimeout(2000);
 
             // Starts the query
             conn.connect();

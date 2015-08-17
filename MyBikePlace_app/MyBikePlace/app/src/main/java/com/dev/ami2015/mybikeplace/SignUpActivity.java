@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.dev.ami2015.mybikeplace.tasks.signUpConnection;
 
@@ -167,14 +168,21 @@ public class SignUpActivity extends ActionBarActivity {
     public void setServerResponse(JSONObject serverResponse) throws JSONException {
 
         int errorSIGNUP = 0;
-        String errStr = serverResponse.getString("error_str");
-        if(Objects.equals(errStr, "ERROR_SIGNUP"))
-            errorSIGNUP = 1;
-        else {
-            // sign up completed successfully
-            errorSIGNUP = 0;
+        if(serverResponse == null){
+            //Connection error
+            Toast.makeText(this, "Connection error, try again.", Toast.LENGTH_LONG).show();
+        } else {
+            //No connection error
+
+            String errStr = serverResponse.getString("error_str");
+            if(Objects.equals(errStr, "ERROR_SIGNUP"))
+                errorSIGNUP = 1;
+            else {
+                // sign up completed successfully
+                errorSIGNUP = 0;
+            }
+            goToSignInActivity(username,errorSIGNUP);
         }
-        goToSignInActivity(username,errorSIGNUP);
     }
 
     public void goToSignInActivity(String userID, int error)

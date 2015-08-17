@@ -127,9 +127,6 @@ public class SignInActivity extends ActionBarActivity {
             case R.id.actionTestNFC:
                 TestNFC();
                 return  true;
-//            case R.id.actionGoToMap:
-//                GoToMaps();
-//                return true;
             default:
                 return super.onOptionsItemSelected(item);
 
@@ -246,26 +243,30 @@ public class SignInActivity extends ActionBarActivity {
     public void setServerResponse(JSONObject serverResponse, String user_code, String pwd_code) throws JSONException {
 
         int errorSIGNIN = 0;
-        String errStr = serverResponse.getString("error_str");
-        if (Objects.equals(errStr, "ERROR_SIGNIN"))
-            errorSIGNIN = 1;
-        else{
-            // Sign in was successful
-            errorSIGNIN = 0;
-            // Open editor to write inside Preference File the credentials (also if remember me is unchecked)
-            userSettingsEditor = userSettings.edit();
-            // save username and password inside user settings file
-            userSettingsEditor.putString(getString(R.string.USER_USERNAME), prefUsername);
-            userSettingsEditor.putString(getString(R.string.USER_PASSWORD), prefPassword);
-            userSettingsEditor.putString(getString(R.string.USER_USER_CODE), user_code);
-            userSettingsEditor.putString(getString(R.string.USER_PWD_CODE), pwd_code);
-//            userSettingsEditor.putString(getString(R.string.USER_PASSWORD), registration_id);
-            // COMMIT MODIFICATION!!!
-            userSettingsEditor.commit();
-        }
+        if(serverResponse == null){
+            //Connection error
+            Toast.makeText(this, "Connection error, try again.", Toast.LENGTH_LONG).show();
+        } else {
+            //No connection error
+            String errStr = serverResponse.getString("error_str");
+            if (Objects.equals(errStr, "ERROR_SIGNIN"))
+                errorSIGNIN = 1;
+            else {
+                // Sign in was successful
+                errorSIGNIN = 0;
+                // Open editor to write inside Preference File the credentials (also if remember me is unchecked)
+                userSettingsEditor = userSettings.edit();
+                // save username and password inside user settings file
+                userSettingsEditor.putString(getString(R.string.USER_USERNAME), prefUsername);
+                userSettingsEditor.putString(getString(R.string.USER_PASSWORD), prefPassword);
+                userSettingsEditor.putString(getString(R.string.USER_USER_CODE), user_code);
+                userSettingsEditor.putString(getString(R.string.USER_PWD_CODE), pwd_code);
+                // COMMIT MODIFICATION!!!
+                userSettingsEditor.commit();
+            }
 
-//        goToPersonalActivity(userID, errorSIGNIN); //Old Damian version
-        goToPersonalActivity(errorSIGNIN);
+            goToPersonalActivity(errorSIGNIN);
+        }
     }
 
 
@@ -296,38 +297,31 @@ public class SignInActivity extends ActionBarActivity {
 
     public void TestConnection() {
 
-        TextView connectionStatus = (TextView) findViewById(R.id.connectionStatusText);
 
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
         if (networkInfo != null && networkInfo.isConnected()) {
-            connectionStatus.setText("Internet connection is stable");
-            connectionStatus.setTextColor(getResources().getColor(R.color.green));
+            Toast.makeText(this, "Internet connection is stable", Toast.LENGTH_LONG).show();
         } else {
-            connectionStatus.setText("No internet Connection");
-            connectionStatus.setTextColor(getResources().getColor(R.color.red));
+            Toast.makeText(this, "No internet Connection", Toast.LENGTH_LONG).show();
         }
     }
 
     public void TestNFC(){
 
-        TextView NFCStatus = (TextView) findViewById(R.id.connectionStatusText);
         NfcAdapter mNfcAdapter = mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
         if (mNfcAdapter == null) {
             // No NFC compatibility
             Toast.makeText(this, "This device doesn't support NFC.", Toast.LENGTH_LONG).show();
-            finish();
         } else {
-
+            // NFC compatibility
             if (!mNfcAdapter.isEnabled()) {
-                NFCStatus.setText("NFC supported and disabled.");
-                NFCStatus.setTextColor(getResources().getColor(R.color.red));
+                Toast.makeText(this, "NFC supported but disabled.", Toast.LENGTH_LONG).show();
             } else {
-                NFCStatus.setText("NFC supported and enabled");
-                NFCStatus.setTextColor(getResources().getColor(R.color.green));
+                Toast.makeText(this, "NFC supported and enabled", Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -385,7 +379,7 @@ public class SignInActivity extends ActionBarActivity {
 
                 }
 
-            } else { //rememberMe check box is unchecked so just try to memeorize username and password
+            } else { //rememberMe check box is unchecked so just try to memorize username and password
 
                 //Do Nothing wait user action
             }

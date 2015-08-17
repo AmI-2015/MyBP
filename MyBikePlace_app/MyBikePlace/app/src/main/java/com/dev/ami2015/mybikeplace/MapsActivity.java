@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dev.ami2015.mybikeplace.tasks.GetMyBPStationMarkersTask;
 import com.dev.ami2015.mybikeplace.tasks.GetRoomMarkersTask;
@@ -151,20 +152,26 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         Marker currentMarker;
 
-        int len = receivedMyBPStationsMarkers.size();
-        for (int i = 0; i < len; i++) {
+        if(receivedMyBPStationsMarkers == null){
+            //no MyBPStation Marker received
+            Toast.makeText(this, "MyBPStation download error, try again.", Toast.LENGTH_LONG).show();
+        } else {
 
-            String markerName = String.valueOf(receivedMyBPStationsMarkers.get(i).stationID);
-            String markerDescription = String.valueOf(receivedMyBPStationsMarkers.get(i).freePlaces) + " / " +
-                    String.valueOf(receivedMyBPStationsMarkers.get(i).totalPlaces);
+            int len = receivedMyBPStationsMarkers.size();
+            for (int i = 0; i < len; i++) {
 
-            // Setting the MyBPStationInfoWindowAdapter to add the right infoWindow
-            googleMap.setInfoWindowAdapter(new MyBPStationInfoWindowAdapter());
+                String markerName = String.valueOf(receivedMyBPStationsMarkers.get(i).stationID);
+                String markerDescription = String.valueOf(receivedMyBPStationsMarkers.get(i).freePlaces) + " / " +
+                        String.valueOf(receivedMyBPStationsMarkers.get(i).totalPlaces);
 
-            currentMarker = map.addMarker(new MarkerOptions().title(markerName).snippet(markerDescription).position(receivedMyBPStationsMarkers.get(i).GetPosition()));
+                // Setting the MyBPStationInfoWindowAdapter to add the right infoWindow
+                googleMap.setInfoWindowAdapter(new MyBPStationInfoWindowAdapter());
 
-            myBPStationMarkersHM.put(receivedMyBPStationsMarkers.get(i), currentMarker);
+                currentMarker = map.addMarker(new MarkerOptions().title(markerName).snippet(markerDescription).position(receivedMyBPStationsMarkers.get(i).GetPosition()));
 
+                myBPStationMarkersHM.put(receivedMyBPStationsMarkers.get(i), currentMarker);
+
+            }
         }
     }
 
@@ -172,11 +179,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void ShowNearestMyBPStationToMe(){
 
         MyBPStationMarker nearestMyBPStationToMe = NearestMyBPStationToMe();
-        Marker marker = myBPStationMarkersHM.get(nearestMyBPStationToMe);
+        if(nearestMyBPStationToMe != null) {
+            Marker marker = myBPStationMarkersHM.get(nearestMyBPStationToMe);
 
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 17));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 17));
 
-        marker.showInfoWindow();
+            marker.showInfoWindow();
+        } else {
+            //No MyBPStation with free places available
+            Toast.makeText(this, "No MyBPStation available, try updating map.", Toast.LENGTH_LONG).show();
+        }
 
     }
 
@@ -197,31 +209,37 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // finds all stations with available free places
         ArrayList<MyBPStationMarker> myBPStationWithFreePlaces = FindFreeStations();
 
-        int len = myBPStationWithFreePlaces.size();
+        if(myBPStationWithFreePlaces != null) {
+            //MyBPStation with free places available
+            int len = myBPStationWithFreePlaces.size();
 
-        // nearestMyBPStation initialization
+            // nearestMyBPStation initialization
 
-        testedLocation.setLatitude(myBPStationWithFreePlaces.get(0).stationLat);
-        testedLocation.setLongitude(myBPStationWithFreePlaces.get(0).stationLng);
-        nearestMyBPStation = myBPStationWithFreePlaces.get(0);
+            testedLocation.setLatitude(myBPStationWithFreePlaces.get(0).stationLat);
+            testedLocation.setLongitude(myBPStationWithFreePlaces.get(0).stationLng);
+            nearestMyBPStation = myBPStationWithFreePlaces.get(0);
 
-        double distance = myLocation.distanceTo(testedLocation);
+            double distance = myLocation.distanceTo(testedLocation);
 
-        for(int i = 1; i < len; i++){
+            for (int i = 1; i < len; i++) {
 
-            //update testedLocation
-            testedLocation.setLatitude(myBPStationWithFreePlaces.get(i).stationLat);
-            testedLocation.setLongitude(myBPStationWithFreePlaces.get(i).stationLng);
+                //update testedLocation
+                testedLocation.setLatitude(myBPStationWithFreePlaces.get(i).stationLat);
+                testedLocation.setLongitude(myBPStationWithFreePlaces.get(i).stationLng);
 
-            if(myLocation.distanceTo(testedLocation) < distance){
+                if (myLocation.distanceTo(testedLocation) < distance) {
 
-                distance = myLocation.distanceTo(testedLocation);
-                nearestMyBPStation = myBPStationWithFreePlaces.get(i);
+                    distance = myLocation.distanceTo(testedLocation);
+                    nearestMyBPStation = myBPStationWithFreePlaces.get(i);
 
+                }
             }
-        }
 
-        return nearestMyBPStation;
+            return nearestMyBPStation;
+        } else {
+            //No MyBPStation with free places available
+            return null;
+        }
     }
 
     // searches MyBP station where i left my bike
@@ -261,18 +279,23 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         ArrayList<MyBPStationMarker> freeStation = new ArrayList<MyBPStationMarker>();
         MyBPStationMarker tmpMyBPStation;
 
-        int len = myBPStationMarkers.size();
-        for(int i = 0; i < len; i++){
+        if (myBPStationMarkers != null) {
+            int len = myBPStationMarkers.size();
+            for (int i = 0; i < len; i++) {
 
-            tmpMyBPStation = myBPStationMarkers.get(i);
+                tmpMyBPStation = myBPStationMarkers.get(i);
 
-            //add to the new MyBP Station list only station with free places available
-            if(tmpMyBPStation.freePlaces > 0 ){
-                freeStation.add(tmpMyBPStation);
+                //add to the new MyBP Station list only station with free places available
+                if (tmpMyBPStation.freePlaces > 0) {
+                    freeStation.add(tmpMyBPStation);
+                }
             }
-        }
 
-        return freeStation;
+            return freeStation;
+        } else {
+            //no stations downloaded
+            return null;
+        }
     }
 
     public class MyBPStationInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {

@@ -1,6 +1,8 @@
 package com.dev.ami2015.mybikeplace.tasks;
 
 import android.os.AsyncTask;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.dev.ami2015.mybikeplace.SignInActivity;
 
@@ -36,22 +38,6 @@ public class signInConnection extends AsyncTask<String , Void , JSONObject>  {
     }
 
     @Override
-    protected void onPostExecute(JSONObject serverResponse) {
-        super.onPostExecute(serverResponse);
-
-        try {
-            parentActivity.setServerResponse(serverResponse, user_code, pwd_code);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-
-//        //debug code
-//        parentActivity.goToPersonalActivity(0);
-
-    }
-
-    @Override
     protected JSONObject doInBackground(String... params) {
         JSONObject serverResponse= null;
 
@@ -64,10 +50,28 @@ public class signInConnection extends AsyncTask<String , Void , JSONObject>  {
             return serverResponse;
 
         } catch (IOException e) {
+            //something went wrong
             return null;
         }
 
     }
+
+    @Override
+    protected void onPostExecute(JSONObject serverResponse) {
+        super.onPostExecute(serverResponse);
+
+        try {
+            parentActivity.setServerResponse(serverResponse, user_code, pwd_code);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+//        //debug code
+//        parentActivity.goToPersonalActivity(0);
+
+    }
+
+
 
     public JSONObject MakePostRequestToServer(String myurl, String headerRqst) throws IOException {
 
@@ -88,6 +92,7 @@ public class signInConnection extends AsyncTask<String , Void , JSONObject>  {
             conn.setUseCaches(false);
             conn.setRequestProperty("Content-Type", "application/json");//charset=utf-8");
             conn.setRequestProperty("Accept", "application/json");
+            conn.setConnectTimeout(2000);
             //conn.setRequestProperty("Host", "http://192.168.56.1:7000");
 
             data = new JSONObject(headerRqst);
@@ -114,6 +119,10 @@ public class signInConnection extends AsyncTask<String , Void , JSONObject>  {
 
             wr.flush();
 
+
+            // Get the HTTP response
+            int responseCode = conn.getResponseCode();
+            Log.d(DEBUG_TAG, "The response is: " + responseCode);
             is = conn.getInputStream();
 
             // Convert the HTTP response (InputStream) into a string
