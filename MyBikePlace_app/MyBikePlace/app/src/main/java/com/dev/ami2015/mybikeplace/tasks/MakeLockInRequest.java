@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.dev.ami2015.mybikeplace.PersonalActivity;
 import com.dev.ami2015.mybikeplace.R;
@@ -30,6 +31,8 @@ public class MakeLockInRequest extends AsyncTask<Void, Void, Void>  {
     public static final String DEBUG_TAG = "HttpExample";
 
     public PersonalActivity parentActivity;
+
+    public String LockInResultStr = null;
 
     //Variable to set in Personal Activity
     String lockInStationID;
@@ -63,36 +66,14 @@ public class MakeLockInRequest extends AsyncTask<Void, Void, Void>  {
         try {
 
             JSONObject LockInResultJson = MakePostRequestToMyBPServer(MYBPSERVER_LOCK_IN_URL);
-            String LockInResult = LockInResultJson.getString("end");
+            if(LockInResultJson != null) {
+                //no connection error
+                LockInResultStr = LockInResultJson.getString("end");
+            } else {
+                //connection error
+                LockInResultStr = "error";
+            }
 
-
-//            if (LockInResult.equals("1"))
-//                //no error;
-//            else
-//                //error;
-
-            //the rest is theoretically useless, the LockIn request just has to start lock-in procedure, GetUsersInfoTask determinate the real status
-//
-//            //save obtained data from MYBPSERVER
-//            lockInStationIDResult = LockInResultJson.getString("station_id");
-//            lockInPlaceIDResult = LockInResultJson.getString("place_id");
-//
-//            if (lockInStationIDResult.equals("-1") || lockInPlaceIDResult.equals("-1") ||
-//                    !lockInStationIDResult.equals(lockInStationID) || !lockInPlaceIDResult.equals(lockInPlaceID)){
-//                //error from server, MyPU not locked
-//                userSettingsEditor = userSettings.edit();
-//                userSettingsEditor.putInt(parentActivity.getString(R.string.USER_STATUS), -1);
-//                userSettingsEditor.commit();
-//            } else if (lockInStationIDResult.equals(lockInStationID) && lockInPlaceIDResult.equals(lockInPlaceID)){
-//                //lock-in procedure successful
-//                userSettingsEditor = userSettings.edit();
-//                userSettingsEditor.putInt(parentActivity.getString(R.string.USER_STATUS), +1);
-//                userSettingsEditor.putString(parentActivity.getString(R.string.USER_BIKE_STATION_ID), lockInStationIDResult);
-//                userSettingsEditor.putString(parentActivity.getString(R.string.USER_BIKE_PLACE_ID), lockInPlaceIDResult);
-//                userSettingsEditor.commit();
-//            }
-//
-//
         } catch (IOException e) {
             return null;
         } catch (JSONException e) {
@@ -105,9 +86,14 @@ public class MakeLockInRequest extends AsyncTask<Void, Void, Void>  {
     protected void onPostExecute(Void v) {
         super.onPostExecute(v);
 
-        //Invoke GetInfoTask
-        new GetUsersInfoTask(parentActivity).execute();
-
+        if(LockInResultStr.equals("1")){
+            //everything fine in starting lock in request
+            //Invoke GetInfoTask
+            new GetUsersInfoTask(parentActivity).execute();
+        } else {
+            //Stop operation and "toast" the error
+            Toast.makeText(parentActivity, "Connection Error, try again.", Toast.LENGTH_LONG).show();
+        }
     }
 
     public JSONObject MakePostRequestToMyBPServer(String myurl) throws IOException {
@@ -140,6 +126,7 @@ public class MakeLockInRequest extends AsyncTask<Void, Void, Void>  {
             conn.setUseCaches(false);
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setRequestProperty("Accept", "application/json");
+            conn.setConnectTimeout(2000);
 
             //write json inside request
             OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());

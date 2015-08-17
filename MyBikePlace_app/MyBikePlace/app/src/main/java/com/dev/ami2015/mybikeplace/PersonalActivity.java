@@ -290,6 +290,8 @@ public class PersonalActivity extends ActionBarActivity {
         //Check Status value
         switch(MyPUStatus){
             case -1: //Error from server!
+                Toast.makeText(PersonalActivity.this, "Connection Error, try again.", Toast.LENGTH_LONG).show();
+                //without break to automatically set edittext field
             case -2: //Error inside app!
                 myPUBikeStatus.setText("ERROR");
                 myPUBikeStatus.setTextColor(getResources().getColor(R.color.red));

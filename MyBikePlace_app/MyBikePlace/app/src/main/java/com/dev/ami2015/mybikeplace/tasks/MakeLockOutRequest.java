@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.dev.ami2015.mybikeplace.PersonalActivity;
 import com.dev.ami2015.mybikeplace.R;
@@ -29,6 +30,8 @@ public class MakeLockOutRequest extends AsyncTask<Void, Void, Void> {
     public static final String DEBUG_TAG = "HttpExample";
 
     public PersonalActivity parentActivity;
+
+    public String LockOutResultStr = null;
 
     //Resutl from MYBPSERVER
     String lockOutStationID;
@@ -61,8 +64,13 @@ public class MakeLockOutRequest extends AsyncTask<Void, Void, Void> {
         try {
 
             JSONObject LockOutResultJson = MakePostRequestToMyBPServer(MYBPSERVER_LOCK_OUT_URL);
-
-            String LockOutResult = LockOutResultJson.getString("end");
+            if(LockOutResultJson != null) {
+                //no connection error
+                LockOutResultStr = LockOutResultJson.getString("end");
+            } else {
+                //connection error
+                LockOutResultStr = "error";
+            }
 
         } catch (IOException e) {
             return null;
@@ -77,15 +85,14 @@ public class MakeLockOutRequest extends AsyncTask<Void, Void, Void> {
     protected void onPostExecute(Void v) {
         super.onPostExecute(v);
 
-//        //Debug code begin
-//        userSettingsEditor = userSettings.edit();
-//        userSettingsEditor.putInt(this.parentActivity.getString(R.string.USER_STATUS), 1);
-//        userSettingsEditor.commit();
-//        //Debug code end
-
-        //Invoke GetUsersInfoTask
-        new GetUsersInfoTask(parentActivity).execute();
-
+        if(LockOutResultStr.equals("1")){
+            //everything fine in starting lock out request
+            //Invoke GetInfoTask
+            new GetUsersInfoTask(parentActivity).execute();
+        } else {
+            //Stop operation and "toast" the error
+            Toast.makeText(parentActivity, "Connection Error, try again.", Toast.LENGTH_LONG).show();
+            }
     }
 
 
@@ -119,6 +126,7 @@ public class MakeLockOutRequest extends AsyncTask<Void, Void, Void> {
             conn.setUseCaches(false);
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setRequestProperty("Accept", "application/json");
+            conn.setConnectTimeout(2000);
 
             //write json inside request
             OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());

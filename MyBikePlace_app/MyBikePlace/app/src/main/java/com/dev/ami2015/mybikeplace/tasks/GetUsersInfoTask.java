@@ -87,9 +87,9 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
         super.onPostExecute(v);
 
         //set preference file with the valid data
+        userSettingsEditor.putInt(this.parentActivity.getString(R.string.USER_STATUS), myPUStatus);
         userSettingsEditor.putString(this.parentActivity.getString(R.string.USER_BIKE_STATION_ID), myPUStationNumber);
         userSettingsEditor.putString(this.parentActivity.getString(R.string.USER_BIKE_PLACE_ID), myPUStationPlace);
-        userSettingsEditor.putInt(this.parentActivity.getString(R.string.USER_STATUS), myPUStatus);
         userSettingsEditor.commit();
 
 //        //Debug code begin
@@ -156,6 +156,7 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
             conn.setUseCaches(false);
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setRequestProperty("Accept", "application/json");
+            conn.setConnectTimeout(2000);
 
             //write json inside request
             OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
@@ -244,8 +245,13 @@ public class GetUsersInfoTask extends AsyncTask<Void, Void, Void> {
 
                 //Make Request to server
                 JSONObject JsonResponse = this.MakePostRequestToMyBPServer(MYBPSERVER_GET_INFO_URL);
-                this.ManageReceivedJson(JsonResponse);
-
+                if(JsonResponse != null) {
+                    this.ManageReceivedJson(JsonResponse);
+                } else {
+                    //error during http connection
+                    endPolling = true;
+                    myPUStatus = -1; //save error code
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {
