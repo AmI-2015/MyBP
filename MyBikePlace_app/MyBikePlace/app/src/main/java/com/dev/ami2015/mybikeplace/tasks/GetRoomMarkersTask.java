@@ -2,7 +2,9 @@ package com.dev.ami2015.mybikeplace.tasks;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.dev.ami2015.mybikeplace.RoomActivity;
 import com.dev.ami2015.mybikeplace.RoomMarker;
 import com.dev.ami2015.mybikeplace.MapsActivity;
 
@@ -32,11 +34,11 @@ public class GetRoomMarkersTask extends AsyncTask</*params*/ Void, /*progress no
     public static final String POLIORARI_URL ="http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_elenco_aule";
     public static final String DEBUG_TAG = "HttpExample";
 
-    public MapsActivity parentActivity;
+    public RoomActivity parentActivity;
 
 
     //costructor receives as parameter the parent activity that started the task
-    public GetRoomMarkersTask(MapsActivity activity){
+    public GetRoomMarkersTask(RoomActivity activity){
         this.parentActivity = activity;
     }
 
@@ -50,10 +52,10 @@ public class GetRoomMarkersTask extends AsyncTask</*params*/ Void, /*progress no
 
             JSONObject jsonObjectRooms = MakePostRequestToPoliOrari(POLIORARI_URL);
             JSONArray jsonArrayRooms = GetJsonRoomsList(jsonObjectRooms);
-
             roomMarker = GetRoomsMapMarkers(jsonArrayRooms);
 
             return roomMarker;
+
 
         } catch (IOException e) {
             return null;
@@ -67,8 +69,7 @@ public class GetRoomMarkersTask extends AsyncTask</*params*/ Void, /*progress no
     protected void onPostExecute(ArrayList<RoomMarker> roomMarkers) {
         super.onPostExecute(roomMarkers);
 
-        //we don't need to load rooms marker directly inside maps
-        parentActivity.setAllRoomMarkerInMap(parentActivity.getMap(), roomMarkers);
+        parentActivity.PutAllRoomMarkersInList(roomMarkers);
 
     }
 
@@ -158,6 +159,7 @@ public class GetRoomMarkersTask extends AsyncTask</*params*/ Void, /*progress no
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setDoInput(true);
+            conn.setConnectTimeout(2000);
 
             // Starts the query
             conn.connect();

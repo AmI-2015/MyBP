@@ -133,8 +133,7 @@
 
         <activity
             android:name=".RoomActivity"
-            android:label="@string/title_activity_room"
-            android:parentActivityName=".MapsActivity" >
+            android:label="@string/title_activity_room" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.dev.ami2015.mybikeplace.MapsActivity" />

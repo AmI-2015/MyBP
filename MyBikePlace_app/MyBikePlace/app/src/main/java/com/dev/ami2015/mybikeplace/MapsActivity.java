@@ -24,7 +24,7 @@ import java.util.HashMap;
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     Intent mapsIntent;
-    ArrayList<RoomMarker> roomsMarkers;
+//    ArrayList<RoomMarker> roomsMarkers;
     GoogleMap googleMap;
 
     public ArrayList<MyBPStationMarker> myBPStationMarkers;
@@ -49,9 +49,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Intent intent = getIntent();
         String calling_activity = intent.getStringExtra(SignInActivity.EXTRA_CALL_FROM);
 
-        if (calling_activity.equals("PersonalActivity")){
-            stationId = intent.getStringExtra(PersonalActivity.EXTRA_STATION_ID);
-            showMyStation = true;
+        if(calling_activity != null){
+            //no exception
+            if (calling_activity.equals("PersonalActivity")){
+                stationId = intent.getStringExtra(PersonalActivity.EXTRA_STATION_ID);
+                showMyStation = true;
+            }
+        } else {
+            //exception... keep working
         }
     }
 
@@ -63,24 +68,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         map.setMyLocationEnabled(true);
 
-//        // Setting the MyBPStationInfoWindowAdapter to add the right infoWindow
-//        googleMap.setInfoWindowAdapter(new MyBPStationInfoWindowAdapter());
-
-
         //set initial marker: Politecnico di Torino
         RoomMarker poliMarker = new RoomMarker("Politecnico", "Universita' di Torino", 45.062936, 7.660747);
 
-        //don't show politecnico marker
-        //setMarkerInMap(map, poliMarker);
-
         //move camera to initial marker
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(poliMarker.GetPosition(), 14));
-
         map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-
-        //still not used
-//        //load all the room markers with an asyncTask
-//        new GetRoomMarkersTask(this).execute();
 
         //load all the MyBP Stations markers with an asyncTask
         new GetMyBPStationMarkersTask(this).execute();
@@ -130,24 +123,25 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    //rooms marker are received from PoliOrari API and inserted in map
-    public void setAllRoomMarkerInMap(GoogleMap map, ArrayList<RoomMarker> receivedRoomsMarkers){
-
-        Marker currentMarker;
-
-        roomsMarkers = receivedRoomsMarkers;
-
-        int len = roomsMarkers.size();
-        for (int i = 0; i < len; i++){
-
-            //setting room marker without making it visible
-            currentMarker = map.addMarker(new MarkerOptions().title(roomsMarkers.get(i).markerName).snippet(roomsMarkers.get(i).markerDescription).position(roomsMarkers.get(i).GetPosition()).visible(false));
-
-            roomMarkersHM.put(roomsMarkers.get(i), currentMarker);
-
-        }
-
-    }
+//    //rooms marker are received from PoliOrari API and inserted in map
+//    public void SaveAllRoomMarkers(GoogleMap map, ArrayList<RoomMarker> receivedRoomsMarkers){
+//
+//        Marker currentMarker;
+//
+//        roomsMarkers = receivedRoomsMarkers;
+//
+//        //debug code
+//        int len = roomsMarkers.size();
+//        for (int i = 0; i < len; i++){
+//
+//            //setting room marker without making it visible
+//            currentMarker = map.addMarker(new MarkerOptions().title(roomsMarkers.get(i).markerName).snippet(roomsMarkers.get(i).markerDescription).position(roomsMarkers.get(i).GetPosition()).visible(false));
+//
+//            roomMarkersHM.put(roomsMarkers.get(i), currentMarker);
+//
+//        }
+//
+//    }
 
 
     //MyBP station markers are received from MyBPServer API and inserted in map
