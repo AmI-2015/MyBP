@@ -204,8 +204,10 @@ public class SignUpActivity extends ActionBarActivity {
         Intent i = new Intent(this, SignInActivity.class);
         if(error == 1)
         {
-            editUsername.setText("ERROR SIGN UP! THIS USER ALREADY EXISTS");
+            editUsername.setText("");
             editPassword.setText("");
+            Toast.makeText(this, "Error, this username is already taken. Try again!", Toast.LENGTH_LONG).show();
+
         }
         else {
             i.putExtra(EXTRA_USERNAME, userID);

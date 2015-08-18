@@ -183,11 +183,11 @@ public class PersonalActivity extends ActionBarActivity {
                 Intent comeBackIntent = new Intent(this, SignInActivity.class);
                 startActivity(comeBackIntent);
                 return true;
-            case R.id.action_clear_remember_me_checkbox:
-                userSettingsEditor = userSettings.edit();
-                userSettingsEditor.putBoolean(getString(R.string.USER_REMEMBER_ME), false);
-                userSettingsEditor.commit();
-                return true;
+//            case R.id.action_clear_remember_me_checkbox:
+//                userSettingsEditor = userSettings.edit();
+//                userSettingsEditor.putBoolean(getString(R.string.USER_REMEMBER_ME), false);
+//                userSettingsEditor.commit();
+//                return true;
             case R.id.action_update_status:
 
 //                //Debug code begin

@@ -18,7 +18,8 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="20dp" />
+        android:layout_marginTop="20dp"
+        android:gravity="center_horizontal" />
 
     <TableLayout
         android:layout_width="wrap_content"

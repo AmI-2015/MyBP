@@ -74,11 +74,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //setMarkerInMap(map, poliMarker);
 
         //move camera to initial marker
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(poliMarker.GetPosition(), 13));
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(poliMarker.GetPosition(), 14));
 
         map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
-        //still not used cause we don't have calendar task
+        //still not used
 //        //load all the room markers with an asyncTask
 //        new GetRoomMarkersTask(this).execute();
 
@@ -108,6 +108,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return true;
             case R.id.action_mybp_station_next_to_me:
                 ShowNearestMyBPStationToMe();
+                return true;
+            case R.id.action_mybp_station_next_to_room:
+                GoToRoomActivity();
                 return true;
             case R.id.action_sign_in:
                 //Opening shared preference file
@@ -377,6 +380,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //load all the MyBP Stations markers with an asyncTask
         new GetMyBPStationMarkersTask(this).execute();
+
+    }
+
+    //invoked when pressed the room option in the menu
+    public void GoToRoomActivity(){
+
+        mapsIntent = new Intent(this, RoomActivity.class);
+        startActivity(mapsIntent);
 
     }
 

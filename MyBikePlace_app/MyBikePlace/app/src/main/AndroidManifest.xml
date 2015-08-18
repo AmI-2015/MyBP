@@ -32,11 +32,12 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     -->
 
+
     <!-- MyBikePlace needs NFC feature -->
-    <uses-feature android:name="android.hardware.nfc"/>
+    <uses-feature android:name="android.hardware.nfc" />
 
     <!-- MyBikePlace needs NFC permission -->
-    <uses-permission android:name="android.permission.NFC"/>
+    <uses-permission android:name="android.permission.NFC" />
 
     <!--
     the below feature is used on google play to prevent download by devices
@@ -50,7 +51,6 @@
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
-
         android:allowBackup="true"
         android:icon="@drawable/mybp_icon_xhdpi"
         android:theme="@style/AppTheme" >
@@ -67,19 +67,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- end Splash Screen-->
+        <!-- end Splash Screen -->
 
         <activity
             android:name=".SignInActivity"
             android:label="@string/app_name" >
 
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
 
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
 
-            <!--intent filter for NFC tag-->
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
+
+
+            <!-- intent filter for NFC tag -->
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
 
@@ -91,14 +93,11 @@
             <meta-data
                 android:name="android.nfc.action.TECH_DISCOVERED"
                 android:resource="@xml/nfc_tech_filter" />
-
         </activity>
-
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_map" >
         </activity>
-
         <activity
             android:name=".SignUpActivity"
             android:label="@string/title_activity_sign_up"
@@ -107,10 +106,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".SignInActivity" />
         </activity>
-
         <activity
             android:name=".PersonalActivity"
-            android:label="@string/title_activity_personal">
+            android:label="@string/title_activity_personal" >
         </activity>
 
         <!-- Follow line to abilitate maps download -->
@@ -120,7 +118,6 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBgeFxs85Xg0-IkwbBn0HqZq3jvG7VEq9Y" />
-
 
         <receiver
             android:name=".GcmBroadcastReceiver"
@@ -134,6 +131,14 @@
 
         <service android:name=".GcmMessageHandler" />
 
+        <activity
+            android:name=".RoomActivity"
+            android:label="@string/title_activity_room"
+            android:parentActivityName=".MapsActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.dev.ami2015.mybikeplace.MapsActivity" />
+        </activity>
     </application>
 
 </manifest>

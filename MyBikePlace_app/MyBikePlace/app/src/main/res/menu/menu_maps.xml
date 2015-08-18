@@ -8,6 +8,8 @@
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_mybp_station_next_to_me" android:title="@string/action_mybp_station_next_to_me"
         android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_mybp_station_next_to_room" android:title="@string/action_mybp_station_next_to_room"
+        android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_sign_in" android:title="@string/action_sign_in"
         android:orderInCategory="100" app:showAsAction="never" />
 
