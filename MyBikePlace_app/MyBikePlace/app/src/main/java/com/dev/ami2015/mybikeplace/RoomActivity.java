@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class RoomActivity extends ActionBarActivity {
+public class  RoomActivity extends ActionBarActivity {
 
     ArrayList<RoomMarker> roomsMarkers;
 //    public HashMap<RoomMarker, Marker> roomMarkersHM= new HashMap<RoomMarker, Marker>(); //HM => HashMap
