@@ -50,7 +50,8 @@ public class  RoomActivity extends ActionBarActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_update_rooms) {
+            new GetRoomMarkersTask(this).execute();
             return true;
         }
 
@@ -65,32 +66,35 @@ public class  RoomActivity extends ActionBarActivity {
         //check downloaded data
         if(roomsMarkers == null){
             //download error
-            Toast.makeText(this, "Room download error, try again.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Room download error, try update rooms.", Toast.LENGTH_LONG).show();
+            RoomMarker errorMarker = new RoomMarker("download error","no data", -1.0,-1.0);
+            roomsMarkers = new ArrayList<RoomMarker>();
+            roomsMarkers.add(errorMarker);
             //do something with the list
-        } else {
-            //populate the list with data
-            // Create the adapter to convert the array to views
-            final RoomAdapter adapter = new RoomAdapter(this, roomsMarkers);
-            // Attach the adapter to a ListView
-            ListView listView = (ListView) findViewById(R.id.roomList);
-            listView.setAdapter(adapter);
-
-            //enables filtering for the contents of the given ListView
-            listView.setTextFilterEnabled(true);
-
-            EditText roomFilter = (EditText) findViewById(R.id.roomFilter);
-            roomFilter.addTextChangedListener(new TextWatcher() {
-
-                public void afterTextChanged(Editable s) {
-                }
-
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
-
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    adapter.getFilter().filter(s.toString());
-                }
-            });
         }
+
+        //populate the list with data
+        // Create the adapter to convert the array to views
+        final RoomAdapter adapter = new RoomAdapter(this, roomsMarkers);
+        // Attach the adapter to a ListView
+        ListView listView = (ListView) findViewById(R.id.roomList);
+        listView.setAdapter(adapter);
+
+        //enables filtering for the contents of the given ListView
+        listView.setTextFilterEnabled(true);
+
+        EditText roomFilter = (EditText) findViewById(R.id.roomFilter);
+        roomFilter.addTextChangedListener(new TextWatcher() {
+
+            public void afterTextChanged(Editable s) {
+            }
+
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.getFilter().filter(s.toString());
+            }
+        });
     }
 }

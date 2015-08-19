@@ -51,11 +51,15 @@ public class GetRoomMarkersTask extends AsyncTask</*params*/ Void, /*progress no
         try {
 
             JSONObject jsonObjectRooms = MakePostRequestToPoliOrari(POLIORARI_URL);
-            JSONArray jsonArrayRooms = GetJsonRoomsList(jsonObjectRooms);
-            roomMarker = GetRoomsMapMarkers(jsonArrayRooms);
+            if(jsonObjectRooms != null) {
+                JSONArray jsonArrayRooms = GetJsonRoomsList(jsonObjectRooms);
+                roomMarker = GetRoomsMapMarkers(jsonArrayRooms);
 
-            return roomMarker;
-
+                return roomMarker;
+            } else {
+                //connection error
+                return null;
+            }
 
         } catch (IOException e) {
             return null;

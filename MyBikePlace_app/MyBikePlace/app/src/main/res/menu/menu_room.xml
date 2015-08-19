@@ -2,6 +2,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.dev.ami2015.mybikeplace.RoomActivity">
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
+    <item android:id="@+id/action_update_rooms" android:title="@string/action_room_update"
         android:orderInCategory="100" app:showAsAction="never" />
 </menu>
