@@ -2,8 +2,12 @@ package com.dev.ami2015.mybikeplace;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.dev.ami2015.mybikeplace.tasks.GetRoomMarkersTask;
@@ -27,6 +31,7 @@ public class RoomActivity extends ActionBarActivity {
 
         //load all the room markers with an asyncTask
         new GetRoomMarkersTask(this).execute();
+
 
     }
 
@@ -64,18 +69,28 @@ public class RoomActivity extends ActionBarActivity {
             //do something with the list
         } else {
             //populate the list with data
+            // Create the adapter to convert the array to views
+            final RoomAdapter adapter = new RoomAdapter(this, roomsMarkers);
+            // Attach the adapter to a ListView
+            ListView listView = (ListView) findViewById(R.id.roomList);
+            listView.setAdapter(adapter);
+
+            //enables filtering for the contents of the given ListView
+            listView.setTextFilterEnabled(true);
+
+            EditText roomFilter = (EditText) findViewById(R.id.roomFilter);
+            roomFilter.addTextChangedListener(new TextWatcher() {
+
+                public void afterTextChanged(Editable s) {
+                }
+
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    adapter.getFilter().filter(s.toString());
+                }
+            });
         }
-
-//        //debug code
-//        int len = roomsMarkers.size();
-//        for (int i = 0; i < len; i++){
-//
-//            //setting room marker without making it visible
-//            currentMarker = map.addMarker(new MarkerOptions().title(roomsMarkers.get(i).markerName).snippet(roomsMarkers.get(i).markerDescription).position(roomsMarkers.get(i).GetPosition()).visible(false));
-//
-//            roomMarkersHM.put(roomsMarkers.get(i), currentMarker);
-//
-//        }
-
     }
 }

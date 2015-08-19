@@ -8,7 +8,8 @@
     <string name="title_activity_sign_in">MySignIn</string>
     <string name="title_activity_personal">MyPage</string>
 
-    <string name="IP_SERVER">http://192.168.56.1:7000</string>
+    <!--<string name="IP_SERVER">http://192.168.56.1:7000</string>-->
+    <string name="IP_SERVER">http://192.168.0.7:7000</string>
 
     <string name="from_server_notification_title_template">From server: %1$s</string>
 
@@ -29,7 +30,7 @@
     <string name="USER_NFC_ACTIVATION">user_nfc</string>
     <string name="USER_NFC_STATION_ID">user_nfc_station_id</string>
     <string name="USER_NFC_PLACE_ID">user_nfc_place_id</string>
-    <string name="title_activity_room">RoomActivity</string>
+    <string name="title_activity_room">Select a room</string>
 
     <string name="hello_world">Hello world!</string>
 
