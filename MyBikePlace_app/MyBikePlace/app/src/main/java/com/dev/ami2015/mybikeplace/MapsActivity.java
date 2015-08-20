@@ -34,6 +34,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     //Creating flag to differentiate intent and action
     public boolean showMyStation = false;
     public String stationId = null;
+    public String callingActivity = null;
+
+    //Data saved
+    public RoomMarker roomSelectedMarker = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,17 +51,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         showMyStation = false;
 
         Intent intent = getIntent();
-        String calling_activity = intent.getStringExtra(SignInActivity.EXTRA_CALL_FROM);
+        HandleIntent(intent);
 
-        if(calling_activity != null){
-            //no exception
-            if (calling_activity.equals("PersonalActivity")){
-                stationId = intent.getStringExtra(PersonalActivity.EXTRA_STATION_ID);
-                showMyStation = true;
-            }
-        } else {
-            //exception... keep working
-        }
     }
 
     @Override
@@ -100,7 +95,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 this.updateMyBPStationOnMap();
                 return true;
             case R.id.action_mybp_station_next_to_me:
-                ShowNearestMyBPStationToMe();
+                callingActivity = "MapsActivity";
+                new GetMyBPStationMarkersTask(this).execute();
                 return true;
             case R.id.action_mybp_station_next_to_room:
                 GoToRoomActivity();
@@ -152,6 +148,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if(receivedMyBPStationsMarkers == null){
             //no MyBPStation Marker received
             Toast.makeText(this, "MyBPStation download error, try again.", Toast.LENGTH_LONG).show();
+            showMyStation = false;
         } else {
 
             int len = receivedMyBPStationsMarkers.size();
@@ -328,7 +325,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             stationNumber.setText("MyBP Station n.: " + marker.getTitle());
             stationNumber.setAllCaps(true);
 
-            // Extracting free places string from snipper string
+            // Extracting free places string from snippet string
 
             String snippetStr = marker.getSnippet();
             String freePlacesStr = "";
@@ -372,6 +369,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     //invoked to update MyBPStation status on map
     public void updateMyBPStationOnMap(){
 
+        callingActivity = null;
         //load all the MyBP Stations markers with an asyncTask
         new GetMyBPStationMarkersTask(this).execute();
 
@@ -385,4 +383,96 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    public void HandleIntent(Intent intent) {
+
+        callingActivity = intent.getStringExtra(SignInActivity.EXTRA_CALL_FROM);
+
+        if (callingActivity != null) {
+            //no exception
+            if (callingActivity.equals("PersonalActivity")) {
+                stationId = intent.getStringExtra(PersonalActivity.EXTRA_STATION_ID);
+                showMyStation = true;
+            } else if(callingActivity.equals("RoomActivity")){
+                //save room info
+                String roomName = intent.getStringExtra("Name");
+                String roomDescritpion = intent.getStringExtra("Description");
+                Double roomLat = intent.getDoubleExtra("Latitude", -1.0);
+                Double roomLng = intent.getDoubleExtra("Longitude", -1.0);
+
+                roomSelectedMarker = new RoomMarker(roomName, roomDescritpion, roomLat, roomLng);
+
+            }
+        }
+    }
+
+    // Shows the nearest MyBPStation to room selected by user
+    public void ShowNearestMyBPStationToRoom(){
+
+        MyBPStationMarker nearestMyBPStationToRoom = NearestMyBPStationToRoom();
+        if(nearestMyBPStationToRoom != null) {
+
+            String markerName = String.valueOf(nearestMyBPStationToRoom.stationID);
+            String markerDescription = String.valueOf(nearestMyBPStationToRoom.freePlaces) + " / " +
+                    String.valueOf(nearestMyBPStationToRoom.totalPlaces);
+
+            // Setting the MyBPStationInfoWindowAdapter to add the right infoWindow
+            googleMap.setInfoWindowAdapter(new MyBPStationInfoWindowAdapter());
+
+            Marker mybpStationMarker = getMap().addMarker(new MarkerOptions().title(markerName).snippet(markerDescription).position(nearestMyBPStationToRoom.GetPosition()));
+
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mybpStationMarker.getPosition(), 17));
+            mybpStationMarker.showInfoWindow();
+
+        } else {
+            //No MyBPStation with free places available
+            Toast.makeText(this, "No MyBPStation available, try updating map.", Toast.LENGTH_LONG).show();
+        }
+
+    }
+
+    // Searches the nearest myBpstation to room selected by user only among stations with free places available
+    public MyBPStationMarker NearestMyBPStationToRoom(){
+
+
+        Location selectedRoom = new Location("");
+        selectedRoom.setLatitude(roomSelectedMarker.markerLat);
+        selectedRoom.setLongitude(roomSelectedMarker.markerLng);
+        Location testedLocation = new Location("");
+        MyBPStationMarker nearestMyBPStation = null;
+
+        // finds all stations with available free places
+        ArrayList<MyBPStationMarker> myBPStationWithFreePlaces = FindFreeStations();
+
+        if(myBPStationWithFreePlaces != null) {
+            //MyBPStation with free places available
+            int len = myBPStationWithFreePlaces.size();
+
+            // nearestMyBPStation initialization
+
+            testedLocation.setLatitude(myBPStationWithFreePlaces.get(0).stationLat);
+            testedLocation.setLongitude(myBPStationWithFreePlaces.get(0).stationLng);
+            nearestMyBPStation = myBPStationWithFreePlaces.get(0);
+
+            double distance = selectedRoom.distanceTo(testedLocation);
+
+            for (int i = 1; i < len; i++) {
+
+                //update testedLocation
+                testedLocation.setLatitude(myBPStationWithFreePlaces.get(i).stationLat);
+                testedLocation.setLongitude(myBPStationWithFreePlaces.get(i).stationLng);
+
+                if (selectedRoom.distanceTo(testedLocation) < distance) {
+
+                    distance = selectedRoom.distanceTo(testedLocation);
+                    nearestMyBPStation = myBPStationWithFreePlaces.get(i);
+
+                }
+            }
+
+            return nearestMyBPStation;
+        } else {
+            //No MyBPStation with free places available
+            return null;
+        }
+    }
 }

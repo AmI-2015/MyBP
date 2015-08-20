@@ -72,13 +72,50 @@ public class GetMyBPStationMarkersTask extends AsyncTask</*params*/ Void, /*prog
         super.onPostExecute(myBPStationMarkers);
 
         parentActivity.myBPStationMarkers = myBPStationMarkers;
-        parentActivity.setAllMyBPStationMarkerInMap(parentActivity.getMap(), myBPStationMarkers);
 
-        if(parentActivity.showMyStation) {
-            parentActivity.ShowMyStation(parentActivity.stationId);
-            parentActivity.showMyStation = false;
+        if(parentActivity.callingActivity == null){
+            parentActivity.setAllMyBPStationMarkerInMap(parentActivity.getMap(), myBPStationMarkers);
+        } else {
+
+            switch (parentActivity.callingActivity){
+                case "MapsActivity":
+                    parentActivity.setAllMyBPStationMarkerInMap(parentActivity.getMap(), myBPStationMarkers);
+                    parentActivity.ShowNearestMyBPStationToMe();
+                case "SignInActivity":
+                    parentActivity.setAllMyBPStationMarkerInMap(parentActivity.getMap(), myBPStationMarkers);
+
+                    if (parentActivity.showMyStation) {
+                        parentActivity.ShowMyStation(parentActivity.stationId);
+                        parentActivity.showMyStation = false;
+                    }
+
+                    break;
+                case "RoomActivity":
+                    //after the download only the closest MyBPStation to the selected room (and the room) marker
+                    //are showed in the map
+                    parentActivity.ShowNearestMyBPStationToRoom();
+                    break;
+                default:
+                    break;
+
+            }
         }
 
+//
+////        if(!parentActivity.callingActivity.equals(null)) {
+//            if (parentActivity.callingActivity.equals("RoomActivity")) {
+//                //after the download only the closest MyBPStation to the selected room (and the room) marker
+//                //are showed in the map
+//                parentActivity.ShowNearestMyBPStationToRoom();
+//            }
+////        } else {
+//            parentActivity.setAllMyBPStationMarkerInMap(parentActivity.getMap(), myBPStationMarkers);
+//
+//            if (parentActivity.showMyStation) {
+//                parentActivity.ShowMyStation(parentActivity.stationId);
+//                parentActivity.showMyStation = false;
+//            }
+////        }
     }
 
     // Given a URL, establishes an HttpUrlConnection and retrieves

@@ -1,11 +1,14 @@
 package com.dev.ami2015.mybikeplace;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -23,6 +26,8 @@ public class  RoomActivity extends ActionBarActivity {
 
     ArrayList<RoomMarker> roomsMarkers;
 //    public HashMap<RoomMarker, Marker> roomMarkersHM= new HashMap<RoomMarker, Marker>(); //HM => HashMap
+    RoomActivity context;
+    Intent roomActivityIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +36,7 @@ public class  RoomActivity extends ActionBarActivity {
 
         //load all the room markers with an asyncTask
         new GetRoomMarkersTask(this).execute();
-
+        context = this;
 
     }
 
@@ -79,6 +84,24 @@ public class  RoomActivity extends ActionBarActivity {
         // Attach the adapter to a ListView
         ListView listView = (ListView) findViewById(R.id.roomList);
         listView.setAdapter(adapter);
+
+        //enable click on item of the list
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                final RoomMarker selectedRoom = (RoomMarker) parent.getItemAtPosition(position);
+//                Toast.makeText(context, (CharSequence) selectedRoom.markerName, Toast.LENGTH_LONG).show();
+                //when a room is selected maps activity is opened and the correct station is displayed
+                roomActivityIntent = new Intent(context, MapsActivity.class);
+                roomActivityIntent.putExtra("Name", selectedRoom.markerName);
+                roomActivityIntent.putExtra("Description", selectedRoom.markerDescription);
+                roomActivityIntent.putExtra("Latitude", selectedRoom.markerLat);
+                roomActivityIntent.putExtra("Longitude", selectedRoom.markerLng);
+                roomActivityIntent.putExtra(SignInActivity.EXTRA_CALL_FROM, "RoomActivity");
+                startActivity(roomActivityIntent);
+
+            }
+        });
 
         //enables filtering for the contents of the given ListView
         listView.setTextFilterEnabled(true);
