@@ -89,10 +89,11 @@ public class RoomAdapter extends ArrayAdapter<RoomMarker> implements Filterable{
                         //In this loop, you'll filter through originalData and compare each item to charSequence.
                         //If you find a match, add it to your new ArrayList
                         //I'm not sure how you're going to do comparison, so you'll need to fill out this conditional
-                        if( data.markerName.toLowerCase().startsWith(charSequence.toString().toLowerCase()))
+                        if( data.markerName.toLowerCase().contains(charSequence.toString().toLowerCase()))
                         {
                             filterResultsData.add(data);
                         }
+
                     }
 
                     results.values = filterResultsData;
