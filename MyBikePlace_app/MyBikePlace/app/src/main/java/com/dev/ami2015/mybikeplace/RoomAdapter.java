@@ -18,6 +18,7 @@ import java.util.HashMap;
 /**
  * Created by Zephyr on 19/08/2015.
  */
+
 public class RoomAdapter extends ArrayAdapter<RoomMarker> implements Filterable{
 
     private ArrayList<RoomMarker> originalData = null;

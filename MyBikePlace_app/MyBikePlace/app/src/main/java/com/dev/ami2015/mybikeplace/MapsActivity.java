@@ -38,6 +38,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //Data saved
     public RoomMarker roomSelectedMarker = null;
+    public MyBPStationMarker stationSelectedMarker = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +94,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             case R.id.action_update_map:
                 this.updateMyBPStationOnMap();
+                return true;
+            case R.id.action_stations:
+                mapsIntent = new Intent(this, MyBPStationsActivity.class);
+                mapsIntent.putParcelableArrayListExtra("MyBPStations", myBPStationMarkers);
+                startActivity(mapsIntent);
                 return true;
             case R.id.action_mybp_station_next_to_me:
                 callingActivity = "MapsActivity";
@@ -401,6 +407,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 roomSelectedMarker = new RoomMarker(roomName, roomDescritpion, roomLat, roomLng);
 
+            } else if(callingActivity.equals("StationActivity")){
+                //save the selected station
+                stationSelectedMarker = intent.getParcelableExtra("selectedStation");
             }
         }
     }

@@ -138,6 +138,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.dev.ami2015.mybikeplace.MapsActivity" />
         </activity>
+        <activity
+            android:name=".MyBPStationsActivity"
+            android:label="@string/title_activity_my_bpstations"
+            android:parentActivityName=".MapsActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.dev.ami2015.mybikeplace.MapsActivity" />
+        </activity>
     </application>
 
 </manifest>

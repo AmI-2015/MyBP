@@ -4,7 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 
 public class MyBPStationMarker implements Parcelable {
     public int stationID;
@@ -85,4 +84,5 @@ public class MyBPStationMarker implements Parcelable {
 
         return position;
     }
+
 }

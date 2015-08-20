@@ -81,6 +81,7 @@ public class GetMyBPStationMarkersTask extends AsyncTask</*params*/ Void, /*prog
                 case "MapsActivity":
                     parentActivity.setAllMyBPStationMarkerInMap(parentActivity.getMap(), myBPStationMarkers);
                     parentActivity.ShowNearestMyBPStationToMe();
+                    break;
                 case "SignInActivity":
                     parentActivity.setAllMyBPStationMarkerInMap(parentActivity.getMap(), myBPStationMarkers);
 
@@ -94,6 +95,11 @@ public class GetMyBPStationMarkersTask extends AsyncTask</*params*/ Void, /*prog
                     //after the download only the closest MyBPStation to the selected room (and the room) marker
                     //are showed in the map
                     parentActivity.ShowNearestMyBPStationToRoom();
+                    break;
+                case "StationActivity":
+                    // the selected station has to be focused on the map
+                    parentActivity.setAllMyBPStationMarkerInMap(parentActivity.getMap(), myBPStationMarkers);
+                    parentActivity.ShowMyStation(Integer.toString(parentActivity.stationSelectedMarker.stationID));
                     break;
                 default:
                     break;
