@@ -396,8 +396,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (callingActivity != null) {
             //no exception
             if (callingActivity.equals("PersonalActivity")) {
-                stationId = intent.getStringExtra(PersonalActivity.EXTRA_STATION_ID);
-                showMyStation = true;
+                if(intent.getBooleanExtra("bikeOnMap", false)) {
+                    //we have to look for the user bike station
+                    stationId = intent.getStringExtra(PersonalActivity.EXTRA_STATION_ID);
+                    showMyStation = true;
+                }
             } else if(callingActivity.equals("RoomActivity")){
                 //save room info
                 String roomName = intent.getStringExtra("Name");

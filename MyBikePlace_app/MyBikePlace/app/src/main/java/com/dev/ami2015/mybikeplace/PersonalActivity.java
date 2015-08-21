@@ -200,7 +200,8 @@ public class PersonalActivity extends ActionBarActivity {
                 return true;
             case R.id.action_go_to_maps:
                 Intent personalIntent = new Intent(this, MapsActivity.class);
-                personalIntent.putExtra(SignInActivity.EXTRA_CALL_FROM, "noBikeOnMap");
+                personalIntent.putExtra(SignInActivity.EXTRA_CALL_FROM, "PersonalActivity");
+                personalIntent.putExtra("bikeOnMap", false);
                 startActivity(personalIntent);
                 return true;
             default:
@@ -390,6 +391,8 @@ public class PersonalActivity extends ActionBarActivity {
             Intent intent = new Intent(this, MapsActivity.class);
             intent.putExtra(EXTRA_STATION_ID, stationId);
             intent.putExtra(SignInActivity.EXTRA_CALL_FROM, "PersonalActivity");
+            //flag to search my bike on the map
+            intent.putExtra("bikeOnMap", true);
             startActivity(intent);
 
         } else {

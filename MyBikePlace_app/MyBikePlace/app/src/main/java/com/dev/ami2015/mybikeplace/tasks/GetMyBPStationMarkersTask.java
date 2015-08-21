@@ -82,13 +82,15 @@ public class GetMyBPStationMarkersTask extends AsyncTask</*params*/ Void, /*prog
                     parentActivity.setAllMyBPStationMarkerInMap(parentActivity.getMap(), myBPStationMarkers);
                     parentActivity.ShowNearestMyBPStationToMe();
                     break;
-                case "SignInActivity":
+                case "PersonalActivity":
                     parentActivity.setAllMyBPStationMarkerInMap(parentActivity.getMap(), myBPStationMarkers);
 
                     if (parentActivity.showMyStation) {
                         parentActivity.ShowMyStation(parentActivity.stationId);
                         parentActivity.showMyStation = false;
                     }
+                case "SignInActivity":
+                    parentActivity.setAllMyBPStationMarkerInMap(parentActivity.getMap(), myBPStationMarkers);
 
                     break;
                 case "RoomActivity":

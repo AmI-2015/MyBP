@@ -286,8 +286,10 @@ public class SignInActivity extends ActionBarActivity {
 //        error = 0;
 
         if(error == 1) {
-            editUsername.setText("USER_ID or PWD ERRATE");
+            editUsername.setText("");
             editPassword.setText("");
+            Toast.makeText(this, "Wrong username or password, try again.", Toast.LENGTH_LONG).show();
+
         }
         else {
 //            i.putExtra(EXTRA_USERNAME, userID);
