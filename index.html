@@ -440,15 +440,10 @@ MyBP exploits a platform where the user can place his bike. (This platform is la
 					<h2><strong>functional requirements</strong><br /><br />
 				</h2>
                     
-                    <strong>MyBP</strong> provides a registration form to create a personal account of the user
-<br />
-                    <strong>MyBP</strong> provides a login, logout for users through the mobile app	 <br />
-                    <strong>MyBP</strong>  provides a live map of the free places on the mobile app for all the users<br />
-                    <strong>MyBP</strong> identifies an user exploiting an NFC tag	 <br />
-                      <strong>MyBP</strong> alerts the user if his bike is taken without Lock-out	 <br />
-                        
-    
-					</p>
+                  <p ><img src="images/pic30.jpg"></p>
+                        </p></p>
+                    <p ><img src="images/pic31.jpg"></p>
+
 				</header>
 						<footer class="major" style="text-align: center; width: 100%; margin: -80px 0 0 0;">
 						
@@ -458,19 +453,7 @@ MyBP exploits a platform where the user can place his bike. (This platform is la
         	</article>
 
 
-			<footer id="footer">
-<article id="pag10"></article>
-				
-                <header class="major">
-							<h2><strong>non-functional requirements</strong></h2>
-						</header>
-                <p><strong>MyBp</strong> needs to be compatible with Android<br />
-                    <strong>MyBp</strong> needs to be on according to the timetable of the Polito’s Campus (provided through Google Calendar).
-<br />
-                    <strong>MyBp</strong> exploits researching algorithms directly using Google Maps<br /><br />
-                    The registration at the stand has to occur in a time interval under one second
- <br />
-			</footer>
+			
 
 
 
@@ -485,7 +468,7 @@ MyBP exploits a platform where the user can place his bike. (This platform is la
                    
                     <strong>MyBP Server:</strong> hosts web application in python language. It gathers informations from all the system components. Users interact with it through the mobile app.<br/>
                        <strong>Database: </strong>stores data system in SQL language.<br/>
-                        <strong>Mobile App: </strong>the only access to all the MyBikePlace services. It will be developed for Android smartphone (version 2.1.1 or above) and it will represent the mobile computational node.<br/>
+                        <strong>Mobile App: </strong>the only access to all the MyBikePlace services. It will be developed for Android smartphone and it will represent the mobile computational node.<br/>
                        <strong>MyBP Station: </strong>set containing MyBP Board (sensing node), Raspberry (computational node) and bike log in stuff used by the mobile app (NFC-tag). They will be placed at each bike parking stand.<br/>
                         <strong>MyBP Board: </strong>made by bike platform (sensing node) and Status LEDs (give informations to the users about log in status).<br/>
                        <strong>Bike Platform : </strong>it is the (physical) platform on which the bike will be placed in order to activate the pressure sensor.<br/>
@@ -624,23 +607,27 @@ MyBP exploits a platform where the user can place his bike. (This platform is la
                     
                      	<br /><br /><h2>MyBP APPLICATION:</h2><br />
                     <p ><img src="images/pic21.jpg"></p>
-                    <br /><h2>THE MOBILE APPLICATION CONNECTION IS PROVIDED BY THE SERVER APPLICATION AND IT'S USED TO:</h2><br />
+                    <br /><h2>THE APP ALLOWS THE USER TO:</h2><br />
                     
                     
                      
-                    Request to server to find free places;<br />
-                    Request to server to find personal bike;<br />
-                    Request to server to Bike log-in procedure;<br />
-                    Request to server to Bike log-out procedure;<br />
-                    Request to server to User sign-up;<br />
-                    Request to server to User sign-out;<br />
-                    Manage GPS signal to determinate users position;<br />
-                    Manage camera to detect  QRcode;<br />
-                    Manage NFC chip to detect NFC tag;<br />
-                    Send alert notification<br />
-                    <strong>Manage account:</strong><br />
-                            app behavior personalisation<br />
-                            add personal daily timetable<br />
+                    See all the MyBPStations on the campus map<br />
+                    Control in real time the free places at each station simply scrolling a list<br />
+                    Find the closest MyBPStation next to them<br />
+                    Find the closest MyBPStation next to a specific classroom of the campus<br />
+                    
+                    <br /><h2>MOREOVER USERS CAN PERFORM A SIGN-UP ON THE APP TO BE REGISTERED ON OUR SERVER AND:</h2><br />
+                    
+                    
+                     
+                    Obtain the access to their "personal page" where check the bike status<br />
+                    Perform a manual or automatic* lock-in of their bike at one of the MyBPStations (*NFC required)<br />
+                    Perform a manual or automatic* lock-out of their bike (*NFC required)<br />
+                    Be allerted through a notification if their bike has been removed from the MyBPStation without a
+
+lock-out procedure<br />
+                     Re-find on the map where their parked the bike<br />
+                   
 
 
 
