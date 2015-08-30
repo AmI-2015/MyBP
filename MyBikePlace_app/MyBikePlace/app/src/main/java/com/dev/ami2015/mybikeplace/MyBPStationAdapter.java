@@ -48,7 +48,11 @@ public class MyBPStationAdapter extends ArrayAdapter<MyBPStationMarker> {
 
         // Set Row background color depending on Free/Tot places
         if (station.freePlaces > 0){
-            convertView.setBackgroundColor(getContext().getResources().getColor(R.color.green));
+            if (station.freePlaces <= (station.totalPlaces/3)){
+                convertView.setBackgroundColor(getContext().getResources().getColor(R.color.yellow));
+            } else {
+                convertView.setBackgroundColor(getContext().getResources().getColor(R.color.green));
+            }
         } else {
             convertView.setBackgroundColor(getContext().getResources().getColor(R.color.red));
         }

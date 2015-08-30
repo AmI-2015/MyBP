@@ -86,10 +86,13 @@ public class MakeLockInRequest extends AsyncTask<Void, Void, Void>  {
     protected void onPostExecute(Void v) {
         super.onPostExecute(v);
 
-        if(LockInResultStr.equals("1")){
+        if (LockInResultStr.equals("1")) {
             //everything fine in starting lock in request
             //Invoke GetInfoTask
             new GetUsersInfoTask(parentActivity).execute();
+        } else if (LockInResultStr.equals("0")){
+            //no free place when lock in request started
+            Toast.makeText(parentActivity, "No free place, lock-in stopped.", Toast.LENGTH_LONG).show();
         } else {
             //Stop operation and "toast" the error
             Toast.makeText(parentActivity, "Connection Error, try again.", Toast.LENGTH_LONG).show();

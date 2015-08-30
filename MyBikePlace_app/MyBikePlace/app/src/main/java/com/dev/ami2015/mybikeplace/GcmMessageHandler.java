@@ -61,7 +61,7 @@ public class GcmMessageHandler extends IntentService{
 
         Notification notification = new Notification.Builder(this).
                 setContentTitle("MyBP "+message).setAutoCancel(true).
-                setSmallIcon(R.mipmap.ic_launcher).
+                setSmallIcon(R.drawable.mybp_notification_icon_xhdpi).
                 setContentText(message).build();
 
 

@@ -47,7 +47,7 @@ public class MyBPStationsActivity extends ActionBarActivity {
         }
 
 
-        Collections.reverse(stationMarkers);
+//        Collections.reverse(stationMarkers);
 
 //        //debug stations
 //        stationMarkers.add(new MyBPStationMarker(4, 5.5, 6.6, 20, 0));

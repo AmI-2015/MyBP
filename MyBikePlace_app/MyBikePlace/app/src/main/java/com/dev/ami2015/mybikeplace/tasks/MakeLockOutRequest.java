@@ -89,10 +89,13 @@ public class MakeLockOutRequest extends AsyncTask<Void, Void, Void> {
             //everything fine in starting lock out request
             //Invoke GetInfoTask
             new GetUsersInfoTask(parentActivity).execute();
+        } else if (LockOutResultStr.equals("0")){
+            //no free place when lock in request started
+            Toast.makeText(parentActivity, "Free place, lock-out stopped.", Toast.LENGTH_LONG).show();
         } else {
             //Stop operation and "toast" the error
             Toast.makeText(parentActivity, "Connection Error, try again.", Toast.LENGTH_LONG).show();
-            }
+        }
     }
 
 

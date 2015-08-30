@@ -106,6 +106,7 @@ public class PersonalActivity extends ActionBarActivity {
 
     public void createNotification(String message){
 
+
         if (Objects.equals(message, "ALARM")) {
             AlertDialog.Builder builder = new AlertDialog.Builder(PersonalActivity.this);
             builder.setMessage("Have you dislocked the bike?")
@@ -326,6 +327,9 @@ public class PersonalActivity extends ActionBarActivity {
                 myBPStationPlace.setText(MyPUPlaceID);
                 myBPStationPlace.setTextColor(getResources().getColor(R.color.black));
                 myBPStationPlace.setEnabled(false);
+                break;
+            default:
+                break;
         }
 
     }
